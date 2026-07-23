@@ -1,0 +1,55 @@
+<section class="dashboard-view" aria-label="Panel principal">
+
+  <!-- Bienvenida -->
+  <h1 class="welcome-title">{{ welcomeTitle() }}</h1>
+
+  <!-- Grid principal: 1 col en mobile, 2 col en desktop -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+
+    <!-- Columna izquierda: Acciones -->
+    <div class="actions-column flex flex-col gap-4" role="group" aria-label="Acciones principales">
+      <button
+        mat-flat-button
+        class="action-btn"
+        aria-label="Crear una nueva salida"
+        (click)="onCrearSalida()"
+      >
+        Crear Salida
+      </button>
+
+      <button
+        mat-flat-button
+        class="action-btn action-btn--secondary"
+        aria-label="Agregar una salida existente"
+        (click)="onAgregarSalida()"
+      >
+        Agregar Salida
+      </button>
+    </div>
+
+    <!-- Columna derecha: Lista de salidas activas -->
+    <div class="salidas-card" role="region" aria-label="Mis Salidas Activas">
+      <h2 class="salidas-card__title">Mis Salidas Activas</h2>
+
+      @if (isEmpty()) {
+        <p class="salidas-card__empty" role="status">No tienes salidas activas en este momento.</p>
+      } @else {
+        <ul class="salidas-list" role="list">
+          @for (salida of salidasActivas(); track salida.id; let isFirst = $first) {
+            <li
+              class="salidas-list__item"
+              [class.salidas-list__item--active]="isFirst"
+              [attr.aria-current]="isFirst ? 'true' : null"
+              matRipple
+              [matRippleDisabled]="isFirst"
+            >
+              <span class="salidas-list__label">{{ salida.label }}</span>
+              <span class="salidas-list__description">{{ salida.description }}</span>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+
+  </div>
+</section>
