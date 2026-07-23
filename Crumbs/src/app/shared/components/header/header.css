@@ -1,0 +1,16 @@
+/**
+ * Estilos del componente Header.
+ * El layout principal se maneja con clases de Tailwind en el template.
+ * Aquí solo se agregan ajustes específicos del componente.
+ */
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+/* Ajuste para que el nav de tabs no tenga fondo extra */
+nav[mat-tab-nav-bar] {
+  --mdc-tab-indicator-active-indicator-color: var(--mat-sys-primary);
+  border-bottom: none;
+}
