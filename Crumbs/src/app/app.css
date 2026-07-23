@@ -1,0 +1,9 @@
+/**
+ * Estilos globales del componente raíz (AppComponent).
+ * Los estilos específicos se manejan en cada componente.
+ */
+
+:host {
+  display: block;
+  height: 100%;
+}

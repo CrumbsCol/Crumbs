@@ -1,0 +1,16 @@
+/**
+ * Estilos del MainLayout.
+ * Define la estructura de la página: header fijo arriba, contenido debajo.
+ */
+
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* El contenido principal ocupa todo el espacio restante debajo del header */
+.main-content {
+  flex: 1;
+  width: 100%;
+}

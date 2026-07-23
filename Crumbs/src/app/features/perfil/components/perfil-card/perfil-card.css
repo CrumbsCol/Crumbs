@@ -1,0 +1,10 @@
+/**
+ * Estilos del componente PerfilCard.
+ * Layout y colores se manejan con Tailwind en el template.
+ * Aquí se definen estilos adicionales del host.
+ */
+
+:host {
+  display: block;
+  width: 100%;
+}

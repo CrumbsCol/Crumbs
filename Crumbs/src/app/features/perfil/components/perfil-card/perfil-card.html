@@ -1,0 +1,61 @@
+<!-- Tarjeta de perfil: muestra avatar y datos del usuario (modo vista o edición) -->
+<div class="flex flex-col md:flex-row items-center md:items-start gap-10 py-12 px-6 justify-center">
+
+  <!-- Avatar del usuario -->
+  <div class="avatar-container flex items-center justify-center w-40 h-40 rounded-full bg-violet-100 shrink-0">
+    @if (!user().avatarUrl) {
+      <!-- Placeholder SVG: se muestra cuando no hay avatarUrl -->
+      <svg
+        class="w-24 h-24 text-violet-900"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+      >
+        <circle cx="12" cy="8" r="4" />
+        <path d="M12 14c-6 0-8 3-8 5v1h16v-1c0-2-2-5-8-5z" />
+      </svg>
+    } @else {
+      <!-- Foto real del usuario -->
+      <img
+        [src]="user().avatarUrl!"
+        [alt]="'Avatar de ' + user().nombre"
+        class="w-40 h-40 rounded-full object-cover"
+      />
+    }
+  </div>
+
+  <!-- Datos del usuario: modo edición o visualización -->
+  @if (editMode()) {
+    <!-- Modo edición: inputs con Material Form Fields -->
+    <div class="user-info flex flex-col space-y-4 w-full max-w-sm">
+      <mat-form-field appearance="outline">
+        <mat-label>Nombre</mat-label>
+        <input matInput [(ngModel)]="editNombre" placeholder="Nombre completo" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>UserName</mat-label>
+        <input matInput [(ngModel)]="editUserName" placeholder="Nombre de usuario" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Fecha de nacimiento</mat-label>
+        <input matInput [(ngModel)]="editFechaNacimiento" placeholder="dd/MM/yyyy" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Contraseña</mat-label>
+        <input matInput type="password" [(ngModel)]="editPassword" placeholder="Nueva contraseña" />
+      </mat-form-field>
+    </div>
+  } @else {
+    <!-- Modo visualización: solo texto -->
+    <div class="user-info flex flex-col space-y-4 text-gray-700">
+      <p class="text-base">{{ user().nombre }}</p>
+      <p class="text-base">{{ user().userName }}</p>
+      <p class="text-base">{{ user().fechaNacimiento }}</p>
+      <p class="text-base">Contraseña</p>
+    </div>
+  }
+</div>
