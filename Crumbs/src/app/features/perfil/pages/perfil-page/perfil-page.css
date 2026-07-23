@@ -1,0 +1,10 @@
+/**
+ * Estilos de la página PerfilPage.
+ * Layout y spacing se manejan con Tailwind en el template.
+ */
+
+:host {
+  display: block;
+  width: 100%;
+  min-height: calc(100vh - 64px); /* Resta la altura aproximada del header */
+}

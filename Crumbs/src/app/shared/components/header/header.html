@@ -1,0 +1,36 @@
+<!-- Header principal de la aplicación -->
+<header class="flex items-center justify-between px-6 py-3 border-b border-gray-200 bg-white">
+
+  <!-- Logo de la aplicación (placeholder, reemplazar con logo real en el futuro) -->
+  <div class="logo">
+    <span class="text-xl font-bold text-gray-900">Logo</span>
+  </div>
+
+  <!-- Navegación por pestañas usando Angular Material -->
+  <nav mat-tab-nav-bar [tabPanel]="tabPanel">
+    <!-- Tab Perfil: se activa automáticamente cuando la ruta incluye /perfil -->
+    <a
+      mat-tab-link
+      routerLink="/perfil"
+      routerLinkActive
+      #perfilActive="routerLinkActive"
+      [active]="perfilActive.isActive"
+    >
+      Perfil
+    </a>
+
+    <!-- Tab Salir: ejecuta logout sin navegar a una ruta específica de tab -->
+    <a
+      mat-tab-link
+      tabindex="0"
+      role="button"
+      (click)="logout()"
+      (keydown.enter)="logout()"
+    >
+      Salir
+    </a>
+  </nav>
+</header>
+
+<!-- Panel de referencia requerido por mat-tab-nav-bar -->
+<mat-tab-nav-panel #tabPanel></mat-tab-nav-panel>

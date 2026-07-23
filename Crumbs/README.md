@@ -1,143 +1,122 @@
-# Crumbs — Frontend
+# Crumbs
 
-Aplicación web para dividir gastos entre amigos. Construida con **Angular 21**, **Angular Material** y **Tailwind CSS**.
+Aplicación web construida con **Angular 21**, **Angular Material 21** (M3), **Tailwind CSS 4**, y soporte para **SSR** (Server-Side Rendering).
+
+---
 
 ## Stack Tecnológico
 
-- **Framework:** Angular 21 (standalone components, signals)
-- **UI Library:** Angular Material (M3 theme, Purple primary)
-- **Styling:** Tailwind CSS 4 + SCSS
-- **Build:** Vite + Angular CLI
-- **SSR:** Angular SSR con Express 5
-- **Testing:** Vitest
-- **Formatting:** Prettier
+| Tecnología | Versión | Propósito |
+|---|---|---|
+| Angular | 21.2 | Framework principal |
+| Angular Material | 21.2 | Componentes UI (Material Design 3) |
+| Tailwind CSS | 4.1 | Utilidades de estilo y layout |
+| Vitest | 4.1 | Test runner unitario |
+| Express | 5.x | Servidor SSR |
+| TypeScript | 5.9 | Lenguaje |
 
-## Requisitos Previos
-
-- **Node.js** 22+
-- **npm** 10.9+
-
-Puedes verificar tus versiones con:
-
-```bash
-node -v
-npm -v
-```
-
-## Desarrollo
-
-### Instalación
-
-```bash
-cd Crumbs
-npm install
-```
-
-### Levantar el servidor de desarrollo
-
-```bash
-npm start
-```
-
-La app estará disponible en `http://localhost:4200/`. Se recarga automáticamente al modificar archivos fuente.
-
-### Build de producción
-
-```bash
-npm run build
-```
-
-El output se genera en `dist/Crumbs/`. Incluye el build del browser y el servidor SSR.
-
-### Servir el build SSR localmente
-
-```bash
-npm run serve:ssr:Crumbs
-```
-
-El servidor Express escucha en `http://localhost:4000` (o el puerto definido en la variable de entorno `PORT`).
-
-## Tests
-
-### Pruebas unitarias
-
-El proyecto usa **Vitest** como test runner (integrado con Angular CLI).
-
-```bash
-npm test
-```
-
-Esto ejecuta todas las pruebas unitarias (archivos `*.spec.ts`).
-
+---
 
 ## Estructura del Proyecto
 
 ```
-Crumbs/
-├── public/                      # Assets estáticos (favicon, imágenes)
-│   └── favicon.ico
-├── src/
-│   ├── app/
-│   │   ├── app.ts               # Componente raíz (standalone, signals)
-│   │   ├── app.html             # Template del componente raíz
-│   │   ├── app.css              # Estilos del componente raíz
-│   │   ├── app.config.ts        # Configuración de la app (providers, routes)
-│   │   ├── app.config.server.ts # Configuración específica para SSR
-│   │   ├── app.routes.ts        # Definición de rutas del cliente
-│   │   ├── app.routes.server.ts # Configuración de rutas para SSR
-│   │   └── app.spec.ts          # Pruebas del componente raíz
-│   ├── main.ts                  # Entry point del browser
-│   ├── main.server.ts           # Entry point del servidor (SSR)
-│   ├── server.ts                # Servidor Express para SSR
-│   ├── material-theme.scss      # Tema de Angular Material (M3, Purple)
-│   ├── styles.css               # Estilos globales + Tailwind
-│   └── index.html               # HTML principal
-├── angular.json                 # Configuración del Angular CLI
-├── package.json                 # Dependencias y scripts
-├── tsconfig.json                # Configuración base de TypeScript
-├── tsconfig.app.json            # TypeScript config para la app
-├── tsconfig.spec.json           # TypeScript config para tests
-├── .postcssrc.json              # Configuración PostCSS (Tailwind)
-├── .prettierrc                  # Configuración de Prettier
-├── .editorconfig                # Configuración del editor
-└── .gitignore                   # Archivos ignorados por Git
-```
-
-### Estructura sugerida para escalar
-
-A medida que el proyecto crezca, se recomienda organizar `src/app/` de la siguiente forma:
-
-```
 src/app/
-├── core/                    # Servicios globales, modelos, guards, interceptors
-│   ├── models/              # Interfaces de dominio (User, Salida, Gasto, Miembro)
-│   ├── interfaces/          # DTOs/contratos del API
-│   ├── services/            # Servicios HTTP (auth, salidas, gastos, miembros)
-│   ├── guards/              # AuthGuard
-│   └── interceptors/        # Auth interceptor + mocks para desarrollo
-├── features/                # Módulos por feature (lazy loaded)
-│   ├── auth/                # Login, Registro
-│   ├── dashboard/           # Home: salidas activas, crear/unirse
-│   ├── salidas/             # Detalle salida: gastos, miembros, drawers
-│   └── perfil/              # Perfil del usuario
-├── shared/                  # Pipes, directivas, componentes compartidos
-└── environments/            # Configuración por entorno
+├── core/                          # Servicios, interfaces, guards, interceptors
+│   ├── interfaces/
+│   │   └── user.interface.ts      # Modelo de datos del usuario
+│   ├── services/
+│   │   └── user.service.ts        # Servicio de usuario (mock por ahora)
+│   ├── guards/                    # (futuro) Guards de autenticación
+│   └── interceptors/              # (futuro) Interceptors HTTP
+├── shared/                        # Componentes reutilizables entre features
+│   └── components/
+│       └── header/                # Header con navegación por tabs
+├── features/                      # Módulos de funcionalidad (lazy loaded)
+│   ├── perfil/
+│   │   ├── components/            # Componentes presentacionales del feature
+│   │   │   └── perfil-card/       # Tarjeta de datos del usuario
+│   │   └── pages/                 # Páginas (orquestradores)
+│   │       └── perfil-page/       # Página principal de perfil
+│   ├── auth/                      # (futuro) Login y registro
+│   ├── dashboard/                 # (futuro) Panel principal
+│   └── salidas/                   # (futuro) Gestión de salidas
+├── layouts/                       # Layouts de ruta (wrappers de página)
+│   └── main-layout/              # Layout con header (para páginas autenticadas)
+├── app.routes.ts                  # Configuración centralizada de rutas
+├── app.ts                         # Componente raíz
+└── app.config.ts                  # Providers de la aplicación
 ```
+
+---
+
+## Convenciones
+
+### Estructura de Componentes
+
+Cada componente se compone de **4 archivos**:
+
+- `.ts` — Clase del componente (lógica)
+- `.html` — Template
+- `.css` — Estilos (Tailwind + Material)
+- `.spec.ts` — Tests unitarios (Vitest)
+
+### Patrones de Diseño
+
+- **Componentes presentacionales** (`components/`): Reciben datos vía `input()`, no inyectan servicios. Fáciles de testear.
+- **Páginas** (`pages/`): Inyectan servicios, orquestan componentes, se registran en rutas.
+- **Layout route**: El `MainLayout` envuelve las páginas que necesitan header. Las rutas de auth quedan fuera.
+- **Signals**: Se usan signals de Angular para estado reactivo (en vez de BehaviorSubject/Observable).
+- **Standalone**: Todos los componentes son standalone (sin NgModules).
+
+### Rutas
+
+Todas las rutas se definen exclusivamente en `src/app/app.routes.ts`. Se usa lazy loading con `loadComponent`.
+
+---
+
+## Comandos
+
+```bash
+# Instalar dependencias
+npm install
+
+# Servidor de desarrollo
+npm start
+# → http://localhost:4200
+
+# Build de producción
+npm run build
+
+# Ejecutar tests unitarios (Vitest)
+npm test
+
+# Servir build SSR
+npm run serve:ssr:Crumbs
+```
+
+---
+
+## Página de Perfil
+
+La página de perfil muestra los datos del usuario actual:
+
+- **Header**: Logo + tabs de navegación (Perfil / Salir). Se detecta la tab activa automáticamente vía `routerLinkActive`.
+- **PerfilCard**: Componente presentacional que muestra avatar, nombre, userName, fecha de nacimiento y contraseña enmascarada.
+- **Datos mock**: Actualmente se usan datos hardcodeados en el `UserService`. Diseñado para migración transparente a un backend real.
+
+---
+
+## Autenticación (futuro)
+
+El `UserService` está diseñado para facilitar la integración con un proveedor de autenticación:
+
+1. Reemplazar `MOCK_USER` por una llamada HTTP (`httpClient.get('/api/me')`).
+2. Añadir un `AuthGuard` en `core/guards/` para proteger rutas.
+3. Añadir un `HttpInterceptor` en `core/interceptors/` para adjuntar tokens.
+4. Los componentes consumidores **no cambian** porque leen el mismo signal `currentUser()`.
+
+---
 
 ## Tema Visual
 
-- **Color primario:** Purple `#6750A4` (Material M3)
-- **Tipografía:** Roboto
-- **Layout:** Responsive — desktop (grid 2 cols) / mobile (1 col stacked)
-- **Header:** Toolbar purple con logo "Crumbs" (clickeable → dashboard)
-
-
-## Scripts Disponibles
-
-| Comando | Descripción |
-|---------|-------------|
-| `npm start` | Levanta el servidor de desarrollo en `localhost:4200` |
-| `npm run build` | Build de producción (browser + SSR) |
-| `npm run watch` | Build en modo watch (desarrollo) |
-| `npm test` | Ejecuta pruebas unitarias con Vitest |
-| `npm run serve:ssr:Crumbs` | Sirve el build SSR en `localhost:4000` |
+El tema de Material 3 usa la paleta **magenta** como color primario y **violet** como terciario. El color scheme por defecto es `light`. Configurado en `src/material-theme.scss`.

@@ -1,0 +1,48 @@
+<!-- Página de Perfil: contenedor principal con acciones de edición y tarjeta de datos -->
+<section class="perfil-container relative max-w-4xl mx-auto mt-8 px-4">
+
+  <!-- Barra de acciones superior -->
+  <div class="flex justify-end gap-2">
+    @if (!editMode()) {
+      <!-- Botón de editar: activa el modo edición -->
+      <button
+        mat-icon-button
+        aria-label="Editar perfil"
+        (click)="onEdit()"
+      >
+        <mat-icon>edit</mat-icon>
+      </button>
+    } @else {
+      <!-- Botones de guardar y cancelar en modo edición -->
+      <button
+        mat-button
+        color="primary"
+        aria-label="Guardar cambios"
+        (click)="saveFromCard()"
+      >
+        Guardar
+      </button>
+      <button
+        mat-button
+        aria-label="Cancelar edición"
+        (click)="onCancel()"
+      >
+        Cancelar
+      </button>
+    }
+  </div>
+
+  <!-- Contenido del perfil: solo se muestra si hay un usuario cargado -->
+  @if (currentUser(); as user) {
+    <app-perfil-card
+      [user]="user"
+      [editMode]="editMode()"
+      (userChanged)="onSave($event)"
+    />
+  } @else {
+    <!-- Estado vacío cuando no hay usuario (post-logout o error) -->
+    <div class="flex items-center justify-center py-20">
+      <p class="text-gray-400 text-lg">No hay datos de usuario disponibles.</p>
+    </div>
+  }
+</section>
