@@ -1,59 +1,143 @@
-# Crumbs
+# Crumbs — Frontend
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.19.
+Aplicación web para dividir gastos entre amigos. Construida con **Angular 21**, **Angular Material** y **Tailwind CSS**.
 
-## Development server
+## Stack Tecnológico
 
-To start a local development server, run:
+- **Framework:** Angular 21 (standalone components, signals)
+- **UI Library:** Angular Material (M3 theme, Purple primary)
+- **Styling:** Tailwind CSS 4 + SCSS
+- **Build:** Vite + Angular CLI
+- **SSR:** Angular SSR con Express 5
+- **Testing:** Vitest
+- **Formatting:** Prettier
 
-```bash
-ng serve
-```
+## Requisitos Previos
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+- **Node.js** 22+
+- **npm** 10.9+
 
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+Puedes verificar tus versiones con:
 
 ```bash
-ng generate --help
+node -v
+npm -v
 ```
 
-## Building
+## Desarrollo
 
-To build the project run:
+### Instalación
 
 ```bash
-ng build
+cd Crumbs
+npm install
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+### Levantar el servidor de desarrollo
 
 ```bash
-ng test
+npm start
 ```
 
-## Running end-to-end tests
+La app estará disponible en `http://localhost:4200/`. Se recarga automáticamente al modificar archivos fuente.
 
-For end-to-end (e2e) testing, run:
+### Build de producción
 
 ```bash
-ng e2e
+npm run build
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+El output se genera en `dist/Crumbs/`. Incluye el build del browser y el servidor SSR.
 
-## Additional Resources
+### Servir el build SSR localmente
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+```bash
+npm run serve:ssr:Crumbs
+```
+
+El servidor Express escucha en `http://localhost:4000` (o el puerto definido en la variable de entorno `PORT`).
+
+## Tests
+
+### Pruebas unitarias
+
+El proyecto usa **Vitest** como test runner (integrado con Angular CLI).
+
+```bash
+npm test
+```
+
+Esto ejecuta todas las pruebas unitarias (archivos `*.spec.ts`).
+
+
+## Estructura del Proyecto
+
+```
+Crumbs/
+├── public/                      # Assets estáticos (favicon, imágenes)
+│   └── favicon.ico
+├── src/
+│   ├── app/
+│   │   ├── app.ts               # Componente raíz (standalone, signals)
+│   │   ├── app.html             # Template del componente raíz
+│   │   ├── app.css              # Estilos del componente raíz
+│   │   ├── app.config.ts        # Configuración de la app (providers, routes)
+│   │   ├── app.config.server.ts # Configuración específica para SSR
+│   │   ├── app.routes.ts        # Definición de rutas del cliente
+│   │   ├── app.routes.server.ts # Configuración de rutas para SSR
+│   │   └── app.spec.ts          # Pruebas del componente raíz
+│   ├── main.ts                  # Entry point del browser
+│   ├── main.server.ts           # Entry point del servidor (SSR)
+│   ├── server.ts                # Servidor Express para SSR
+│   ├── material-theme.scss      # Tema de Angular Material (M3, Purple)
+│   ├── styles.css               # Estilos globales + Tailwind
+│   └── index.html               # HTML principal
+├── angular.json                 # Configuración del Angular CLI
+├── package.json                 # Dependencias y scripts
+├── tsconfig.json                # Configuración base de TypeScript
+├── tsconfig.app.json            # TypeScript config para la app
+├── tsconfig.spec.json           # TypeScript config para tests
+├── .postcssrc.json              # Configuración PostCSS (Tailwind)
+├── .prettierrc                  # Configuración de Prettier
+├── .editorconfig                # Configuración del editor
+└── .gitignore                   # Archivos ignorados por Git
+```
+
+### Estructura sugerida para escalar
+
+A medida que el proyecto crezca, se recomienda organizar `src/app/` de la siguiente forma:
+
+```
+src/app/
+├── core/                    # Servicios globales, modelos, guards, interceptors
+│   ├── models/              # Interfaces de dominio (User, Salida, Gasto, Miembro)
+│   ├── interfaces/          # DTOs/contratos del API
+│   ├── services/            # Servicios HTTP (auth, salidas, gastos, miembros)
+│   ├── guards/              # AuthGuard
+│   └── interceptors/        # Auth interceptor + mocks para desarrollo
+├── features/                # Módulos por feature (lazy loaded)
+│   ├── auth/                # Login, Registro
+│   ├── dashboard/           # Home: salidas activas, crear/unirse
+│   ├── salidas/             # Detalle salida: gastos, miembros, drawers
+│   └── perfil/              # Perfil del usuario
+├── shared/                  # Pipes, directivas, componentes compartidos
+└── environments/            # Configuración por entorno
+```
+
+## Tema Visual
+
+- **Color primario:** Purple `#6750A4` (Material M3)
+- **Tipografía:** Roboto
+- **Layout:** Responsive — desktop (grid 2 cols) / mobile (1 col stacked)
+- **Header:** Toolbar purple con logo "Crumbs" (clickeable → dashboard)
+
+
+## Scripts Disponibles
+
+| Comando | Descripción |
+|---------|-------------|
+| `npm start` | Levanta el servidor de desarrollo en `localhost:4200` |
+| `npm run build` | Build de producción (browser + SSR) |
+| `npm run watch` | Build en modo watch (desarrollo) |
+| `npm test` | Ejecuta pruebas unitarias con Vitest |
+| `npm run serve:ssr:Crumbs` | Sirve el build SSR en `localhost:4000` |
