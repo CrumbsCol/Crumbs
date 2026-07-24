@@ -8,15 +8,6 @@ import { ActiveSalidasListComponent, Salida } from '../../components/active-sali
 import { CrearSalidaComponent } from '../../components/modales/crear-salida/crear-salida.component';
 import { AgregarSalidaComponent } from '../../components/modales/agregar-salida/agregar-salida.component';
 
-/**
- * Componente principal (Smart Component) de la vista de Dashboard.
- * 
- * Se encarga de:
- * - Orquestar los componentes visuales (Dumb Components) como WelcomeHeader, DashboardActions y ActiveSalidasList.
- * - Consultar al UserService para obtener los datos del usuario logueado.
- * - Mantener el estado de la lista de salidas activas del usuario.
- * - Abrir y gestionar los modales (MatDialog) para crear o unirse a salidas.
- */
 @Component({
   selector: 'app-dashboard-page',
   standalone: true,
@@ -39,57 +30,60 @@ export class DashboardPage {
     return user.nombre.split(' ')[0];
   });
 
-  readonly salidasActivas = signal<Salida[]>([
-    {
-      id: 1,
-      label: 'Ruta Sierra Norte',
-      description: 'Senderismo por la sierra con paradas en pueblos medievales.',
-      fecha: '10/08/2026'
-    },
-    {
-      id: 2,
-      label: 'Costa Dorada Express',
-      description: 'Recorrido de 3 días por playas y calas del litoral.',
-      fecha: '15/08/2026'
-    },
-    {
-      id: 3,
-      label: 'Pirineos Aventura',
-      description: 'Travesía de alta montaña con refugios de montaña.',
-      fecha: '02/09/2026'
-    },
-  ]);
+  /** Lista de salidas activas — empieza vacía, se llena al crear salidas */
+  readonly salidasActivas = signal<Salida[]>([]);
 
   readonly isEmpty = computed<boolean>(() => this.salidasActivas().length === 0);
 
-  async onCrearSalida(): Promise<void> {
-    if (!isPlatformBrowser(this.platformId)) {
-      return;
-    }
+  // Abre el modal de creación de salida
+  onCrearSalida(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+
     this.dialog.open(CrearSalidaComponent, {
       width: '100%',
-      maxWidth: '600px'
-    }).afterClosed().subscribe(result => {
-      if (result) {
-        // En una app real, el ID vendría del backend. Aquí generamos uno temporal.
-        const newSalida = { ...result, id: Date.now() };
-        this.salidasActivas.update(salidas => [newSalida, ...salidas]);
+      maxWidth: '500px',
+      panelClass: 'modal-salida',
+      autoFocus: true,
+    }).afterClosed().subscribe((result: { nombre: string; descripcion: string; fecha: Date } | undefined) => {
+      if (result?.nombre) {
+        // Formatear la fecha del Date object a string dd/MM/yyyy
+        const date = new Date(result.fecha);
+        const fechaStr = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
+
+        const newSalida: Salida = {
+          id: Date.now(),
+          label: result.nombre,
+          description: result.descripcion || '',
+          fecha: fechaStr,
+        };
+
+        // Agregar y ordenar de más antigua a más reciente
+        this.salidasActivas.update((list) => {
+          const updated = [...list, newSalida];
+          updated.sort((a, b) => {
+            // Parsear dd/MM/yyyy a Date para comparar
+            const parseDate = (s: string | undefined): number => {
+              if (!s) return 0;
+              const [d, m, y] = s.split('/').map(Number);
+              return new Date(y, m - 1, d).getTime();
+            };
+            return parseDate(a.fecha) - parseDate(b.fecha);
+          });
+          return updated;
+        });
       }
     });
   }
 
-  async onAgregarSalida(): Promise<void> {
-    if (!isPlatformBrowser(this.platformId)) {
-      return;
-    }
+  // Abre el modal de agregar salida existente (por código)
+  onAgregarSalida(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+
     this.dialog.open(AgregarSalidaComponent, {
       width: '100%',
-      maxWidth: '500px'
-    }).afterClosed().subscribe(result => {
-      if (result) {
-        const newSalida = { ...result, id: Date.now() };
-        this.salidasActivas.update(salidas => [newSalida, ...salidas]);
-      }
+      maxWidth: '500px',
+      panelClass: 'modal-salida',
+      autoFocus: true,
     });
   }
 }

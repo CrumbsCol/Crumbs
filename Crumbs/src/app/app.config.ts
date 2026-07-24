@@ -2,6 +2,7 @@ import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors, withFetch } from '@angular/common/http';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
+import { provideNativeDateAdapter } from '@angular/material/core';
 
 import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
@@ -13,6 +14,7 @@ import { authInterceptor } from './core/interceptors/auth.interceptor';
  * - Router con lazy loading de rutas.
  * - HttpClient con interceptor de autenticación (agrega JWT a cada request).
  * - Client hydration para SSR con event replay.
+ * - NativeDateAdapter para que MatDatepicker funcione en toda la app.
  */
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -23,5 +25,6 @@ export const appConfig: ApplicationConfig = {
       withInterceptors([authInterceptor])
     ),
     provideClientHydration(withEventReplay()),
+    provideNativeDateAdapter(),
   ],
 };

@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { Location } from '@angular/common';
+import { MatDialogRef } from '@angular/material/dialog';
 import * as fc from 'fast-check';
 
 import { AgregarSalidaComponent } from './agregar-salida.component';
@@ -9,13 +10,18 @@ describe('AgregarSalidaComponent', () => {
   let fixture: ComponentFixture<AgregarSalidaComponent>;
   let component: AgregarSalidaComponent;
   let locationSpy: { back: ReturnType<typeof vi.fn> };
+  let dialogRefSpy: { close: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
     locationSpy = { back: vi.fn() };
+    dialogRefSpy = { close: vi.fn() };
 
     await TestBed.configureTestingModule({
       imports: [AgregarSalidaComponent],
-      providers: [{ provide: Location, useValue: locationSpy }],
+      providers: [
+        { provide: Location, useValue: locationSpy },
+        { provide: MatDialogRef, useValue: dialogRefSpy },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(AgregarSalidaComponent);
@@ -83,9 +89,9 @@ describe('AgregarSalidaComponent', () => {
   });
 
   // ─── Navegación ─────────────────────────────────────────────────────────────
-  it('onCancelar llama a location.back()', () => {
+  it('onCancelar cierra el diálogo', () => {
     component.onCancelar();
-    expect(locationSpy.back).toHaveBeenCalled();
+    expect(dialogRefSpy.close).toHaveBeenCalled();
   });
 
   it('onUnirme no lanza error (no-op por ahora)', () => {
