@@ -1,0 +1,60 @@
+/**
+ * Estilos del componente LoginBranding.
+ * Fondo transparente para que se vea la imagen de fondo del padre.
+ * "Crumbs" posicionado arriba, subtítulo posicionado abajo.
+ * Texto en negro (mismo tono que "Iniciar Sesión").
+ */
+
+:host {
+  display: block;
+  height: 100%;
+}
+
+/* Panel sin fondo propio — usa space-between para separar título arriba y subtítulo abajo */
+.branding-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+  padding: 3rem 2rem;
+  color: var(--mat-sys-on-surface);
+}
+
+/* Título "Crumbs" arriba del todo */
+.branding-title {
+  font-size: 3.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+/* Subtítulo abajo del todo */
+.branding-subtitle {
+  font-size: 1.125rem;
+  opacity: 0.85;
+  text-align: center;
+  max-width: 280px;
+  margin: 0;
+}
+
+/**
+ * Responsive: en mobile el panel es más compacto (no ocupa 100vh),
+ * así que space-between no funciona bien. Se usa gap para separar
+ * título y subtítulo visualmente.
+ */
+@media (max-width: 767px) {
+  .branding-panel {
+    justify-content: center;
+    gap: 1rem;
+    padding: 2rem 1.5rem;
+  }
+
+  .branding-title {
+    font-size: 2.5rem;
+  }
+
+  .branding-subtitle {
+    font-size: 0.95rem;
+  }
+}

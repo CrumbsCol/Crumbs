@@ -21,12 +21,13 @@ export const routes: Routes = [
         (m) => m.LoginPage
       ),
   },
-  // Futuro:
-  // {
-  //   path: 'registro',
-  //   loadComponent: () =>
-  //     import('./features/auth/pages/registro-page/registro-page').then((m) => m.RegistroPage),
-  // },
+  {
+    path: 'registro',
+    loadComponent: () =>
+      import('./features/auth/pages/registro-page/registro-page').then(
+        (m) => m.RegistroPage
+      ),
+  },
 
   // ─── Rutas CON header (dentro del MainLayout) ───────────────────────
   {

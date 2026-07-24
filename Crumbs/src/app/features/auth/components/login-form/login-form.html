@@ -1,0 +1,61 @@
+<!-- Formulario de inicio de sesión -->
+<div class="login-form-container">
+  <h2 class="form-title">Iniciar Sesión</h2>
+
+  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
+    <!-- Campo: Correo electrónico / Usuario -->
+    <mat-form-field appearance="outline" class="form-field">
+      <mat-label>Correo electrónico / Usuario</mat-label>
+      <input
+        matInput
+        formControlName="emailOrUsername"
+        type="email"
+        autocomplete="email"
+      />
+      @if (loginForm.controls.emailOrUsername.hasError('required')) {
+        <mat-error>El correo es requerido</mat-error>
+      } @else if (loginForm.controls.emailOrUsername.hasError('email')) {
+        <mat-error>Ingresa un correo válido</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Campo: Contraseña -->
+    <mat-form-field appearance="outline" class="form-field">
+      <mat-label>Contraseña</mat-label>
+      <input
+        matInput
+        formControlName="password"
+        type="password"
+        autocomplete="current-password"
+      />
+      @if (loginForm.controls.password.hasError('required')) {
+        <mat-error>La contraseña es requerida</mat-error>
+      } @else if (loginForm.controls.password.hasError('minlength')) {
+        <mat-error>Mínimo 6 caracteres</mat-error>
+      } @else if (loginForm.controls.password.hasError('missingUppercase')) {
+        <mat-error>Debe tener al menos una mayúscula</mat-error>
+      } @else if (loginForm.controls.password.hasError('missingNumber')) {
+        <mat-error>Debe tener al menos un número</mat-error>
+      } @else if (loginForm.controls.password.hasError('missingSpecial')) {
+        <mat-error>Debe tener al menos un carácter especial (!&#64;#$%^&*)</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Botón: Iniciar Sesión -->
+    <button
+      mat-flat-button
+      color="primary"
+      type="submit"
+      class="submit-button"
+      [disabled]="loginForm.invalid"
+    >
+      Iniciar Sesión
+    </button>
+  </form>
+
+  <!-- Enlace a registro -->
+  <p class="register-link">
+    ¿No tienes cuenta?
+    <a routerLink="/registro">Registrarse</a>
+  </p>
+</div>

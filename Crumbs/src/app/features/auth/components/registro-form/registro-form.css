@@ -1,0 +1,27 @@
+/**
+ * Estilos del componente RegistroForm.
+ * Formulario centrado con campos de ancho completo y buen espaciado.
+ */
+
+:host {
+  display: block;
+  width: 100%;
+  max-width: 420px;
+}
+
+.registro-form-container {
+  width: 100%;
+}
+
+/* Cada campo ocupa el ancho completo con separación vertical */
+.form-field {
+  width: 100%;
+  margin-bottom: 0.75rem;
+}
+
+/* Botón de submit con separación del último campo */
+.submit-button {
+  width: 100%;
+  margin-top: 1.5rem;
+  padding: 0.75rem 0;
+}
