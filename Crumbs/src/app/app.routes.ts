@@ -60,29 +60,13 @@ export const routes: Routes = [
         // Panel principal: saludo, acciones rápidas y lista de salidas activas
         path: 'dashboard',
         loadComponent: () =>
-          import('./features/dashboard/components/dashboard/dashboard.component').then(
-            (m) => m.DashboardComponent
-          ),
-      },
-      {
-        // Formulario para crear una nueva salida (nombre, descripción, fecha/hora, integrantes)
-        path: 'salidas/crear',
-        loadComponent: () =>
-          import('./features/dashboard/components/interfaz/crear-salida/crear-salida.component').then(
-            (m) => m.CrearSalidaComponent
-          ),
-      },
-      {
-        // Formulario para unirse a una salida existente mediante un código alfanumérico
-        path: 'salidas/agregar',
-        loadComponent: () =>
-          import('./features/dashboard/components/interfaz/agregar-salida/agregar-salida.component').then(
-            (m) => m.AgregarSalidaComponent
+          import('./features/dashboard/pages/dashboard-page/dashboard-page').then(
+            (m) => m.DashboardPage
           ),
       },
 
       // Redirige la raíz vacía al perfil por defecto
-      { path: '', redirectTo: 'perfil', pathMatch: 'full' },
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     ],
   },
 ];

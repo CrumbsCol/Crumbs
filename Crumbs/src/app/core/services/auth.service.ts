@@ -102,7 +102,7 @@ export class AuthService {
           const mockUser = this.userService.getMockUser();
           this.setToken('mock-jwt-token-for-development');
           this.userService.setUser(mockUser);
-          this.router.navigate(['/perfil']);
+          this.router.navigate(['/dashboard']);
         }),
         finalize(() => this._isLoading.set(false))
       );
@@ -120,7 +120,7 @@ export class AuthService {
           this.userService.setUser(response.user);
 
           // Redirigir al perfil tras login exitoso
-          this.router.navigate(['/perfil']);
+          this.router.navigate(['/dashboard']);
         }),
         map(() => undefined),
         finalize(() => this._isLoading.set(false))
