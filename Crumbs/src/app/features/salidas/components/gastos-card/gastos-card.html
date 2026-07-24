@@ -1,0 +1,25 @@
+<!-- Card de Gastos -->
+<mat-card class="panel-card" appearance="outlined">
+  <mat-card-header>
+    <mat-card-title class="text-base font-bold">Gastos</mat-card-title>
+  </mat-card-header>
+  <mat-divider></mat-divider>
+  <mat-card-content class="p-0">
+    @if (gastos().length === 0) {
+      <div class="empty-state">
+        <p>No hay gastos registrados aún.</p>
+      </div>
+    } @else {
+      <mat-nav-list>
+        @for (gasto of gastos(); track gasto.id) {
+          <a mat-list-item>
+            <span matListItemTitle>{{ gasto.nombre }}</span>
+            <span matListItemLine>
+              {{ gasto.monto | currency:'MXN':'symbol-narrow':'1.0-0' }} · {{ gasto.fecha | date:'dd/MM/yyyy HH:mm' }}
+            </span>
+          </a>
+        }
+      </mat-nav-list>
+    }
+  </mat-card-content>
+</mat-card>

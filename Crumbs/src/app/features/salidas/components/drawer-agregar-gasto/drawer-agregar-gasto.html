@@ -1,0 +1,177 @@
+<!-- Drawer lateral derecho: Agregar Gasto -->
+@if (abierto()) {
+  <div
+    class="drawer-overlay"
+    (click)="onCerrar()"
+    (keydown.escape)="onCerrar()"
+    tabindex="-1"
+    aria-hidden="true"
+  ></div>
+}
+
+<aside
+  class="drawer-panel"
+  [class.abierto]="abierto()"
+  role="dialog"
+  aria-labelledby="drawer-gasto-titulo"
+  [attr.aria-hidden]="!abierto()"
+>
+  <!-- Formulario -->
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="drawer-body">
+
+    <!-- Nombre -->
+    <div class="campo">
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Nombre</mat-label>
+        <input matInput formControlName="nombre" maxlength="12" />
+        <mat-hint align="end">{{ form.get('nombre')?.value?.length || 0 }}/12</mat-hint>
+      </mat-form-field>
+    </div>
+
+    <!-- Descripcion -->
+    <div class="campo">
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Descripcion</mat-label>
+        <input matInput formControlName="descripcion" />
+      </mat-form-field>
+    </div>
+
+    <!-- Monto -->
+    <div class="campo">
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Monto</mat-label>
+        <input
+          matInput
+          formControlName="monto"
+          type="number"
+          min="1"
+          max="9999999"
+          pattern="[0-9]*"
+        />
+      </mat-form-field>
+    </div>
+
+    <!-- Pagador -->
+    <div class="campo">
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Pagador</mat-label>
+        <mat-select formControlName="pagador" placeholder="Seleccionar pagador">
+          @for (miembro of miembros(); track miembro.id) {
+            <mat-option [value]="miembro.id">{{ miembro.nombre }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <!-- Fecha/Hora + Toggle Equitativo -->
+    <div class="campo">
+      <div class="fecha-equitativo-row">
+        <div class="fecha-col">
+          <mat-form-field appearance="outline" class="fecha-field">
+            <mat-label>Fecha/ Hora</mat-label>
+            <input matInput [matDatepicker]="picker" formControlName="fecha" />
+            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+          </mat-form-field>
+        </div>
+        <div class="equitativo-col">
+          <span class="equitativo-label">Equitativo</span>
+          <mat-slide-toggle
+            [checked]="!esManual()"
+            (change)="toggleMetodoDivision()"
+            aria-label="Toggle equitativo"
+          ></mat-slide-toggle>
+        </div>
+      </div>
+    </div>
+
+    <!-- Miembros -->
+    <div class="campo">
+      <span class="campo-label">Miembros</span>
+      <div class="miembros-lista">
+        @for (miembro of miembros(); track miembro.id) {
+          <div class="miembro-card-wrapper">
+            <button
+              type="button"
+              class="miembro-card"
+              (click)="toggleMiembro(miembro.id)"
+              [attr.aria-label]="'Seleccionar a ' + miembro.nombre"
+            >
+              <div class="miembro-avatar">
+                <mat-icon>person</mat-icon>
+              </div>
+              <div class="miembro-info">
+                <span class="miembro-title">{{ miembro.nombre }}</span>
+                <span class="miembro-desc">@{{ miembro.userName || 'fantasma' }}</span>
+              </div>
+              @if (estaSeleccionado(miembro.id)) {
+                <mat-icon class="miembro-check">check_circle</mat-icon>
+              }
+            </button>
+
+            <!-- Invitado toggle + Manual input (only for selected members) -->
+            @if (estaSeleccionado(miembro.id)) {
+              <div class="miembro-extras">
+                <div class="invitado-toggle">
+                  <span class="invitado-label">Invitado</span>
+                  <mat-slide-toggle
+                    [checked]="esInvitado(miembro.id)"
+                    (change)="toggleInvitado(miembro.id)"
+                    aria-label="Marcar como invitado"
+                  ></mat-slide-toggle>
+                </div>
+
+                @if (esManual() && !esInvitado(miembro.id)) {
+                  <div class="manual-input">
+                    <mat-form-field appearance="outline" class="manual-field">
+                      <mat-label>Monto</mat-label>
+                      <input
+                        matInput
+                        type="number"
+                        min="0"
+                        max="9999999"
+                        pattern="[0-9]*"
+                        [value]="getMontoManual(miembro.id)"
+                        (input)="setMontoManual(miembro.id, $any($event.target).valueAsNumber)"
+                      />
+                    </mat-form-field>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Manual totals indicator -->
+    @if (esManual() && miembrosSeleccionados().size > 0) {
+      <div class="manual-total" [class.total-error]="!manualesValidos()">
+        <span>Total asignado: {{ totalManual() }} / {{ form.get('monto')?.value || 0 }}</span>
+        @if (!manualesValidos()) {
+          <span class="total-hint">Los montos deben sumar exactamente el total del gasto</span>
+        }
+      </div>
+    }
+
+    <!-- Botones fijos abajo -->
+    <div class="drawer-footer">
+      <button
+        mat-button
+        type="button"
+        class="btn-cancelar"
+        (click)="onCerrar()"
+      >
+        Cancelar
+      </button>
+      <button
+        mat-raised-button
+        type="submit"
+        class="btn-agregar"
+        [disabled]="form.invalid || miembrosSeleccionados().size === 0 || (esManual() && !manualesValidos())"
+      >
+        Agregar
+      </button>
+    </div>
+  </form>
+</aside>
