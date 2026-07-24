@@ -1,13 +1,16 @@
+<!-- Panel principal del usuario: saludo, acciones rápidas y lista de salidas activas -->
 <section class="dashboard-view" aria-label="Panel principal">
 
-  <!-- Bienvenida -->
+  <!-- Título de bienvenida personalizado con el nickName del usuario -->
   <h1 class="welcome-title">{{ welcomeTitle() }}</h1>
 
-  <!-- Grid principal: 1 col en mobile, 2 col en desktop -->
+  <!-- Grid principal: 1 columna en móvil, 2 columnas en escritorio -->
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
 
-    <!-- Columna izquierda: Acciones -->
+    <!-- Columna izquierda: botones de acción principales -->
     <div class="actions-column flex flex-col gap-4" role="group" aria-label="Acciones principales">
+
+      <!-- Botón primario: abre el formulario para crear una nueva salida -->
       <button
         mat-flat-button
         class="action-btn"
@@ -17,6 +20,7 @@
         Crear Salida
       </button>
 
+      <!-- Botón secundario (outlined): abre el formulario para unirse a una salida existente por código -->
       <button
         mat-flat-button
         class="action-btn action-btn--secondary"
@@ -27,13 +31,15 @@
       </button>
     </div>
 
-    <!-- Columna derecha: Lista de salidas activas -->
+    <!-- Columna derecha: tarjeta con la lista de salidas activas del usuario -->
     <div class="salidas-card" role="region" aria-label="Mis Salidas Activas">
       <h2 class="salidas-card__title">Mis Salidas Activas</h2>
 
+      <!-- Estado vacío: se muestra cuando el usuario no tiene salidas activas -->
       @if (isEmpty()) {
         <p class="salidas-card__empty" role="status">No tienes salidas activas en este momento.</p>
       } @else {
+        <!-- Lista de salidas: el primer ítem recibe el estilo activo/destacado -->
         <ul class="salidas-list" role="list">
           @for (salida of salidasActivas(); track salida.id; let isFirst = $first) {
             <li
@@ -43,7 +49,9 @@
               matRipple
               [matRippleDisabled]="isFirst"
             >
+              <!-- Nombre de la salida -->
               <span class="salidas-list__label">{{ salida.label }}</span>
+              <!-- Descripción breve de la salida -->
               <span class="salidas-list__description">{{ salida.description }}</span>
             </li>
           }

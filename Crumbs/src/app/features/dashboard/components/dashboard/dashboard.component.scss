@@ -39,11 +39,6 @@
     --mdc-filled-button-container-color: transparent;
     --mdc-filled-button-label-text-color: var(--mat-sys-primary);
     border: 2px solid var(--mat-sys-primary);
-
-    &:hover {
-      background-color: color-mix(in srgb, var(--mat-sys-primary) 8%, transparent);
-      opacity: 1;
-    }
   }
 }
 

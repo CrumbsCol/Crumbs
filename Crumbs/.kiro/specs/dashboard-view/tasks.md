@@ -40,7 +40,7 @@ The component scaffold (`.ts`, `.html`, `.scss`) is already in place with a work
 
 - [x] 4. Write the full test file for DashboardComponent
   - [x] 4.1 Create `dashboard.component.spec.ts` with TestBed setup and example unit tests
-    - Create `src/app/features/dashboard/components/dashboard.component.spec.ts`
+    - Create `src/app/features/dashboard/components/dashboard/dashboard.component.spec.ts`
     - Configure `TestBed` with the standalone `DashboardComponent`
     - Add example tests covering:
       - Req 1.2: `nickName` Signal initialized (default value present, is a signal)

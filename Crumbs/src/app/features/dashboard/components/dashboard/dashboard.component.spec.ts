@@ -25,6 +25,7 @@ describe('DashboardComponent', () => {
   // ------------------------------------------------------------------ //
   it('Req 5.1 — DashboardComponent is declared with standalone: true', () => {
     // Angular stores component metadata on the class
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const metadata = (DashboardComponent as any)['ɵcmp'];
     expect(metadata).toBeTruthy();
     expect(metadata.standalone).toBe(true);

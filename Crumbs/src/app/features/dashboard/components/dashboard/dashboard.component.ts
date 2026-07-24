@@ -6,6 +6,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatListModule } from '@angular/material/list';
 import { MatRippleModule } from '@angular/material/core';
 
+// Modelo de datos para cada salida que aparece en la lista
 export interface Salida {
   id: number;
   label: string;
@@ -20,7 +21,9 @@ export interface Salida {
   styleUrl: './dashboard.component.scss',
 })
 export class DashboardComponent {
+  // Servicio de navegación para cambiar de ruta
   private readonly router = inject(Router);
+  // Identificador de plataforma para evitar acceder al DOM en SSR
   private readonly platformId = inject(PLATFORM_ID);
 
   /** Emitido como fallback cuando la navegación a /salidas/crear no es posible o falla */
@@ -29,13 +32,13 @@ export class DashboardComponent {
   /** Emitido como fallback cuando la navegación a /salidas/agregar no es posible o falla */
   @Output() agregarSalida = new EventEmitter<void>();
 
-  /** Nick name del usuario autenticado, gestionado con Signal */
+  /** Nombre del usuario autenticado — se actualizará desde el servicio de auth en el futuro */
   readonly nickName = signal<string>('Viajero');
 
-  /** Título de bienvenida derivado del nickName */
+  /** Título de bienvenida generado automáticamente a partir del nickName */
   readonly welcomeTitle = computed<string>(() => `¡Hola, ${this.nickName()}!`);
 
-  /** Lista de salidas activas, gestionada con Signal */
+  /** Lista de salidas activas del usuario — datos de ejemplo hasta conectar el backend */
   readonly salidasActivas = signal<Salida[]>([
     {
       id: 1,
@@ -54,9 +57,11 @@ export class DashboardComponent {
     },
   ]);
 
-  /** Indica si la lista de salidas está vacía */
+  /** true cuando no hay salidas — controla qué bloque renderiza el template */
   readonly isEmpty = computed<boolean>(() => this.salidasActivas().length === 0);
 
+  // Navega a la pantalla de creación de salida
+  // Usa fallback de Output en SSR o si el router lanza un error
   async onCrearSalida(): Promise<void> {
     if (!isPlatformBrowser(this.platformId)) {
       this.crearSalida.emit();
@@ -70,6 +75,8 @@ export class DashboardComponent {
     }
   }
 
+  // Navega a la pantalla de agregar salida existente
+  // Usa fallback de Output en SSR o si el router lanza un error
   async onAgregarSalida(): Promise<void> {
     if (!isPlatformBrowser(this.platformId)) {
       this.agregarSalida.emit();

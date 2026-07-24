@@ -1,0 +1,104 @@
+<!-- Pantalla de creación de una nueva salida: nombre, descripción, fecha/hora e integrantes -->
+<section class="crear-salida-view" aria-label="Crear nueva salida">
+  <h1 class="page-title">Crear Salida</h1>
+
+  <!-- Tarjeta principal que contiene el formulario -->
+  <div class="crear-salida-card">
+    <form [formGroup]="form">
+
+      <!-- Nombre de la salida (obligatorio) -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Nombre</mat-label>
+        <input matInput formControlName="nombre" type="text" />
+      </mat-form-field>
+
+      <!-- Descripción de la salida (opcional, acepta texto y números) -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Descripción</mat-label>
+        <input matInput formControlName="descripcion" type="text" />
+      </mat-form-field>
+
+      <!-- Fila de fecha y hora: tres campos en línea -->
+      <div class="fecha-hora-row">
+
+        <!-- Selector de fecha con calendario — solo acepta dígitos y '/' por teclado -->
+        <mat-form-field appearance="outline" class="fecha-field">
+          <mat-label>Fecha</mat-label>
+          <input matInput [matDatepicker]="picker" formControlName="fecha"
+            placeholder="1/1/2026"
+            (keydown)="onFechaKeydown($event)"
+          />
+          <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field>
+
+        <!-- Hora en formato 12h (HH:MM) — validación en el componente -->
+        <mat-form-field appearance="outline" class="hora-field">
+          <mat-label>Hora</mat-label>
+          <input
+            matInput
+            formControlName="hora"
+            placeholder="12:00"
+            maxlength="5"
+          />
+          <!-- Mensajes de error según el tipo de validación que falle -->
+          @if (form.get('hora')?.hasError('horaFormato')) {
+            <mat-error>Formato inválido (ej: 12:30)</mat-error>
+          }
+          @if (form.get('hora')?.hasError('horaRango')) {
+            <mat-error>Hora debe ser entre 1 y 12</mat-error>
+          }
+          @if (form.get('hora')?.hasError('minutosRango')) {
+            <mat-error>Minutos deben ser entre 0 y 59</mat-error>
+          }
+        </mat-form-field>
+
+        <!-- Selector AM / PM -->
+        <mat-form-field appearance="outline" class="periodo-field">
+          <mat-label>AM / PM</mat-label>
+          <mat-select formControlName="horaPeriodo">
+            @for (p of periodos; track p) {
+              <mat-option [value]="p">{{ p }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <!-- Cabecera de la sección de integrantes con botón para agregar (sin funcionalidad aún) -->
+      <div class="integrantes-header">
+        <h2>Integrantes</h2>
+        <button mat-icon-button type="button" aria-label="Agregar integrante">
+          <mat-icon>person_add</mat-icon>
+        </button>
+      </div>
+
+      <!-- Lista de integrantes: cada uno muestra avatar, nombre, descripción y botón de eliminar -->
+      @for (integrante of integrantes(); track integrante.id) {
+        <div class="integrante-item">
+          <!-- Avatar genérico de persona -->
+          <mat-icon class="integrante-avatar">person</mat-icon>
+          <div class="integrante-info">
+            <span class="integrante-nombre">{{ integrante.nombre }}</span>
+            <span class="integrante-descripcion">{{ integrante.descripcion }}</span>
+          </div>
+          <!-- Botón para eliminar el integrante de la lista -->
+          <button
+            mat-icon-button
+            type="button"
+            class="integrante-delete"
+            (click)="removeIntegrante(integrante.id)"
+            aria-label="Eliminar integrante"
+          >
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      }
+    </form>
+  </div>
+
+  <!-- Barra de acciones: Cancelar vuelve al dashboard, Agregar enviará el formulario (pendiente) -->
+  <div class="action-bar">
+    <button mat-button class="btn-cancelar" (click)="onCancelar()">Cancelar</button>
+    <button mat-flat-button class="btn-agregar" (click)="onAgregar()">Agregar</button>
+  </div>
+</section>
