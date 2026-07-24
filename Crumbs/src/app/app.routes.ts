@@ -42,9 +42,14 @@ export const routes: Routes = [
             (m) => m.PerfilPage
           ),
       },
-      // Futuras rutas con header:
-      // { path: 'dashboard', loadComponent: () => import('./features/dashboard/pages/...').then(m => m.DashboardPage) },
-      // { path: 'salidas', loadComponent: () => import('./features/salidas/pages/...').then(m => m.SalidasPage) },
+      // Detalle de una salida (requiere ID en la URL)
+      {
+        path: 'salidas/:id',
+        loadComponent: () =>
+          import(
+            './features/salidas/pages/salida-detalle-page/salida-detalle-page'
+          ).then((m) => m.SalidaDetallePage),
+      },
 
       // Redirect por defecto hacia perfil
       { path: '', redirectTo: 'perfil', pathMatch: 'full' },

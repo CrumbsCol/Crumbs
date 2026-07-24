@@ -1,0 +1,83 @@
+<!-- Página de Detalle de Salida -->
+<section class="salida-detalle-container max-w-6xl mx-auto mt-8 px-4 pb-8">
+
+  @if (salida(); as salida) {
+    <!-- Encabezado: Título a la izquierda + Código de invitación a la derecha -->
+    <header class="header-row">
+      <h1 class="text-3xl font-light">Salida: {{ salida.titulo }}</h1>
+      <span class="codigo-invitacion">
+        Código de invitación: <strong class="font-mono">#{{ salida.codigoInvitacion }}</strong>
+      </span>
+    </header>
+
+    <!-- Layout 2 columnas -->
+    <div class="content-grid">
+
+      <!-- Columna izquierda: Balances y Desglose -->
+      <div class="col-izquierda">
+
+        <!-- Balances Card -->
+        <app-balances-card
+          [balances]="balances()"
+          [pagos]="pagos()"
+          [miembros]="miembros()"
+          (registrarPago)="registrarPago($event.deudorId, $event.pagadorId, $event.monto)"
+          (confirmarPago)="confirmarPago($event)"
+        />
+
+        <!-- Desglose por Gasto Card -->
+        <app-desglose-gastos-card
+          [desgloseGastos]="desgloseGastos()"
+        />
+
+      </div>
+
+      <!-- Columna derecha: Panel de Gastos -->
+      <div class="col-derecha">
+        <app-gastos-card
+          [gastos]="gastos()"
+        />
+      </div>
+
+    </div>
+
+    <!-- Botones de acción abajo-izquierda -->
+    <div class="acciones-bottom">
+      <button
+        class="btn-accion"
+        (click)="abrirDrawerGasto()"
+        aria-label="Registrar un nuevo gasto"
+      >
+        + Registrar Gastos
+      </button>
+
+      <button
+        class="btn-accion"
+        (click)="abrirDrawerIntegrantes()"
+        aria-label="Agregar un integrante a la salida"
+      >
+        + Agregar Integrante
+      </button>
+    </div>
+
+  } @else {
+    <div class="flex items-center justify-center py-20">
+      <p class="text-gray-400 text-lg">Salida no encontrada.</p>
+    </div>
+  }
+</section>
+
+<!-- Drawer: Agregar Gasto -->
+<app-drawer-agregar-gasto
+  [abierto]="drawerGastoAbierto()"
+  [miembros]="miembros()"
+  (cerrar)="cerrarDrawerGasto()"
+  (gastoAgregado)="onGastoAgregado($event)"
+/>
+
+<!-- Drawer: Agregar Integrantes -->
+<app-drawer-agregar-integrantes
+  [abierto]="drawerIntegrantesAbierto()"
+  (cerrar)="cerrarDrawerIntegrantes()"
+  (integrantesAgregados)="onIntegrantesAgregados($event)"
+/>

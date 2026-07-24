@@ -1,0 +1,115 @@
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
+import { describe, it, expect, beforeEach } from 'vitest';
+
+import { SalidaDetallePage } from './salida-detalle-page';
+
+/**
+ * Tests unitarios para el componente SalidaDetallePage.
+ * Verifica la creación del componente, la carga de la salida,
+ * balances, pagos, y la apertura/cierre de los drawers.
+ */
+describe('SalidaDetallePage', () => {
+  let component: SalidaDetallePage;
+  let fixture: ComponentFixture<SalidaDetallePage>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [SalidaDetallePage],
+      providers: [
+        provideRouter([]),
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              paramMap: {
+                get: (key: string) => (key === 'id' ? '1' : null),
+              },
+            },
+          },
+        },
+      ],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(SalidaDetallePage);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create the component', () => {
+    expect(component).toBeTruthy();
+  });
+
+  it('should load salida on init', () => {
+    expect(component.salida()).toBeTruthy();
+    expect(component.salida()?.titulo).toBe('Cine / Spiderman');
+  });
+
+  it('should display the invitation code', () => {
+    expect(component.salida()?.codigoInvitacion).toBe('A3B9X2');
+  });
+
+  it('should have gastos ordered chronologically', () => {
+    const gastos = component.gastos();
+    expect(gastos.length).toBeGreaterThan(0);
+    for (let i = 1; i < gastos.length; i++) {
+      expect(new Date(gastos[i - 1].fecha).getTime()).toBeGreaterThanOrEqual(
+        new Date(gastos[i].fecha).getTime()
+      );
+    }
+  });
+
+  it('should calculate balances for all members', () => {
+    const balances = component.balances();
+    expect(balances.length).toBe(3); // 3 miembros in salida 1
+    // Each member should have balance data
+    for (const b of balances) {
+      expect(b.miembro).toBeDefined();
+      expect(typeof b.totalAdelantado).toBe('number');
+      expect(typeof b.totalCorrespondiente).toBe('number');
+      expect(typeof b.balanceNeto).toBe('number');
+    }
+  });
+
+  it('should have desglose for each gasto', () => {
+    const desglose = component.desgloseGastos();
+    expect(desglose.length).toBe(3); // 3 gastos
+    for (const d of desglose) {
+      expect(d.pagador).toBeDefined();
+      expect(d.participaciones.length).toBeGreaterThan(0);
+    }
+  });
+
+  it('should register and confirm a payment', () => {
+    component.registrarPago('2', '1', 100);
+    const pagos = component.pagos();
+    expect(pagos.length).toBe(1);
+    expect(pagos[0].estado).toBe('pendiente');
+
+    component.confirmarPago(pagos[0].id);
+    const pagosActualizados = component.pagos();
+    expect(pagosActualizados[0].estado).toBe('pagado');
+  });
+
+  it('should open and close the gasto drawer', () => {
+    expect(component.drawerGastoAbierto()).toBe(false);
+    component.abrirDrawerGasto();
+    expect(component.drawerGastoAbierto()).toBe(true);
+    component.cerrarDrawerGasto();
+    expect(component.drawerGastoAbierto()).toBe(false);
+  });
+
+  it('should open and close the integrantes drawer', () => {
+    expect(component.drawerIntegrantesAbierto()).toBe(false);
+    component.abrirDrawerIntegrantes();
+    expect(component.drawerIntegrantesAbierto()).toBe(true);
+    component.cerrarDrawerIntegrantes();
+    expect(component.drawerIntegrantesAbierto()).toBe(false);
+  });
+
+  it('should get member name by id', () => {
+    expect(component.getNombreMiembro('1')).toBe('Juan López');
+    expect(component.getNombreMiembro('999')).toBe('Desconocido');
+  });
+});
