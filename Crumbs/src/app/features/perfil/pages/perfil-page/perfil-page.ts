@@ -48,15 +48,12 @@ export class PerfilPage {
   protected readonly perfilCard = viewChild(PerfilCard);
 
   /**
-   * Activa el modo edición e inicializa los campos editables
-   * con los valores actuales del usuario.
+   * Activa el modo edición.
+   * Los campos editables se inicializan automáticamente en PerfilCard
+   * mediante un effect que observa el cambio de editMode.
    */
   onEdit(): void {
     this.editMode.set(true);
-    // Esperar al siguiente ciclo para que el componente hijo esté en modo edición
-    setTimeout(() => {
-      this.perfilCard()?.initEditFields();
-    });
   }
 
   /**

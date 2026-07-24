@@ -1,0 +1,31 @@
+<div class="salidas-card" role="region" aria-label="Mis Salidas Activas">
+  <h2 class="salidas-card__title">Mis Salidas Activas</h2>
+
+  <!-- Estado vacío: se muestra cuando el usuario no tiene salidas activas -->
+  @if (isEmpty()) {
+    <p class="salidas-card__empty" role="status">No tienes salidas activas en este momento.</p>
+  } @else {
+    <!-- Lista de salidas: el primer ítem recibe el estilo activo/destacado -->
+    <ul class="salidas-list" role="list">
+      @for (salida of salidas(); track salida.id; let isFirst = $first) {
+        <li
+          class="salidas-list__item"
+          [class.salidas-list__item--active]="isFirst"
+          [attr.aria-current]="isFirst ? 'true' : null"
+          matRipple
+          [matRippleDisabled]="isFirst"
+        >
+          <div class="salidas-list__content">
+            <!-- Nombre de la salida -->
+            <span class="salidas-list__label">{{ salida.label }}</span>
+            <!-- Descripción breve de la salida -->
+            <span class="salidas-list__description">{{ salida.description }}</span>
+          </div>
+          @if (salida.fecha) {
+            <span class="salidas-list__date">{{ salida.fecha }}</span>
+          }
+        </li>
+      }
+    </ul>
+  }
+</div>

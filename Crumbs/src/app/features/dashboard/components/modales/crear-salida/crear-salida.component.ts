@@ -1,5 +1,6 @@
 import { Component, signal, inject } from '@angular/core';
 import { Location } from '@angular/common';
+import { MatDialogRef } from '@angular/material/dialog';
 import {
   ReactiveFormsModule,
   FormBuilder,
@@ -61,6 +62,7 @@ function horaValidator(control: AbstractControl): ValidationErrors | null {
 export class CrearSalidaComponent {
   // Permite volver a la pantalla anterior sin conocer la ruta exacta
   private readonly location = inject(Location);
+  private readonly dialogRef = inject(MatDialogRef<CrearSalidaComponent>, { optional: true });
   // Constructor de formularios reactivos
   private readonly fb = inject(FormBuilder);
 
@@ -88,12 +90,30 @@ export class CrearSalidaComponent {
 
   // Vuelve a la pantalla anterior (dashboard)
   onCancelar(): void {
-    this.location.back();
+    if (this.dialogRef) {
+      this.dialogRef.close();
+    } else {
+      this.location.back();
+    }
   }
 
   // Por implementar: enviará el formulario al backend para crear la salida
   onAgregar(): void {
-    // No-op — functionality to be added in a future iteration
+    if (this.form.invalid) return;
+    
+    const values = this.form.value;
+    const date: Date = values.fecha;
+    const dateStr = date ? date.toLocaleDateString() : '';
+    
+    const newSalida = {
+      label: values.nombre,
+      description: values.descripcion,
+      fecha: dateStr
+    };
+    
+    if (this.dialogRef) {
+      this.dialogRef.close(newSalida);
+    }
   }
 
   /**

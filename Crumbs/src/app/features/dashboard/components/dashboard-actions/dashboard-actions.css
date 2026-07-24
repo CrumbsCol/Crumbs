@@ -1,0 +1,24 @@
+.action-btn {
+  /* Use the M3 primary colour token so the button always tracks the theme. */
+  --mdc-filled-button-container-color: var(--mat-sys-primary);
+  --mdc-filled-button-label-text-color: var(--mat-sys-on-primary);
+
+  width: 100%;
+  height: 3rem;
+  border-radius: 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.025em;
+  transition: opacity 0.2s ease;
+
+  &:hover {
+    opacity: 0.9;
+  }
+}
+
+/* Secondary variant: outlined style using primary colour */
+.action-btn--secondary {
+  --mdc-filled-button-container-color: transparent;
+  --mdc-filled-button-label-text-color: var(--mat-sys-primary);
+  border: 2px solid var(--mat-sys-primary);
+}

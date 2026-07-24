@@ -1,5 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { Location } from '@angular/common';
+import { MatDialogRef } from '@angular/material/dialog';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -22,6 +23,7 @@ import { MatIconModule } from '@angular/material/icon';
 export class AgregarSalidaComponent {
   // Permite volver a la pantalla anterior sin conocer la ruta exacta
   private readonly location = inject(Location);
+  private readonly dialogRef = inject(MatDialogRef<AgregarSalidaComponent>, { optional: true });
   // Constructor de formularios reactivos
   private readonly fb = inject(FormBuilder);
 
@@ -33,11 +35,25 @@ export class AgregarSalidaComponent {
 
   // Vuelve a la pantalla anterior (dashboard)
   onCancelar(): void {
-    this.location.back();
+    if (this.dialogRef) {
+      this.dialogRef.close();
+    } else {
+      this.location.back();
+    }
   }
 
   // Por implementar: buscará la salida por código y unirá al usuario
   onUnirme(): void {
-    // No-op — functionality to be added in a future iteration
+    if (this.form.invalid) return;
+    
+    const newSalida = {
+      label: 'Salida Unida (' + this.form.value.codigo + ')',
+      description: 'Te has unido a esta salida exitosamente.',
+      fecha: new Date().toLocaleDateString()
+    };
+    
+    if (this.dialogRef) {
+      this.dialogRef.close(newSalida);
+    }
   }
 }
