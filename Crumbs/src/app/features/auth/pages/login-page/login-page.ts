@@ -1,30 +1,35 @@
 import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
+
+import { LoginBranding } from '../../components/login-branding/login-branding';
+import { LoginForm } from '../../components/login-form/login-form';
 
 /**
- * Página de inicio de sesión (placeholder).
+ * Página de inicio de sesión — componente orquestador.
  *
- * Actualmente muestra una interfaz básica de login sin funcionalidad real.
- * Se renderiza fuera del MainLayout, por lo que NO muestra el header.
+ * Responsabilidades:
+ * - Define el layout split (branding izquierdo + formulario derecho).
+ * - Ensambla los componentes presentacionales LoginBranding y LoginForm.
+ * - Recibe el evento loginSubmit del formulario y ejecuta la acción de login.
  *
- * Cuando se integre autenticación real, este componente deberá:
- * - Incluir un formulario reactivo con email/usuario y contraseña.
- * - Validar credenciales contra el backend.
- * - Redirigir al perfil o dashboard tras login exitoso.
- * - Mostrar errores de autenticación.
+ * Se renderiza fuera del MainLayout (sin header) porque las rutas
+ * de autenticación no necesitan el header compartido.
  *
- * @example
- * ```typescript
- * // En app.routes.ts:
- * { path: 'login', loadComponent: () => import('./features/auth/pages/login-page/login-page').then(m => m.LoginPage) }
- * ```
+ * Futuro: inyectar AuthService y redirigir al dashboard tras login exitoso.
  */
 @Component({
   selector: 'app-login-page',
   standalone: true,
-  imports: [RouterLink, MatButtonModule],
+  imports: [LoginBranding, LoginForm],
   templateUrl: './login-page.html',
   styleUrl: './login-page.css',
 })
-export class LoginPage {}
+export class LoginPage {
+  /**
+   * Maneja el evento de login emitido por LoginForm.
+   * Recibe las credenciales validadas del formulario hijo.
+   * Por ahora solo loguea en consola — en futuro llamará a AuthService.login().
+   */
+  onLogin(credentials: { emailOrUsername: string; password: string }): void {
+    console.log('Login:', credentials);
+  }
+}

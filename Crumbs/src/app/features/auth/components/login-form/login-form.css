@@ -1,0 +1,54 @@
+/**
+ * Estilos del componente LoginForm.
+ * Formulario centrado con campos de ancho completo y buen espaciado.
+ */
+
+:host {
+  display: block;
+  width: 100%;
+  max-width: 380px;
+}
+
+.login-form-container {
+  width: 100%;
+}
+
+/* Título del formulario con espacio inferior generoso */
+.form-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--mat-sys-on-surface);
+  margin: 0 0 2.5rem;
+  text-align: center;
+}
+
+/* Cada campo ocupa el ancho completo con separación vertical */
+.form-field {
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+/* Botón de submit con separación del último campo */
+.submit-button {
+  width: 100%;
+  margin-top: 1.5rem;
+  padding: 0.75rem 0;
+}
+
+/* Enlace de registro con espacio superior */
+.register-link {
+  text-align: center;
+  margin-top: 2rem;
+  font-size: 0.875rem;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.register-link a {
+  color: var(--mat-sys-primary);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.register-link a:hover {
+  text-decoration: underline;
+}
