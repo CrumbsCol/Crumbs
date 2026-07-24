@@ -25,37 +25,82 @@
     }
   </div>
 
-  <!-- Datos del usuario: modo edición o visualización -->
-  @if (editMode()) {
-    <!-- Modo edición: inputs con Material Form Fields -->
-    <div class="user-info flex flex-col space-y-4 w-full max-w-sm">
+  <!-- Datos del usuario: misma estructura visual en ambos modos -->
+  <div class="user-info flex flex-col space-y-4 w-full max-w-sm">
+
+    @if (editMode()) {
+      <!-- Modo edición: formulario reactivo con validaciones -->
+      <form [formGroup]="editForm" class="flex flex-col space-y-4">
+        <mat-form-field appearance="outline">
+          <mat-label>Nombre</mat-label>
+          <input matInput formControlName="nombre" placeholder="Nombre completo" />
+          @if (editForm.controls.nombre.hasError('required') && editForm.controls.nombre.touched) {
+            <mat-error>El nombre es requerido</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>UserName</mat-label>
+          <input matInput formControlName="userName" placeholder="Nombre de usuario" />
+          @if (editForm.controls.userName.hasError('required') && editForm.controls.userName.touched) {
+            <mat-error>El nombre de usuario es requerido</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Fecha de nacimiento</mat-label>
+          <input matInput type="date" formControlName="fechaNacimiento" />
+          @if (editForm.controls.fechaNacimiento.hasError('required') && editForm.controls.fechaNacimiento.touched) {
+            <mat-error>La fecha de nacimiento es requerida</mat-error>
+          }
+        </mat-form-field>
+
+        <!-- Contraseña con validaciones de seguridad -->
+        <mat-form-field appearance="outline">
+          <mat-label>Nueva contraseña</mat-label>
+          <input matInput type="password" formControlName="password" placeholder="Dejar vacío para no cambiar" />
+          @if (editForm.controls.password.hasError('minlength') && editForm.controls.password.touched) {
+            <mat-error>Mínimo 6 caracteres</mat-error>
+          } @else if (editForm.controls.password.hasError('missingUppercase') && editForm.controls.password.touched) {
+            <mat-error>Debe contener al menos una mayúscula</mat-error>
+          } @else if (editForm.controls.password.hasError('missingNumber') && editForm.controls.password.touched) {
+            <mat-error>Debe contener al menos un número</mat-error>
+          } @else if (editForm.controls.password.hasError('missingSpecial') && editForm.controls.password.touched) {
+            <mat-error>Debe contener al menos un carácter especial (!&#64;#$%^&*)</mat-error>
+          }
+        </mat-form-field>
+
+        <!-- Confirmar contraseña -->
+        <mat-form-field appearance="outline">
+          <mat-label>Confirmar contraseña</mat-label>
+          <input matInput type="password" formControlName="confirmPassword" placeholder="Repite la nueva contraseña" />
+          @if (passwordsMismatch) {
+            <mat-error>Las contraseñas no coinciden</mat-error>
+          }
+        </mat-form-field>
+      </form>
+    } @else {
+      <!-- Modo visualización: form-fields con FormControls deshabilitados (readonly) -->
       <mat-form-field appearance="outline">
         <mat-label>Nombre</mat-label>
-        <input matInput [(ngModel)]="editNombre" placeholder="Nombre completo" />
+        <input matInput [formControl]="readonlyNombre" readonly />
       </mat-form-field>
 
       <mat-form-field appearance="outline">
         <mat-label>UserName</mat-label>
-        <input matInput [(ngModel)]="editUserName" placeholder="Nombre de usuario" />
+        <input matInput [formControl]="readonlyUserName" readonly />
       </mat-form-field>
 
       <mat-form-field appearance="outline">
         <mat-label>Fecha de nacimiento</mat-label>
-        <input matInput [(ngModel)]="editFechaNacimiento" placeholder="dd/MM/yyyy" />
+        <input matInput [formControl]="readonlyFechaNacimiento" readonly />
       </mat-form-field>
 
       <mat-form-field appearance="outline">
         <mat-label>Contraseña</mat-label>
-        <input matInput type="password" [(ngModel)]="editPassword" placeholder="Nueva contraseña" />
+        <input matInput type="password" [formControl]="readonlyPassword" readonly />
       </mat-form-field>
-    </div>
-  } @else {
-    <!-- Modo visualización: solo texto -->
-    <div class="user-info flex flex-col space-y-4 text-gray-700">
-      <p class="text-base">{{ user().nombre }}</p>
-      <p class="text-base">{{ user().userName }}</p>
-      <p class="text-base">{{ user().fechaNacimiento }}</p>
-      <p class="text-base">Contraseña</p>
-    </div>
-  }
+    }
+
+  </div>
 </div>

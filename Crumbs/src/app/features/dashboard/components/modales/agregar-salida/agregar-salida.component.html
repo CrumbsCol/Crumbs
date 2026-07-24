@@ -1,0 +1,33 @@
+<!-- Pantalla para unirse a una salida existente mediante un código alfanumérico -->
+<section class="agregar-salida-view" aria-label="Agregar salida existente">
+  <h1 class="page-title">Agregar Salida</h1>
+
+  <!-- Tarjeta con el campo de código de la salida -->
+  <div class="agregar-salida-card">
+    <form [formGroup]="form">
+
+      <!-- Campo de código: acepta solo letras y números, muestra error si se usan otros caracteres -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Código</mat-label>
+        <input
+          matInput
+          formControlName="codigo"
+          placeholder="Ej: ABC123"
+          autocomplete="off"
+        />
+        <!-- Icono de búsqueda decorativo en el lado derecho del campo -->
+        <mat-icon matIconSuffix>search</mat-icon>
+        <!-- Error visible solo después de que el usuario haya interactuado con el campo -->
+        @if (form.get('codigo')?.hasError('pattern') && form.get('codigo')?.dirty) {
+          <mat-error>Solo se permiten letras y números</mat-error>
+        }
+      </mat-form-field>
+    </form>
+  </div>
+
+  <!-- Barra de acciones: Cancelar vuelve al dashboard, Unirme procesará el código (pendiente) -->
+  <div class="action-bar">
+    <button mat-button class="btn-cancelar" (click)="onCancelar()">Cancelar</button>
+    <button mat-flat-button class="btn-unirme" (click)="onUnirme()">Unirme</button>
+  </div>
+</section>

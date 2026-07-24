@@ -1,3 +1,19 @@
 /* You can add global styles to this file, and also import other style files */
 
 @import 'tailwindcss';
+
+/* ─── Modal de salidas: estilo global para el panel del diálogo ─────────────── */
+.modal-salida .mdc-dialog__surface {
+  border-radius: 1rem !important;
+}
+
+.modal-salida .mat-mdc-dialog-container .mdc-dialog__content {
+  padding: 0 !important;
+  overflow-y: auto;
+  max-height: 80vh;
+}
+
+/* Asegura que el overlay del datepicker no quede cortado por el diálogo */
+.cdk-overlay-container {
+  z-index: 1100 !important;
+}

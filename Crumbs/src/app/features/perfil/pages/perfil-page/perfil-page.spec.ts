@@ -3,6 +3,7 @@ import { provideRouter } from '@angular/router';
 import { describe, it, expect, beforeEach } from 'vitest';
 
 import { PerfilPage } from './perfil-page';
+import { UserService } from '../../../../core/services/user.service';
 
 /**
  * Tests unitarios para el componente PerfilPage.
@@ -12,12 +13,24 @@ import { PerfilPage } from './perfil-page';
 describe('PerfilPage', () => {
   let component: PerfilPage;
   let fixture: ComponentFixture<PerfilPage>;
+  let userService: UserService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [PerfilPage],
       providers: [provideRouter([])],
     }).compileComponents();
+
+    // Configurar usuario antes de crear el componente
+    userService = TestBed.inject(UserService);
+    userService.setUser({
+      id: 'test-1',
+      nombre: 'Test User',
+      userName: 'testuser',
+      fechaNacimiento: '01/01/2000',
+      email: 'test@example.com',
+      avatarUrl: null,
+    });
 
     fixture = TestBed.createComponent(PerfilPage);
     component = fixture.componentInstance;
@@ -28,21 +41,14 @@ describe('PerfilPage', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should have a current user from the service', () => {
-    // El UserService devuelve MOCK_USER por defecto
-    expect(component.currentUser()).toBeTruthy();
-    expect(component.currentUser()?.nombre).toBe('Juan López');
-  });
-
-  it('should render the edit button', () => {
+  it('should render the edit button when user is present', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     const editButton = compiled.querySelector('button[aria-label="Editar perfil"]');
     expect(editButton).toBeTruthy();
   });
 
-  it('should render the perfil-card component', () => {
+  it('should render the perfil card component', () => {
     const compiled = fixture.nativeElement as HTMLElement;
-    const perfilCard = compiled.querySelector('app-perfil-card');
-    expect(perfilCard).toBeTruthy();
+    expect(compiled.querySelector('app-perfil-card')).toBeTruthy();
   });
 });
