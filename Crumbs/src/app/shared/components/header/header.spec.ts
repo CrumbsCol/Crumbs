@@ -30,7 +30,7 @@ describe('Header', () => {
   it('should render the logo text', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     const logo = compiled.querySelector('.logo span');
-    expect(logo?.textContent).toContain('Logo');
+    expect(logo?.textContent).toContain('Crumbs');
   });
 
   it('should render navigation links', () => {
