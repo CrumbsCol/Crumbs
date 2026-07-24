@@ -1,12 +1,14 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { describe, it, expect, beforeEach } from 'vitest';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 import { LoginPage } from './login-page';
 
 /**
- * Tests unitarios para el componente LoginPage.
- * Verifica la creación y renderizado básico de la página de login placeholder.
+ * Tests unitarios para LoginPage (componente orquestador).
+ * Verifica que ensambla correctamente los componentes hijos
+ * (LoginBranding y LoginForm) y maneja el evento de login.
  */
 describe('LoginPage', () => {
   let component: LoginPage;
@@ -15,7 +17,7 @@ describe('LoginPage', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [LoginPage],
-      providers: [provideRouter([])],
+      providers: [provideRouter([]), provideNoopAnimations()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(LoginPage);
@@ -23,25 +25,37 @@ describe('LoginPage', () => {
     fixture.detectChanges();
   });
 
-  it('should create the component', () => {
+  it('debería crear el componente', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should render the app title', () => {
+  it('debería renderizar el componente de branding', () => {
     const compiled = fixture.nativeElement as HTMLElement;
-    const title = compiled.querySelector('h1');
-    expect(title?.textContent).toContain('Crumbs');
+    expect(compiled.querySelector('app-login-branding')).toBeTruthy();
   });
 
-  it('should render the login heading', () => {
+  it('debería renderizar el componente de formulario', () => {
     const compiled = fixture.nativeElement as HTMLElement;
-    const heading = compiled.querySelector('h2');
-    expect(heading?.textContent).toContain('Iniciar Sesión');
+    expect(compiled.querySelector('app-login-form')).toBeTruthy();
   });
 
-  it('should have a link to perfil', () => {
+  it('debería renderizar el layout split con ambos paneles', () => {
     const compiled = fixture.nativeElement as HTMLElement;
-    const link = compiled.querySelector('a[routerLink="/perfil"]');
-    expect(link).toBeTruthy();
+    expect(compiled.querySelector('.login-layout')).toBeTruthy();
+    expect(compiled.querySelector('.branding-panel-bg')).toBeTruthy();
+    expect(compiled.querySelector('.form-panel')).toBeTruthy();
+  });
+
+  it('debería loguear las credenciales cuando se llama onLogin', () => {
+    const consoleSpy = vi.spyOn(console, 'log');
+    const credentials = {
+      emailOrUsername: 'usuario@ejemplo.com',
+      password: 'Abcdef1!',
+    };
+
+    component.onLogin(credentials);
+
+    expect(consoleSpy).toHaveBeenCalledWith('Login:', credentials);
+    consoleSpy.mockRestore();
   });
 });

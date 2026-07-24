@@ -1,0 +1,12 @@
+<!-- Página de Registro: layout 1 columna con header arriba y formulario centrado -->
+<div class="registro-layout">
+
+  <!-- Header: Logo + Volver -->
+  <app-registro-header />
+
+  <!-- Contenido: formulario centrado -->
+  <main class="registro-content">
+    <app-registro-form (registroSubmit)="onRegister($event)" />
+  </main>
+
+</div>

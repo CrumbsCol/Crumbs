@@ -1,0 +1,97 @@
+<!-- Formulario de registro de usuario -->
+<div class="registro-form-container">
+  <form [formGroup]="registroForm" (ngSubmit)="onSubmit()" novalidate>
+
+    <!-- Campo: Correo electrónico -->
+    <mat-form-field appearance="outline" class="form-field">
+      <mat-label>Correo electrónico</mat-label>
+      <input
+        matInput
+        formControlName="email"
+        type="email"
+        autocomplete="email"
+      />
+      @if (registroForm.controls.email.hasError('required')) {
+        <mat-error>El correo es requerido</mat-error>
+      } @else if (registroForm.controls.email.hasError('email')) {
+        <mat-error>Ingresa un correo válido</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Campo: Usuario -->
+    <mat-form-field appearance="outline" class="form-field">
+      <mat-label>Usuario</mat-label>
+      <input
+        matInput
+        formControlName="userName"
+        type="text"
+        autocomplete="username"
+      />
+      @if (registroForm.controls.userName.hasError('required')) {
+        <mat-error>El usuario es requerido</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Campo: Contraseña -->
+    <mat-form-field appearance="outline" class="form-field">
+      <mat-label>Contraseña</mat-label>
+      <input
+        matInput
+        formControlName="password"
+        type="password"
+        autocomplete="new-password"
+      />
+      @if (registroForm.controls.password.hasError('required')) {
+        <mat-error>La contraseña es requerida</mat-error>
+      } @else if (registroForm.controls.password.hasError('minlength')) {
+        <mat-error>Mínimo 6 caracteres</mat-error>
+      } @else if (registroForm.controls.password.hasError('missingUppercase')) {
+        <mat-error>Debe tener al menos una mayúscula</mat-error>
+      } @else if (registroForm.controls.password.hasError('missingNumber')) {
+        <mat-error>Debe tener al menos un número</mat-error>
+      } @else if (registroForm.controls.password.hasError('missingSpecial')) {
+        <mat-error>Debe tener al menos un carácter especial (!&#64;#$%^&*)</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Campo: Confirmar contraseña -->
+    <mat-form-field appearance="outline" class="form-field">
+      <mat-label>Confirmar contraseña</mat-label>
+      <input
+        matInput
+        formControlName="confirmPassword"
+        type="password"
+        autocomplete="new-password"
+      />
+      @if (registroForm.controls.confirmPassword.hasError('required')) {
+        <mat-error>Confirma tu contraseña</mat-error>
+      } @else if (registroForm.hasError('passwordMismatch')) {
+        <mat-error>Las contraseñas no coinciden</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Campo: Fecha de nacimiento (selector nativo) -->
+    <mat-form-field appearance="outline" class="form-field">
+      <mat-label>Fecha de nacimiento</mat-label>
+      <input
+        matInput
+        formControlName="fechaNacimiento"
+        type="date"
+      />
+      @if (registroForm.controls.fechaNacimiento.hasError('required')) {
+        <mat-error>La fecha de nacimiento es requerida</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Botón: Registrarme -->
+    <button
+      mat-flat-button
+      color="primary"
+      type="submit"
+      class="submit-button"
+      [disabled]="registroForm.invalid"
+    >
+      Registrarme
+    </button>
+  </form>
+</div>

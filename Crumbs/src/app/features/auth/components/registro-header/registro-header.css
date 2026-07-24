@@ -1,0 +1,27 @@
+/**
+ * Estilos del componente RegistroHeader.
+ * Barra superior con logo y enlace "Volver" separados con flex.
+ */
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+.registro-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  border-bottom: 1px solid var(--mat-sys-outline-variant, #e0e0e0);
+}
+
+.logo {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--mat-sys-on-surface);
+}
+
+.volver-link {
+  color: var(--mat-sys-on-surface);
+}

@@ -1,0 +1,35 @@
+/**
+ * Estilos de la página de Registro (orquestador).
+ * Layout de 1 columna: header fijo arriba, formulario centrado debajo.
+ */
+
+:host {
+  display: block;
+  width: 100%;
+  min-height: 100vh;
+  background-color: var(--mat-sys-surface);
+}
+
+.registro-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Contenido principal: centra el formulario horizontal y verticalmente */
+.registro-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+/* Responsive: menos padding en mobile */
+@media (max-width: 767px) {
+  .registro-content {
+    padding: 1.5rem;
+    align-items: flex-start;
+    padding-top: 2rem;
+  }
+}
