@@ -1,0 +1,136 @@
+// ─── Page container ───────────────────────────────────────────────────────────
+.crear-salida-view {
+  padding: 1.5rem;
+  max-width: 600px;
+  margin-inline: auto;
+}
+
+// ─── Page title ───────────────────────────────────────────────────────────────
+.page-title {
+  font: var(--mat-sys-display-small);
+  color: var(--mat-sys-on-surface);
+  margin: 0 0 1.5rem;
+}
+
+// ─── Form card ────────────────────────────────────────────────────────────────
+.crear-salida-card {
+  background-color: var(--mat-sys-surface-container);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+// ─── Full-width form fields ───────────────────────────────────────────────────
+.full-width {
+  width: 100%;
+}
+
+// ─── Fecha / Hora row ────────────────────────────────────────────────────────
+.fecha-hora-row {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.fecha-field {
+  flex: 2;
+  min-width: 0;
+}
+
+.hora-field {
+  flex: 1;
+  min-width: 0;
+}
+
+.periodo-field {
+  flex: 1;
+  min-width: 0;
+}
+
+// ─── Integrantes section ──────────────────────────────────────────────────────
+.integrantes-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+
+  h2 {
+    font: var(--mat-sys-title-medium);
+    color: var(--mat-sys-on-surface);
+    margin: 0;
+  }
+}
+
+.integrante-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background-color: var(--mat-sys-surface-container-low);
+  border-radius: 0.625rem;
+  margin-bottom: 0.5rem;
+}
+
+.integrante-avatar {
+  font-size: 2.5rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  color: var(--mat-sys-on-surface-variant);
+  flex-shrink: 0;
+}
+
+.integrante-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.integrante-nombre {
+  font: var(--mat-sys-label-large);
+  color: var(--mat-sys-on-surface);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.integrante-descripcion {
+  font: var(--mat-sys-body-small);
+  color: var(--mat-sys-on-surface-variant);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.integrante-delete {
+  color: var(--mat-sys-on-surface-variant);
+  flex-shrink: 0;
+}
+
+// ─── Action bar ───────────────────────────────────────────────────────────────
+.action-bar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.btn-cancelar {
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.btn-agregar {
+  --mdc-filled-button-container-color: var(--mat-sys-primary);
+  --mdc-filled-button-label-text-color: var(--mat-sys-on-primary);
+  border-radius: 0.75rem;
+  font-weight: 600;
+  transition: opacity 0.2s ease;
+
+  &:hover {
+    opacity: 0.9;
+  }
+}

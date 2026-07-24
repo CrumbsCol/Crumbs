@@ -1,0 +1,123 @@
+// Dashboard view — scoped styles
+// Tailwind utility classes handle the grid/spacing; SCSS handles
+// component-specific tokens and states that Tailwind can't express cleanly.
+
+// ─── Layout container ────────────────────────────────────────────────────────
+.dashboard-view {
+  padding: 1.5rem;
+  max-width: 960px;
+  margin-inline: auto;
+}
+
+// ─── Welcome heading ─────────────────────────────────────────────────────────
+.welcome-title {
+  font: var(--mat-sys-display-small);
+  color: var(--mat-sys-on-surface);
+  margin: 0;
+}
+
+// ─── Action buttons ──────────────────────────────────────────────────────────
+.action-btn {
+  // Use the M3 primary colour token so the button always tracks the theme.
+  --mdc-filled-button-container-color: var(--mat-sys-primary);
+  --mdc-filled-button-label-text-color: var(--mat-sys-on-primary);
+
+  width: 100%;
+  height: 3rem;
+  border-radius: 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.025em;
+  transition: opacity 0.2s ease;
+
+  &:hover {
+    opacity: 0.9;
+  }
+
+  // Secondary variant: outlined style using primary colour
+  &--secondary {
+    --mdc-filled-button-container-color: transparent;
+    --mdc-filled-button-label-text-color: var(--mat-sys-primary);
+    border: 2px solid var(--mat-sys-primary);
+  }
+}
+
+// ─── Salidas card ─────────────────────────────────────────────────────────────
+.salidas-card {
+  background-color: var(--mat-sys-surface-container);
+  border-radius: 1rem;
+  padding: 1.25rem 1.5rem;
+  min-height: 240px;
+
+  &__title {
+    font: var(--mat-sys-title-medium);
+    color: var(--mat-sys-on-surface);
+    margin: 0 0 1rem;
+  }
+
+  &__empty {
+    font: var(--mat-sys-body-medium);
+    color: var(--mat-sys-on-surface-variant);
+    margin: 0;
+    text-align: center;
+    padding-top: 2rem;
+  }
+}
+
+// ─── Salidas list ─────────────────────────────────────────────────────────────
+.salidas-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  &__item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    padding: 0.75rem 1rem;
+    border-radius: 0.625rem;
+    cursor: pointer;
+    background-color: var(--mat-sys-surface-container-low);
+    transition: background-color 0.2s ease;
+    min-width: 0; // allows flex/grid children to shrink below their content size
+
+    // Active/selected state — first item gets a dark highlight
+    &--active {
+      background-color: var(--mat-sys-secondary-container);
+      cursor: default;
+
+      .salidas-list__label {
+        color: var(--mat-sys-on-secondary-container);
+        font-weight: 600;
+      }
+
+      .salidas-list__description {
+        color: var(--mat-sys-on-secondary-container);
+        opacity: 0.8;
+      }
+    }
+
+    &:not(&--active):hover {
+      background-color: var(--mat-sys-surface-container-high);
+    }
+  }
+
+  &__label {
+    font: var(--mat-sys-label-large);
+    color: var(--mat-sys-on-surface);
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  &__description {
+    font: var(--mat-sys-body-small);
+    color: var(--mat-sys-on-surface-variant);
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+}
