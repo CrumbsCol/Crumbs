@@ -21,7 +21,10 @@ import { authGuard } from './core/guards/auth.guard';
  */
 export const routes: Routes = [
   // ─── Rutas SIN header (autenticación) — públicas ────────────────────
+
+  // ─── Rutas SIN header (autenticación) ───────────────────────────────────────
   {
+    // Pantalla de inicio de sesión — no usa el MainLayout
     path: 'login',
     loadComponent: () =>
       import('./features/auth/pages/login-page/login-page').then(
@@ -37,24 +40,48 @@ export const routes: Routes = [
   },
 
   // ─── Rutas CON header (dentro del MainLayout) — protegidas ──────────
+  // ─── Rutas CON header (dentro del MainLayout) ───────────────────────────────
   {
+    // Shell vacío que inyecta el header y el <router-outlet> para las rutas hijas
     path: '',
     loadComponent: () =>
       import('./layouts/main-layout/main-layout').then((m) => m.MainLayout),
     canActivate: [authGuard],
     children: [
       {
+        // Perfil del usuario
         path: 'perfil',
         loadComponent: () =>
           import('./features/perfil/pages/perfil-page/perfil-page').then(
             (m) => m.PerfilPage
           ),
       },
-      // Futuras rutas con header:
-      // { path: 'dashboard', loadComponent: () => import('./features/dashboard/pages/...').then(m => m.DashboardPage) },
-      // { path: 'salidas', loadComponent: () => import('./features/salidas/pages/...').then(m => m.SalidasPage) },
+      {
+        // Panel principal: saludo, acciones rápidas y lista de salidas activas
+        path: 'dashboard',
+        loadComponent: () =>
+          import('./features/dashboard/components/dashboard/dashboard.component').then(
+            (m) => m.DashboardComponent
+          ),
+      },
+      {
+        // Formulario para crear una nueva salida (nombre, descripción, fecha/hora, integrantes)
+        path: 'salidas/crear',
+        loadComponent: () =>
+          import('./features/dashboard/components/interfaz/crear-salida/crear-salida.component').then(
+            (m) => m.CrearSalidaComponent
+          ),
+      },
+      {
+        // Formulario para unirse a una salida existente mediante un código alfanumérico
+        path: 'salidas/agregar',
+        loadComponent: () =>
+          import('./features/dashboard/components/interfaz/agregar-salida/agregar-salida.component').then(
+            (m) => m.AgregarSalidaComponent
+          ),
+      },
 
-      // Redirect por defecto hacia perfil
+      // Redirige la raíz vacía al perfil por defecto
       { path: '', redirectTo: 'perfil', pathMatch: 'full' },
     ],
   },

@@ -1,0 +1,52 @@
+// ─── Page container ───────────────────────────────────────────────────────────
+.agregar-salida-view {
+  padding: 1.5rem;
+  max-width: 600px;
+  margin-inline: auto;
+}
+
+// ─── Page title ───────────────────────────────────────────────────────────────
+.page-title {
+  font: var(--mat-sys-display-small);
+  color: var(--mat-sys-on-surface);
+  margin: 0 0 1.5rem;
+}
+
+// ─── Form card ────────────────────────────────────────────────────────────────
+.agregar-salida-card {
+  background-color: var(--mat-sys-surface-container);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+// ─── Full-width form fields ───────────────────────────────────────────────────
+.full-width {
+  width: 100%;
+}
+
+// ─── Action bar ───────────────────────────────────────────────────────────────
+.action-bar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.btn-cancelar {
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.btn-unirme {
+  --mdc-filled-button-container-color: var(--mat-sys-primary);
+  --mdc-filled-button-label-text-color: var(--mat-sys-on-primary);
+  border-radius: 0.75rem;
+  font-weight: 600;
+  transition: opacity 0.2s ease;
+
+  &:hover {
+    opacity: 0.9;
+  }
+}
