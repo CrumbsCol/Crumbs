@@ -1,12 +1,17 @@
 /**
  * Estilos del DrawerAgregarIntegrantes.
- * Usa variables de Material 3 para coherencia con el proyecto.
+ *
+ * Drawer lateral derecho para agregar miembros a una salida.
+ * Permite buscar por username, email, o crear integrantes fantasma.
+ * Usa variables de Material 3 para coherencia con el tema del proyecto.
  */
 
+/* Permite que el componente no genere un wrapper extra en el DOM */
 :host {
   display: contents;
 }
 
+/* ─── Overlay oscuro detrás del drawer ────────────────────────────────── */
 .drawer-overlay {
   position: fixed;
   inset: 0;
@@ -15,6 +20,7 @@
   transition: opacity 0.3s ease;
 }
 
+/* ─── Panel del drawer (lateral derecho) ──────────────────────────────── */
 .drawer-panel {
   position: fixed;
   top: 0;
@@ -23,6 +29,7 @@
   width: 420px;
   background-color: var(--mat-sys-surface);
   z-index: 1000;
+  /* Oculto fuera de pantalla por defecto */
   transform: translateX(100%);
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
@@ -31,10 +38,12 @@
   border-radius: 16px 0 0 16px;
 }
 
+/* Estado abierto: desliza el panel a la vista */
 .drawer-panel.abierto {
   transform: translateX(0);
 }
 
+/* ─── Cuerpo scrollable del contenido ─────────────────────────────────── */
 .drawer-body {
   flex: 1;
   overflow-y: auto;
@@ -43,11 +52,12 @@
   flex-direction: column;
 }
 
-/* Campos */
+/* ─── Campos del formulario ───────────────────────────────────────────── */
 .campo {
   margin-bottom: 0.75rem;
 }
 
+/* Label de sección (ej: "Seleccionados", "Miembros Frecuentes") */
 .campo-label {
   display: block;
   font-size: 0.875rem;
@@ -56,11 +66,13 @@
   margin-bottom: 0.25rem;
 }
 
+/* Ícono de búsqueda clickeable en los campos de texto */
 .search-icon {
   cursor: pointer;
   color: var(--mat-sys-on-surface-variant);
 }
 
+/* Mensaje de error cuando no se encuentra el usuario */
 .error-msg {
   font-size: 0.75rem;
   color: var(--mat-sys-error);
@@ -68,7 +80,26 @@
   margin-bottom: 0.75rem;
 }
 
-/* Lista de miembros frecuentes */
+/* ─── Fila de integrante fantasma: campo + botón ──────────────────────── */
+.fantasma-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+/* Campo de texto del nombre fantasma (ocupa el espacio disponible) */
+.fantasma-field {
+  flex: 1;
+}
+
+/* Botón "Agregar" — alineado al input, no al hint debajo */
+.btn-agregar-fantasma {
+  flex-shrink: 0;
+  white-space: nowrap;
+  margin-top: 0.25rem;
+}
+
+/* ─── Lista de miembros (frecuentes y seleccionados) ──────────────────── */
 .miembros-lista {
   display: flex;
   flex-direction: column;
@@ -76,6 +107,7 @@
   margin-top: 0.5rem;
 }
 
+/* Card de miembro clickeable */
 .miembro-card {
   display: flex;
   align-items: center;
@@ -87,16 +119,19 @@
   transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 
+/* Hover en la card */
 .miembro-card:hover {
   border-color: var(--mat-sys-outline);
   background-color: var(--mat-sys-surface-container-lowest);
 }
 
+/* Estado seleccionado: borde primario */
 .miembro-card.seleccionado {
   border-color: var(--mat-sys-primary);
   background-color: var(--mat-sys-surface-container-lowest);
 }
 
+/* Avatar circular del miembro */
 .miembro-avatar {
   width: 40px;
   height: 40px;
@@ -108,24 +143,27 @@
   color: var(--mat-sys-on-surface-variant);
 }
 
+/* Contenedor de nombre + username */
 .miembro-info {
   display: flex;
   flex-direction: column;
   flex: 1;
 }
 
+/* Nombre del miembro */
 .miembro-title {
   font-size: 0.875rem;
   font-weight: 500;
   color: var(--mat-sys-on-surface);
 }
 
+/* Username o indicador "(Fantasma)" */
 .miembro-desc {
   font-size: 0.75rem;
   color: var(--mat-sys-on-surface-variant);
 }
 
-/* Footer con botones */
+/* ─── Footer fijo con botones de acción ───────────────────────────────── */
 .drawer-footer {
   display: flex;
   align-items: center;
@@ -136,11 +174,13 @@
   border-top: 1px solid var(--mat-sys-outline-variant);
 }
 
+/* Botón "Cancelar" */
 .btn-cancelar {
   font-size: 0.875rem;
   color: var(--mat-sys-on-surface-variant);
 }
 
+/* Botón "Agregar" */
 .btn-agregar {
   background-color: var(--mat-sys-surface-container) !important;
   color: var(--mat-sys-on-surface) !important;

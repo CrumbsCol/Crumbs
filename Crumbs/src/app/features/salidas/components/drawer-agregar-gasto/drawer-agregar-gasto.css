@@ -1,12 +1,16 @@
 /**
  * Estilos del DrawerAgregarGasto.
- * Usa variables de Material 3 para coherencia con el proyecto.
+ *
+ * Drawer lateral derecho para registrar un nuevo gasto en una salida.
+ * Usa variables de Material 3 para coherencia con el tema del proyecto.
  */
 
+/* Permite que el componente no genere un wrapper extra en el DOM */
 :host {
   display: contents;
 }
 
+/* ─── Overlay oscuro detrás del drawer ────────────────────────────────── */
 .drawer-overlay {
   position: fixed;
   inset: 0;
@@ -15,6 +19,7 @@
   transition: opacity 0.3s ease;
 }
 
+/* ─── Panel del drawer (lateral derecho) ──────────────────────────────── */
 .drawer-panel {
   position: fixed;
   top: 0;
@@ -23,6 +28,7 @@
   width: 420px;
   background-color: var(--mat-sys-surface);
   z-index: 1000;
+  /* Oculto fuera de pantalla por defecto */
   transform: translateX(100%);
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
@@ -31,10 +37,12 @@
   border-radius: 16px 0 0 16px;
 }
 
+/* Estado abierto: desliza el panel a la vista */
 .drawer-panel.abierto {
   transform: translateX(0);
 }
 
+/* ─── Cuerpo scrollable del formulario ────────────────────────────────── */
 .drawer-body {
   flex: 1;
   overflow-y: auto;
@@ -44,11 +52,12 @@
   gap: 0.25rem;
 }
 
-/* Campos */
+/* ─── Campos del formulario ───────────────────────────────────────────── */
 .campo {
   margin-bottom: 0.5rem;
 }
 
+/* Label genérico para secciones (ej: "Miembros") */
 .campo-label {
   display: block;
   font-size: 0.875rem;
@@ -57,34 +66,38 @@
   margin-bottom: 0.25rem;
 }
 
-/* Fila Fecha + Equitativo */
+/* ─── Fila: Fecha/Hora + Toggle Equitativo ────────────────────────────── */
 .fecha-equitativo-row {
   display: flex;
   align-items: center;
   gap: 1.5rem;
 }
 
+/* Columna del campo de fecha */
 .fecha-col {
   flex: 0 0 auto;
 }
 
+/* Ancho fijo para el campo de fecha */
 .fecha-field {
   width: 160px;
 }
 
+/* Columna del toggle equitativo — margin-top negativo para alinear al centro del campo fecha */
 .equitativo-col {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding-top: 1.25rem;
+  margin-top: -0.5rem;
 }
 
+/* Etiqueta "Equitativo" */
 .equitativo-label {
   font-size: 0.875rem;
   color: var(--mat-sys-on-surface);
 }
 
-/* Lista de miembros */
+/* ─── Lista de miembros ───────────────────────────────────────────────── */
 .miembros-lista {
   display: flex;
   flex-direction: column;
@@ -92,6 +105,21 @@
   margin-top: 0.5rem;
 }
 
+/* Wrapper de cada miembro: agrupa card + extras verticalmente */
+.miembro-card-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Fila principal: card del miembro + campo monto al lado */
+.miembro-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Card clickeable del miembro */
 .miembro-card {
   display: flex;
   align-items: center;
@@ -101,13 +129,17 @@
   border-radius: 12px;
   cursor: pointer;
   transition: border-color 0.2s ease, background-color 0.2s ease;
+  flex: 1;
+  min-width: 0;
 }
 
+/* Hover en la card del miembro */
 .miembro-card:hover {
   border-color: var(--mat-sys-outline);
   background-color: var(--mat-sys-surface-container-lowest);
 }
 
+/* Avatar circular del miembro */
 .miembro-avatar {
   width: 40px;
   height: 40px;
@@ -117,33 +149,63 @@
   align-items: center;
   justify-content: center;
   color: var(--mat-sys-on-surface-variant);
+  flex-shrink: 0;
 }
 
+/* Contenedor de nombre + username del miembro */
 .miembro-info {
   display: flex;
   flex-direction: column;
   flex: 1;
+  min-width: 0;
 }
 
+/* Nombre del miembro */
 .miembro-title {
   font-size: 0.875rem;
   font-weight: 500;
   color: var(--mat-sys-on-surface);
 }
 
+/* Username del miembro */
 .miembro-desc {
   font-size: 0.75rem;
   color: var(--mat-sys-on-surface-variant);
 }
 
+/* Ícono de check cuando el miembro está seleccionado */
 .miembro-check {
   color: var(--mat-sys-primary);
   font-size: 20px;
   width: 20px;
   height: 20px;
+  flex-shrink: 0;
 }
 
-/* Footer con botones */
+/* ─── Campo de monto manual (paralelo al miembro) ────────────────────── */
+.manual-field {
+  width: 120px;
+  flex-shrink: 0;
+  /* Margen superior para alinear visualmente al centro de la card */
+  margin-top: 1rem;
+}
+
+/* ─── Toggle "Invitado" (debajo del miembro) ──────────────────────────── */
+.invitado-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding-left: 1rem;
+}
+
+/* Etiqueta "Invitado" */
+.invitado-label {
+  font-size: 0.75rem;
+  color: var(--mat-sys-on-surface-variant);
+  white-space: nowrap;
+}
+
+/* ─── Footer fijo con botones de acción ───────────────────────────────── */
 .drawer-footer {
   display: flex;
   align-items: center;
@@ -154,15 +216,47 @@
   border-top: 1px solid var(--mat-sys-outline-variant);
 }
 
+/* Botón "Cancelar" */
 .btn-cancelar {
   font-size: 0.875rem;
   color: var(--mat-sys-on-surface-variant);
 }
 
+/* Botón "Agregar" */
 .btn-agregar {
   background-color: var(--mat-sys-surface-container) !important;
   color: var(--mat-sys-on-surface) !important;
   border-radius: 8px !important;
   padding: 0.5rem 2rem !important;
   font-size: 0.875rem;
+}
+
+/* ─── Indicador de total manual (suma de montos asignados) ────────────── */
+.manual-total {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
+
+/* Total válido: cifras en verde cuando la suma coincide con el monto del gasto */
+.manual-total.total-valido .total-cifras {
+  color: #2e7d32;
+  font-weight: 500;
+}
+
+/* Total inválido: cifras en rojo cuando la suma NO coincide */
+.manual-total.total-error .total-cifras {
+  color: var(--mat-sys-error);
+  font-weight: 500;
+}
+
+/* Mensaje de ayuda cuando el total no coincide */
+.total-hint {
+  font-size: 0.75rem;
+  color: var(--mat-sys-error);
+  margin-top: 0.25rem;
 }

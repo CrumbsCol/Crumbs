@@ -156,6 +156,12 @@ const MOCK_MIEMBROS_FRECUENTES: Miembro[] = [...MOCK_MIEMBROS];
  */
 @Injectable({ providedIn: 'root' })
 export class SalidaService {
+  /** Signal privado con todas las salidas del usuario */
+  private readonly _salidas = signal<Salida[]>([...MOCK_SALIDAS]);
+
+  /** Signal de solo lectura con todas las salidas disponibles */
+  readonly salidas = this._salidas.asReadonly();
+
   /** Signal privado que almacena la salida actualmente seleccionada */
   private readonly _salidaActual = signal<Salida | null>(null);
 
@@ -243,8 +249,39 @@ export class SalidaService {
    * Carga una salida por su ID.
    */
   cargarSalida(id: string): void {
-    const salida = MOCK_SALIDAS.find((s) => s.id === id) ?? null;
+    const salida = this._salidas().find((s) => s.id === id) ?? null;
     this._salidaActual.set(salida);
+  }
+
+  /**
+   * Crea una nueva salida y la agrega a la lista.
+   * Devuelve la salida creada con su ID asignado.
+   */
+  crearSalida(datos: { titulo: string; descripcion?: string; fecha: string }): Salida {
+    const codigo = Math.random().toString(36).substring(2, 8).toUpperCase();
+    const nuevaSalida: Salida = {
+      id: String(this._salidas().length + 1),
+      titulo: datos.titulo,
+      codigoInvitacion: codigo,
+      fechaCreacion: datos.fecha,
+      miembros: [],
+      gastos: [],
+      pagos: [],
+    };
+
+    this._salidas.update((list) => [...list, nuevaSalida]);
+    return nuevaSalida;
+  }
+
+  /**
+   * Busca una salida por código de invitación y la devuelve.
+   * Simula unirse a una salida existente.
+   */
+  unirseASalida(codigo: string): Salida | null {
+    const salida = this._salidas().find(
+      (s) => s.codigoInvitacion.toLowerCase() === codigo.toLowerCase()
+    );
+    return salida ?? null;
   }
 
   /**

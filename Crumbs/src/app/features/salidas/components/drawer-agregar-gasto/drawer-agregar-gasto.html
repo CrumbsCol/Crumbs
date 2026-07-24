@@ -91,52 +91,52 @@
       <div class="miembros-lista">
         @for (miembro of miembros(); track miembro.id) {
           <div class="miembro-card-wrapper">
-            <button
-              type="button"
-              class="miembro-card"
-              (click)="toggleMiembro(miembro.id)"
-              [attr.aria-label]="'Seleccionar a ' + miembro.nombre"
-            >
-              <div class="miembro-avatar">
-                <mat-icon>person</mat-icon>
-              </div>
-              <div class="miembro-info">
-                <span class="miembro-title">{{ miembro.nombre }}</span>
-                <span class="miembro-desc">@{{ miembro.userName || 'fantasma' }}</span>
-              </div>
-              @if (estaSeleccionado(miembro.id)) {
-                <mat-icon class="miembro-check">check_circle</mat-icon>
-              }
-            </button>
-
-            <!-- Invitado toggle + Manual input (only for selected members) -->
-            @if (estaSeleccionado(miembro.id)) {
-              <div class="miembro-extras">
-                <div class="invitado-toggle">
-                  <span class="invitado-label">Invitado</span>
-                  <mat-slide-toggle
-                    [checked]="esInvitado(miembro.id)"
-                    (change)="toggleInvitado(miembro.id)"
-                    aria-label="Marcar como invitado"
-                  ></mat-slide-toggle>
+            <!-- Fila principal: card del miembro + monto al lado -->
+            <div class="miembro-row">
+              <button
+                type="button"
+                class="miembro-card"
+                (click)="toggleMiembro(miembro.id)"
+                [attr.aria-label]="'Seleccionar a ' + miembro.nombre"
+              >
+                <div class="miembro-avatar">
+                  <mat-icon>person</mat-icon>
                 </div>
-
-                @if (esManual() && !esInvitado(miembro.id)) {
-                  <div class="manual-input">
-                    <mat-form-field appearance="outline" class="manual-field">
-                      <mat-label>Monto</mat-label>
-                      <input
-                        matInput
-                        type="number"
-                        min="0"
-                        max="9999999"
-                        pattern="[0-9]*"
-                        [value]="getMontoManual(miembro.id)"
-                        (input)="setMontoManual(miembro.id, $any($event.target).valueAsNumber)"
-                      />
-                    </mat-form-field>
-                  </div>
+                <div class="miembro-info">
+                  <span class="miembro-title">{{ miembro.nombre }}</span>
+                  <span class="miembro-desc">@{{ miembro.userName || 'fantasma' }}</span>
+                </div>
+                @if (estaSeleccionado(miembro.id)) {
+                  <mat-icon class="miembro-check">check_circle</mat-icon>
                 }
+              </button>
+
+              <!-- Monto paralelo al miembro -->
+              @if (estaSeleccionado(miembro.id) && esManual() && !esInvitado(miembro.id)) {
+                <mat-form-field appearance="outline" class="manual-field">
+                  <mat-label>Monto</mat-label>
+                  <input
+                    matInput
+                    type="number"
+                    min="0"
+                    max="9999999"
+                    pattern="[0-9]*"
+                    [value]="getMontoManual(miembro.id)"
+                    (input)="setMontoManual(miembro.id, $any($event.target).valueAsNumber)"
+                  />
+                </mat-form-field>
+              }
+            </div>
+
+            <!-- Invitado toggle (debajo del miembro) -->
+            @if (estaSeleccionado(miembro.id)) {
+              <div class="invitado-toggle">
+                <span class="invitado-label">Invitado</span>
+                <mat-slide-toggle
+                  [checked]="esInvitado(miembro.id)"
+                  (change)="toggleInvitado(miembro.id)"
+                  aria-label="Marcar como invitado"
+                ></mat-slide-toggle>
               </div>
             }
           </div>
@@ -146,8 +146,8 @@
 
     <!-- Manual totals indicator -->
     @if (esManual() && miembrosSeleccionados().size > 0) {
-      <div class="manual-total" [class.total-error]="!manualesValidos()">
-        <span>Total asignado: {{ totalManual() }} / {{ form.get('monto')?.value || 0 }}</span>
+      <div class="manual-total" [class.total-valido]="manualesValidos()" [class.total-error]="!manualesValidos()">
+        <span class="total-cifras">Total asignado: {{ totalManual() }} / {{ form.get('monto')?.value || 0 }}</span>
         @if (!manualesValidos()) {
           <span class="total-hint">Los montos deben sumar exactamente el total del gasto</span>
         }

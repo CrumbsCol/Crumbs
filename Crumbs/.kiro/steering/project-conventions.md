@@ -92,13 +92,13 @@ Esto genera los 4 archivos con la estructura base correcta.
 src/app/
 ├── core/                    # Servicios globales, modelos, guards, interceptors
 │   ├── interfaces/          # Interfaces de dominio
-│   ├── services/            # Servicios (auth, user, etc.)
+│   ├── services/            # Servicios (auth, user, salida, etc.)
 │   ├── guards/              # Route guards
 │   └── interceptors/        # HTTP interceptors
 ├── features/                # Módulos por feature (lazy loaded)
 │   ├── auth/                # Login, Registro (SIN header)
-│   ├── dashboard/           # Home (CON header)
-│   ├── salidas/             # Salidas grupales (CON header)
+│   ├── dashboard/           # Home: bienvenida, acciones, lista salidas activas (CON header)
+│   ├── salidas/             # Detalle de salida: gastos, balances, integrantes (CON header)
 │   └── perfil/              # Perfil de usuario (CON header)
 ├── shared/                  # Componentes compartidos entre features
 │   └── components/
@@ -157,6 +157,17 @@ Cada feature implementada debe tener su spec documentado:
 ├── design.md           # Decisiones técnicas, arquitectura, flujo de datos
 └── tasks.md            # Desglose de tareas con criterios de aceptación
 ```
+
+### Specs existentes:
+
+| Feature | Estado |
+|---------|--------|
+| `perfil-header` | ✅ Implementado |
+| `login-page` | ✅ Implementado |
+| `registro-page` | ✅ Implementado |
+| `auth-architecture` | ✅ Implementado |
+| `dashboard-view` | ✅ Implementado |
+| `salidas` | ✅ Implementado |
 
 ---
 
