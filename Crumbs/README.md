@@ -23,11 +23,15 @@ Aplicación web construida con **Angular 21**, **Angular Material 21** (M3), **T
 src/app/
 ├── core/                          # Servicios, interfaces, guards, interceptors
 │   ├── interfaces/
-│   │   └── user.interface.ts      # Modelo de datos del usuario
+│   │   ├── user.interface.ts      # Modelo de datos del usuario
+│   │   └── auth.interface.ts      # Interfaces de autenticación (LoginRequest, LoginResponse)
 │   ├── services/
-│   │   └── user.service.ts        # Servicio de usuario (mock por ahora)
-│   ├── guards/                    # (futuro) Guards de autenticación
-│   └── interceptors/              # (futuro) Interceptors HTTP
+│   │   ├── user.service.ts        # Servicio de estado del usuario (signal)
+│   │   └── auth.service.ts        # Servicio de autenticación (JWT)
+│   ├── guards/
+│   │   └── auth.guard.ts          # Guard funcional para rutas protegidas
+│   └── interceptors/
+│       └── auth.interceptor.ts    # Interceptor HTTP (token + manejo 401)
 ├── shared/                        # Componentes reutilizables entre features
 │   └── components/
 │       └── header/                # Header con navegación por tabs
@@ -37,7 +41,12 @@ src/app/
 │   │   │   └── perfil-card/       # Tarjeta de datos del usuario
 │   │   └── pages/                 # Páginas (orquestradores)
 │   │       └── perfil-page/       # Página principal de perfil
-│   ├── auth/                      # (futuro) Login y registro
+│   ├── auth/                      # Login y registro
+│   │   ├── components/
+│   │   │   └── login-form/        # Formulario de login con validaciones
+│   │   └── pages/
+│   │       ├── login-page/        # Página de login (orquestador)
+│   │       └── registro-page/     # Página de registro
 │   ├── dashboard/                 # (futuro) Panel principal
 │   └── salidas/                   # (futuro) Gestión de salidas
 ├── layouts/                       # Layouts de ruta (wrappers de página)
@@ -106,15 +115,81 @@ La página de perfil muestra los datos del usuario actual:
 
 ---
 
-## Autenticación (futuro)
+## Autenticación (JWT)
 
-El `UserService` está diseñado para facilitar la integración con un proveedor de autenticación:
+El sistema de autenticación utiliza **JSON Web Tokens (JWT)** para manejar sesiones de usuario. El token se almacena en `localStorage` y se inyecta automáticamente en cada petición HTTP mediante un interceptor.
 
-1. Reemplazar `MOCK_USER` por una llamada HTTP (`httpClient.get('/api/me')`).
-2. Añadir un `AuthGuard` en `core/guards/` para proteger rutas.
-3. Añadir un `HttpInterceptor` en `core/interceptors/` para adjuntar tokens.
-4. Los componentes consumidores **no cambian** porque leen el mismo signal `currentUser()`.
+### Flujo resumido de autenticación
 
+```
+┌─────────────┐     POST /auth/login       ┌──────────┐
+│  LoginPage  │ ───────────────────────────▶│ Backend  │
+│             │ ◀─── { accessToken, user } ─│          │
+└──────┬──────┘                             └──────────┘
+       │
+       ▼
+┌──────────────┐    localStorage.set('access_token')
+│  AuthService │───────────────────────────────▶ 💾
+│              │    userService.setUser(user)
+└──────┬───────┘
+       │
+       ▼
+┌──────────────┐    lee userService.currentUser signal
+│  PerfilPage  │ ──── ya funciona como está hoy ────▶ ✅
+└──────────────┘
+```
+
+### Rehidratación de sesión (autoLogin)
+
+Al iniciar la aplicación, si existe un token en `localStorage`, el `AuthService` llama a `GET /api/me` para obtener los datos del usuario y rehidratar la sesión sin necesidad de re-login.
+
+```
+┌──────────────┐   ¿Token en localStorage?
+│  APP_INIT    │──────────────────────────────┐
+└──────────────┘                              │
+       │ SÍ                                   │ NO
+       ▼                                      ▼
+┌──────────────┐  GET /api/me             ┌─────────┐
+│  AuthService │──────────────────────────│ /login  │
+│              │◀── { user }              └─────────┘
+│  setUser()   │
+└──────────────┘
+```
+
+### Arquitectura de archivos
+
+```
+src/app/core/
+├── interfaces/
+│   ├── user.interface.ts        # Modelo de usuario (incluye id)
+│   └── auth.interface.ts        # LoginRequest, LoginResponse
+├── services/
+│   ├── user.service.ts          # Estado del usuario (signal)
+│   └── auth.service.ts          # Login, logout, autoLogin, getToken
+├── guards/
+│   └── auth.guard.ts            # CanActivateFn — protege rutas
+└── interceptors/
+    └── auth.interceptor.ts      # Inyecta token + maneja 401
+```
+
+### Endpoints del backend
+
+| Método | URL | Body | Response |
+|--------|-----|------|----------|
+| POST | `{apiUrl}/auth/login` | `{ emailOrUsername, password }` | `{ accessToken, user }` |
+| GET | `{apiUrl}/me` | — | `User` |
+
+### Modo mock
+
+Cuando `environment.useMocks === true` (desarrollo), el `AuthService` simula las respuestas del backend con datos locales sin hacer peticiones HTTP reales.
+
+### Decisiones de diseño
+
+- **localStorage** para persistir la sesión entre recargas y cierres del navegador.
+- **Solo el token** se guarda en storage (no datos personales del usuario).
+- **Signals** para estado reactivo, consistente con el patrón del proyecto.
+- **Interceptor y guard funcionales** (API moderna de Angular, no class-based).
+- Los componentes de perfil **no cambian** — siguen leyendo el mismo signal `currentUser()`.
 ---
 
 ## Tema Visual

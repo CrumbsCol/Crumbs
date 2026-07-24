@@ -17,6 +17,9 @@
  * ```
  */
 export interface User {
+  /** Identificador único del usuario (asignado por el backend) */
+  id: string;
+
   /** Nombre completo del usuario */
   nombre: string;
 

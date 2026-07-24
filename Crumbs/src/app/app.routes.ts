@@ -1,5 +1,7 @@
 import { Routes } from '@angular/router';
 
+import { authGuard } from './core/guards/auth.guard';
+
 /**
  * Configuración centralizada de rutas de la aplicación Crumbs.
  *
@@ -8,11 +10,17 @@ import { Routes } from '@angular/router';
  * - Las rutas de autenticación (login, registro) se definen fuera del layout,
  *   por lo que NO muestran el header.
  *
+ * Protección de rutas:
+ * - Las rutas dentro del MainLayout están protegidas por `authGuard`.
+ * - Si el usuario no está autenticado, se redirige a `/login`.
+ * - Las rutas de auth (login, registro) son públicas.
+ *
  * Lazy loading:
  * - Tanto el layout como las páginas se cargan con `loadComponent`
  *   para optimizar el bundle inicial.
  */
 export const routes: Routes = [
+  // ─── Rutas SIN header (autenticación) — públicas ────────────────────
 
   // ─── Rutas SIN header (autenticación) ───────────────────────────────────────
   {
@@ -31,12 +39,14 @@ export const routes: Routes = [
       ),
   },
 
+  // ─── Rutas CON header (dentro del MainLayout) — protegidas ──────────
   // ─── Rutas CON header (dentro del MainLayout) ───────────────────────────────
   {
     // Shell vacío que inyecta el header y el <router-outlet> para las rutas hijas
     path: '',
     loadComponent: () =>
       import('./layouts/main-layout/main-layout').then((m) => m.MainLayout),
+    canActivate: [authGuard],
     children: [
       {
         // Perfil del usuario
@@ -50,29 +60,13 @@ export const routes: Routes = [
         // Panel principal: saludo, acciones rápidas y lista de salidas activas
         path: 'dashboard',
         loadComponent: () =>
-          import('./features/dashboard/components/dashboard/dashboard.component').then(
-            (m) => m.DashboardComponent
-          ),
-      },
-      {
-        // Formulario para crear una nueva salida (nombre, descripción, fecha/hora, integrantes)
-        path: 'salidas/crear',
-        loadComponent: () =>
-          import('./features/dashboard/components/interfaz/crear-salida/crear-salida.component').then(
-            (m) => m.CrearSalidaComponent
-          ),
-      },
-      {
-        // Formulario para unirse a una salida existente mediante un código alfanumérico
-        path: 'salidas/agregar',
-        loadComponent: () =>
-          import('./features/dashboard/components/interfaz/agregar-salida/agregar-salida.component').then(
-            (m) => m.AgregarSalidaComponent
+          import('./features/dashboard/pages/dashboard-page/dashboard-page').then(
+            (m) => m.DashboardPage
           ),
       },
 
       // Redirige la raíz vacía al perfil por defecto
-      { path: '', redirectTo: 'perfil', pathMatch: 'full' },
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     ],
   },
 ];

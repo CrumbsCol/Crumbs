@@ -1,0 +1,19 @@
+<section class="dashboard-view" aria-label="Panel principal">
+  <!-- Título de bienvenida personalizado -->
+  <app-welcome-header [nickName]="nickName()"></app-welcome-header>
+
+  <!-- Grid principal: 1 columna en móvil, 2 columnas en escritorio -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+    <!-- Columna izquierda: botones de acción principales -->
+    <app-dashboard-actions
+      (crearSalida)="onCrearSalida()"
+      (agregarSalida)="onAgregarSalida()">
+    </app-dashboard-actions>
+
+    <!-- Columna derecha: tarjeta con la lista de salidas activas del usuario -->
+    <app-active-salidas-list
+      [salidas]="salidasActivas()"
+      [isEmpty]="isEmpty()">
+    </app-active-salidas-list>
+  </div>
+</section>

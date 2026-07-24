@@ -4,9 +4,10 @@ import { User } from '../interfaces/user.interface';
 
 /**
  * Datos mock del usuario para desarrollo.
- * En producción, estos datos se obtendrán desde una API de autenticación.
+ * Se usan cuando `environment.useMocks === true`.
  */
 const MOCK_USER: User = {
+  id: 'mock-user-001',
   nombre: 'Juan López',
   userName: 'juanlopez',
   fechaNacimiento: '15/03/1995',
@@ -18,8 +19,9 @@ const MOCK_USER: User = {
  * Servicio de gestión del usuario actual de la aplicación.
  *
  * Utiliza signals de Angular para mantener un estado reactivo del usuario.
- * Actualmente provee datos mock, pero está diseñado para que en el futuro
- * se reemplace por llamadas HTTP sin modificar los componentes consumidores.
+ * El `AuthService` alimenta este servicio con datos reales tras el login.
+ * Los componentes consumidores (como PerfilPage) leen el signal `currentUser`
+ * sin necesidad de conocer la fuente de los datos.
  *
  * @example
  * ```typescript
@@ -34,7 +36,7 @@ const MOCK_USER: User = {
 @Injectable({ providedIn: 'root' })
 export class UserService {
   /** Signal privado que almacena el usuario actual */
-  private readonly _currentUser = signal<User | null>(MOCK_USER);
+  private readonly _currentUser = signal<User | null>(null);
 
   /**
    * Signal de solo lectura con los datos del usuario actual.
@@ -43,10 +45,18 @@ export class UserService {
   readonly currentUser = this._currentUser.asReadonly();
 
   /**
+   * Establece el usuario actual tras una autenticación exitosa.
+   * Llamado por `AuthService` después del login o autoLogin.
+   *
+   * @param user - Datos completos del usuario autenticado.
+   */
+  setUser(user: User): void {
+    this._currentUser.set(user);
+  }
+
+  /**
    * Actualiza los datos del perfil del usuario actual.
    * Merge parcial: solo actualiza los campos proporcionados.
-   *
-   * En el futuro, este método hará un PUT/PATCH al backend.
    *
    * @param updates - Campos parciales a actualizar del usuario.
    */
@@ -58,15 +68,18 @@ export class UserService {
   }
 
   /**
-   * Cierra la sesión del usuario actual.
-   * Limpia el estado del signal a null.
-   *
-   * En el futuro, este método también deberá:
-   * - Invalidar el token de autenticación
-   * - Limpiar almacenamiento local
-   * - Notificar al backend
+   * Limpia el estado del usuario actual (logout).
+   * El signal vuelve a `null`, indicando que no hay sesión activa.
    */
-  logout(): void {
+  clearUser(): void {
     this._currentUser.set(null);
+  }
+
+  /**
+   * Retorna los datos mock del usuario para modo desarrollo.
+   * Usado internamente por `AuthService` cuando `environment.useMocks === true`.
+   */
+  getMockUser(): User {
+    return { ...MOCK_USER };
   }
 }

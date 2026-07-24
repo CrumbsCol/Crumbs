@@ -1,0 +1,5 @@
+.welcome-title {
+  font: var(--mat-sys-display-small);
+  color: var(--mat-sys-on-surface);
+  margin: 0;
+}
