@@ -28,8 +28,8 @@ describe('DashboardPage', () => {
     expect(component).toBeTruthy();
   });
 
-  it('debería renderizar el título del dashboard', () => {
+  it('debería renderizar el saludo inicial en el header', () => {
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Dashboard');
+    expect(compiled.querySelector('h1')?.textContent).toContain('¡Hola');
   });
 });

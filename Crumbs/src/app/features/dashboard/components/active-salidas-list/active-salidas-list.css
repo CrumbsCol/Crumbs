@@ -1,0 +1,93 @@
+.salidas-card {
+  background-color: var(--mat-sys-surface-container);
+  border-radius: 1rem;
+  padding: 1.25rem 1.5rem;
+  min-height: 240px;
+}
+
+.salidas-card__title {
+  font: var(--mat-sys-title-medium);
+  color: var(--mat-sys-on-surface);
+  margin: 0 0 1rem;
+}
+
+.salidas-card__empty {
+  font: var(--mat-sys-body-medium);
+  color: var(--mat-sys-on-surface-variant);
+  margin: 0;
+  text-align: center;
+  padding-top: 2rem;
+}
+
+.salidas-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.salidas-list__item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.625rem;
+  cursor: pointer;
+  background-color: var(--mat-sys-surface-container-low);
+  transition: background-color 0.2s ease;
+  min-width: 0;
+}
+
+.salidas-list__content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  overflow: hidden;
+  flex: 1;
+}
+
+.salidas-list__item:not(.salidas-list__item--active):hover {
+  background-color: var(--mat-sys-surface-container-high);
+}
+
+.salidas-list__item--active {
+  background-color: var(--mat-sys-secondary-container);
+  cursor: default;
+}
+
+.salidas-list__item--active .salidas-list__label {
+  color: var(--mat-sys-on-secondary-container);
+  font-weight: 600;
+}
+
+.salidas-list__item--active .salidas-list__description,
+.salidas-list__item--active .salidas-list__date {
+  color: var(--mat-sys-on-secondary-container);
+  opacity: 0.8;
+}
+
+.salidas-list__label {
+  font: var(--mat-sys-label-large);
+  color: var(--mat-sys-on-surface);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.salidas-list__description {
+  font: var(--mat-sys-body-small);
+  color: var(--mat-sys-on-surface-variant);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.salidas-list__date {
+  font: var(--mat-sys-label-medium);
+  color: var(--mat-sys-on-surface-variant);
+  white-space: nowrap;
+}
