@@ -1,6 +1,4 @@
 import { Component, signal, inject } from '@angular/core';
-import { Location } from '@angular/common';
-import { MatDialogRef } from '@angular/material/dialog';
 import {
   ReactiveFormsModule,
   FormBuilder,
@@ -9,6 +7,7 @@ import {
   AbstractControl,
   ValidationErrors,
 } from '@angular/forms';
+import { MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -27,13 +26,12 @@ export interface Integrante {
 
 /**
  * Validador personalizado para el campo de hora.
- * Acepta formato HH:MM con hora entre 1–12 y minutos entre 0–59.
- * Devuelve null si el campo está vacío (opcional) o si el valor es válido.
+ * Acepta formato exacto XX:XX con hora entre 01–12 y minutos entre 00–59.
  */
 function horaValidator(control: AbstractControl): ValidationErrors | null {
   const value: string = control.value ?? '';
-  if (!value) return null; // campo opcional — se permite vacío
-  const match = value.match(/^(\d{1,2}):(\d{2})$/);
+  if (!value) return null;
+  const match = value.match(/^(\d{2}):(\d{2})$/);
   if (!match) return { horaFormato: true };
   const h = parseInt(match[1], 10);
   const m = parseInt(match[2], 10);
@@ -47,6 +45,7 @@ function horaValidator(control: AbstractControl): ValidationErrors | null {
   standalone: true,
   imports: [
     ReactiveFormsModule,
+    MatDialogModule,
     MatFormFieldModule,
     MatInputModule,
     MatDatepickerModule,
@@ -60,25 +59,31 @@ function horaValidator(control: AbstractControl): ValidationErrors | null {
   styleUrl: './crear-salida.component.scss',
 })
 export class CrearSalidaComponent {
-  // Permite volver a la pantalla anterior sin conocer la ruta exacta
-  private readonly location = inject(Location);
-  private readonly dialogRef = inject(MatDialogRef<CrearSalidaComponent>, { optional: true });
+  // Referencia al diálogo para poder cerrarlo
+  private readonly dialogRef = inject(MatDialogRef<CrearSalidaComponent>);
   // Constructor de formularios reactivos
   private readonly fb = inject(FormBuilder);
 
-  // Definición del formulario con sus validaciones
+  // Calcula la hora actual en formato 12h para los valores por defecto
+  private readonly now = new Date();
+  private readonly currentHour12 = this.now.getHours() % 12 || 12;
+  private readonly currentMinutes = this.now.getMinutes();
+  private readonly currentPeriod = this.now.getHours() >= 12 ? 'PM' : 'AM';
+  private readonly defaultHora = `${this.currentHour12.toString().padStart(2, '0')}:${this.currentMinutes.toString().padStart(2, '0')}`;
+
+  // Definición del formulario — fecha y hora se autocompletean con la actual
   readonly form: FormGroup = this.fb.group({
-    nombre: ['', Validators.required],   // Campo obligatorio
-    descripcion: [''],                    // Campo opcional
-    fecha: [new Date()],                  // Por defecto: fecha de hoy
-    hora: ['', horaValidator],            // Formato HH:MM validado, opcional
-    horaPeriodo: ['AM'],                  // AM o PM, por defecto AM
+    nombre: ['', Validators.required],
+    descripcion: [''],
+    fecha: [new Date(), Validators.required],
+    hora: [this.defaultHora, [Validators.required, horaValidator]],
+    horaPeriodo: [this.currentPeriod],
   });
 
   // Opciones del selector AM/PM
   readonly periodos = ['AM', 'PM'];
 
-  /** Lista de integrantes de la salida — incluye un ejemplo eliminable hasta conectar el backend */
+  /** Lista de integrantes de la salida — ejemplo eliminable */
   readonly integrantes = signal<Integrante[]>([
     { id: 1, nombre: 'Ana García', descripcion: 'Guía de montaña' },
   ]);
@@ -88,46 +93,88 @@ export class CrearSalidaComponent {
     this.integrantes.update((list) => list.filter((i) => i.id !== id));
   }
 
-  // Vuelve a la pantalla anterior (dashboard)
+  // Cierra el modal sin guardar
   onCancelar(): void {
-    if (this.dialogRef) {
-      this.dialogRef.close();
-    } else {
-      this.location.back();
-    }
+    this.dialogRef.close();
   }
 
-  // Por implementar: enviará el formulario al backend para crear la salida
+  // Cierra el modal y devuelve los datos del formulario al dashboard
   onAgregar(): void {
-    if (this.form.invalid) return;
-    
-    const values = this.form.value;
-    const date: Date = values.fecha;
-    const dateStr = date ? date.toLocaleDateString() : '';
-    
-    const newSalida = {
-      label: values.nombre,
-      description: values.descripcion,
-      fecha: dateStr
-    };
-    
-    if (this.dialogRef) {
-      this.dialogRef.close(newSalida);
+    this.form.markAllAsTouched();
+    if (this.form.valid) {
+      this.dialogRef.close({
+        nombre: this.form.get('nombre')?.value,
+        descripcion: this.form.get('descripcion')?.value,
+        fecha: this.form.get('fecha')?.value,
+      });
     }
   }
 
   /**
-   * Bloquea cualquier tecla que no sea dígito, '/' o tecla de control.
-   * Evita que el usuario escriba letras en el campo de fecha.
+   * Controla el campo de hora con formato fijo HH:MM.
+   * El ':' en posición 2 es permanente — no se puede borrar.
+   * Solo se pueden modificar los dígitos en posiciones 0, 1, 3, 4.
    */
-  onFechaKeydown(event: KeyboardEvent): void {
-    const allowed = /^[\d/]$/;
+  onHoraKeydown(event: KeyboardEvent): void {
+    const input = event.target as HTMLInputElement;
+    const pos = input.selectionStart ?? 0;
+
     const controlKeys = [
-      'Backspace', 'Delete', 'ArrowLeft', 'ArrowRight',
-      'ArrowUp', 'ArrowDown', 'Tab', 'Enter', 'Escape', 'Home', 'End',
+      'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
+      'Tab', 'Enter', 'Escape', 'Home', 'End',
     ];
-    if (!allowed.test(event.key) && !controlKeys.includes(event.key)) {
-      event.preventDefault();
+
+    // Permitir teclas de navegación siempre
+    if (controlKeys.includes(event.key)) {
+      return;
     }
+
+    // Bloquear Delete y Backspace — no se puede borrar, solo reemplazar
+    if (event.key === 'Backspace' || event.key === 'Delete') {
+      event.preventDefault();
+      return;
+    }
+
+    // Solo permitir dígitos
+    if (!/^\d$/.test(event.key)) {
+      event.preventDefault();
+      return;
+    }
+
+    // Si estamos en posición 2 (el ':'), saltar al siguiente dígito
+    const insertPos = pos === 2 ? 3 : pos;
+
+    // No permitir escribir más allá de posición 4
+    if (insertPos > 4) {
+      event.preventDefault();
+      return;
+    }
+
+    // Reemplazar el dígito en la posición actual
+    event.preventDefault();
+    const currentValue = input.value;
+    const chars = currentValue.split('');
+    chars[insertPos] = event.key;
+    const newValue = chars.join('');
+    input.value = newValue;
+    this.form.get('hora')?.setValue(newValue, { emitEvent: true });
+
+    // Mover el cursor a la siguiente posición editable
+    let nextPos = insertPos + 1;
+    if (nextPos === 2) nextPos = 3;
+    setTimeout(() => input.setSelectionRange(nextPos, nextPos));
+  }
+
+  /**
+   * Restaura el formato si el input se corrompe (ej: paste).
+   * Asegura que siempre sea XX:XX.
+   */
+  onHoraInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    let digits = input.value.replace(/\D/g, '');
+    digits = digits.slice(0, 4).padEnd(4, '0');
+    const formatted = digits.slice(0, 2) + ':' + digits.slice(2, 4);
+    input.value = formatted;
+    this.form.get('hora')?.setValue(formatted, { emitEvent: true });
   }
 }

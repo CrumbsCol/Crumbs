@@ -1,8 +1,8 @@
 // ─── Page container ───────────────────────────────────────────────────────────
 .crear-salida-view {
   padding: 1.5rem;
-  max-width: 600px;
-  margin-inline: auto;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 // ─── Page title ───────────────────────────────────────────────────────────────
@@ -14,9 +14,6 @@
 
 // ─── Form card ────────────────────────────────────────────────────────────────
 .crear-salida-card {
-  background-color: var(--mat-sys-surface-container);
-  border-radius: 1rem;
-  padding: 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
