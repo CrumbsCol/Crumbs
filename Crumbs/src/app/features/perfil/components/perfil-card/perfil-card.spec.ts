@@ -8,7 +8,8 @@ import { User } from '../../../../core/interfaces/user.interface';
 /**
  * Tests unitarios para el componente PerfilCard.
  * Verifica que los datos del usuario se renderizan correctamente
- * y que el avatar placeholder se muestra cuando no hay foto.
+ * en modo visualización (readonly) y que el avatar placeholder
+ * se muestra cuando no hay foto.
  */
 describe('PerfilCard', () => {
   let component: PerfilCard;
@@ -34,7 +35,7 @@ describe('PerfilCard', () => {
     component = fixture.componentInstance;
     componentRef = fixture.componentRef;
 
-    // Establecer el input requerido
+    // Establecer el input requerido (modo visualización por defecto)
     componentRef.setInput('user', mockUser);
     fixture.detectChanges();
   });
@@ -43,28 +44,33 @@ describe('PerfilCard', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should display the user name', () => {
+  it('should display the user name in readonly input', () => {
     const compiled = fixture.nativeElement as HTMLElement;
-    const userInfo = compiled.querySelector('.user-info');
-    expect(userInfo?.textContent).toContain('Test User');
+    const inputs = compiled.querySelectorAll('.user-info input');
+    const nombreInput = inputs[0] as HTMLInputElement;
+    expect(nombreInput.value).toBe('Test User');
   });
 
-  it('should display the userName', () => {
+  it('should display the userName in readonly input', () => {
     const compiled = fixture.nativeElement as HTMLElement;
-    const userInfo = compiled.querySelector('.user-info');
-    expect(userInfo?.textContent).toContain('testuser');
+    const inputs = compiled.querySelectorAll('.user-info input');
+    const userNameInput = inputs[1] as HTMLInputElement;
+    expect(userNameInput.value).toBe('testuser');
   });
 
-  it('should display the birth date', () => {
+  it('should display the birth date in readonly input', () => {
     const compiled = fixture.nativeElement as HTMLElement;
-    const userInfo = compiled.querySelector('.user-info');
-    expect(userInfo?.textContent).toContain('01/01/2000');
+    const inputs = compiled.querySelectorAll('.user-info input');
+    const fechaInput = inputs[2] as HTMLInputElement;
+    expect(fechaInput.value).toBe('01/01/2000');
   });
 
-  it('should display the password label', () => {
+  it('should display password field as masked', () => {
     const compiled = fixture.nativeElement as HTMLElement;
-    const userInfo = compiled.querySelector('.user-info');
-    expect(userInfo?.textContent).toContain('Contraseña');
+    const inputs = compiled.querySelectorAll('.user-info input');
+    const passwordInput = inputs[3] as HTMLInputElement;
+    expect(passwordInput.type).toBe('password');
+    expect(passwordInput.value).toBe('••••••••');
   });
 
   it('should show avatar placeholder when no avatarUrl', () => {

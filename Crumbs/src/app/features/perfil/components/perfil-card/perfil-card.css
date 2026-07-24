@@ -8,3 +8,24 @@
   display: block;
   width: 100%;
 }
+
+/* ─── Modo lectura: desactiva interacción visual en los form-fields ─── */
+
+.readonly-field {
+  pointer-events: none;
+}
+
+.readonly-field input {
+  cursor: default;
+}
+
+/* Evita que el outline cambie de color en hover/focus en modo lectura */
+:host ::ng-deep .readonly-field .mdc-notched-outline__leading,
+:host ::ng-deep .readonly-field .mdc-notched-outline__notch,
+:host ::ng-deep .readonly-field .mdc-notched-outline__trailing {
+  border-color: var(--mdc-outlined-text-field-outline-color) !important;
+}
+
+:host ::ng-deep .readonly-field .mat-mdc-form-field-focus-overlay {
+  display: none;
+}

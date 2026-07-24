@@ -1,7 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { provideHttpClient } from '@angular/common/http';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 
 import { LoginPage } from './login-page';
 
@@ -17,7 +18,11 @@ describe('LoginPage', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [LoginPage],
-      providers: [provideRouter([]), provideNoopAnimations()],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        provideNoopAnimations(),
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(LoginPage);
@@ -45,5 +50,4 @@ describe('LoginPage', () => {
     expect(compiled.querySelector('.branding-panel-bg')).toBeTruthy();
     expect(compiled.querySelector('.form-panel')).toBeTruthy();
   });
-
 });
