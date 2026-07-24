@@ -17,6 +17,7 @@ describe('PerfilCard', () => {
 
   /** Datos mock para las pruebas */
   const mockUser: User = {
+    id: '3120354',
     nombre: 'Test User',
     userName: 'testuser',
     fechaNacimiento: '01/01/2000',

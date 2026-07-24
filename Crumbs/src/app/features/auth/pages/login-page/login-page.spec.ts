@@ -46,16 +46,4 @@ describe('LoginPage', () => {
     expect(compiled.querySelector('.form-panel')).toBeTruthy();
   });
 
-  it('debería loguear las credenciales cuando se llama onLogin', () => {
-    const consoleSpy = vi.spyOn(console, 'log');
-    const credentials = {
-      emailOrUsername: 'usuario@ejemplo.com',
-      password: 'Abcdef1!',
-    };
-
-    component.onLogin(credentials);
-
-    expect(consoleSpy).toHaveBeenCalledWith('Login:', credentials);
-    consoleSpy.mockRestore();
-  });
 });

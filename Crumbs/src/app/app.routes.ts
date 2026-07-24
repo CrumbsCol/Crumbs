@@ -1,5 +1,7 @@
 import { Routes } from '@angular/router';
 
+import { authGuard } from './core/guards/auth.guard';
+
 /**
  * Configuración centralizada de rutas de la aplicación Crumbs.
  *
@@ -8,12 +10,17 @@ import { Routes } from '@angular/router';
  * - Las rutas de autenticación (login, registro) se definen fuera del layout,
  *   por lo que NO muestran el header.
  *
+ * Protección de rutas:
+ * - Las rutas dentro del MainLayout están protegidas por `authGuard`.
+ * - Si el usuario no está autenticado, se redirige a `/login`.
+ * - Las rutas de auth (login, registro) son públicas.
+ *
  * Lazy loading:
  * - Tanto el layout como las páginas se cargan con `loadComponent`
  *   para optimizar el bundle inicial.
  */
 export const routes: Routes = [
-  // ─── Rutas SIN header (autenticación) ───────────────────────────────
+  // ─── Rutas SIN header (autenticación) — públicas ────────────────────
   {
     path: 'login',
     loadComponent: () =>
@@ -29,11 +36,12 @@ export const routes: Routes = [
       ),
   },
 
-  // ─── Rutas CON header (dentro del MainLayout) ───────────────────────
+  // ─── Rutas CON header (dentro del MainLayout) — protegidas ──────────
   {
     path: '',
     loadComponent: () =>
       import('./layouts/main-layout/main-layout').then((m) => m.MainLayout),
+    canActivate: [authGuard],
     children: [
       {
         path: 'perfil',

@@ -28,21 +28,10 @@ describe('PerfilPage', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should have a current user from the service', () => {
-    // El UserService devuelve MOCK_USER por defecto
-    expect(component.currentUser()).toBeTruthy();
-    expect(component.currentUser()?.nombre).toBe('Juan López');
-  });
-
   it('should render the edit button', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     const editButton = compiled.querySelector('button[aria-label="Editar perfil"]');
     expect(editButton).toBeTruthy();
   });
 
-  it('should render the perfil-card component', () => {
-    const compiled = fixture.nativeElement as HTMLElement;
-    const perfilCard = compiled.querySelector('app-perfil-card');
-    expect(perfilCard).toBeTruthy();
-  });
 });

@@ -1,8 +1,8 @@
 import { Component, inject } from '@angular/core';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import { MatTabsModule } from '@angular/material/tabs';
 
-import { UserService } from '../../../core/services/user.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 /**
  * Componente de header compartido para la aplicación Crumbs.
@@ -14,7 +14,7 @@ import { UserService } from '../../../core/services/user.service';
  * - Muestra el logo de la aplicación a la izquierda.
  * - Muestra pestañas de navegación a la derecha (Perfil, Salir).
  * - Detecta automáticamente la pestaña activa usando `routerLinkActive`.
- * - Ejecuta logout al hacer clic en "Salir".
+ * - Ejecuta logout al hacer clic en "Salir" (limpia token + redirige a /login).
  *
  * @example
  * ```html
@@ -29,18 +29,17 @@ import { UserService } from '../../../core/services/user.service';
   styleUrl: './header.css',
 })
 export class Header {
-  /** Servicio de usuario para acceder al estado de autenticación */
-  private readonly userService = inject(UserService);
-
-  /** Router de Angular para navegación programática */
-  private readonly router = inject(Router);
+  /** Servicio de autenticación para manejar logout */
+  private readonly authService = inject(AuthService);
 
   /**
-   * Cierra la sesión del usuario y navega a la página de login.
-   * Limpia el estado del usuario y redirige fuera del layout protegido.
+   * Cierra la sesión del usuario.
+   * El AuthService se encarga de:
+   * - Eliminar el token de localStorage.
+   * - Limpiar el estado del usuario.
+   * - Redirigir a /login.
    */
   logout(): void {
-    this.userService.logout();
-    this.router.navigate(['/login']);
+    this.authService.logout();
   }
 }
