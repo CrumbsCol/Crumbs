@@ -4,9 +4,16 @@ import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/materia
 import { MatButtonModule } from '@angular/material/button';
 import { Pago } from '../../../../../core/interfaces/salida.interface';
 
+/**
+ * Datos requeridos por el modal de información de pago.
+ */
 export interface PagoInfoModalData {
   pago: Pago;
 }
+
+/**
+ * Modal sencillo que muestra los detalles (monto, fecha, estado) de un pago ya registrado.
+ */
 
 @Component({
   selector: 'app-pago-info-modal',

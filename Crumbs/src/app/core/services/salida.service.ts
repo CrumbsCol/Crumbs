@@ -35,7 +35,7 @@ export interface DesgloseGasto {
  */
 const MOCK_MIEMBROS: Miembro[] = [
   {
-    id: '1',
+    id: 'mock-user-001',
     nombre: 'Juan López',
     userName: 'juanlopez',
     email: 'juan@example.com',
@@ -68,6 +68,37 @@ const MOCK_MIEMBROS: Miembro[] = [
     email: 'ana@example.com',
     avatarUrl: null,
   },
+  {
+    id: '5',
+    nombre: 'Luis Pérez',
+    userName: 'luisperez',
+    email: 'luis@example.com',
+    avatarUrl: null,
+    tipoMetodoPago: 'efectivo',
+  },
+  {
+    id: '6',
+    nombre: 'Sofia Castro',
+    userName: 'sofiac',
+    email: 'sofia@example.com',
+    avatarUrl: null,
+  },
+  {
+    id: '7',
+    nombre: 'Pedro Solís',
+    userName: 'pedros',
+    email: 'pedro@example.com',
+    avatarUrl: null,
+  },
+  {
+    id: '8',
+    nombre: 'Marta Torres',
+    userName: 'martat',
+    email: 'marta@example.com',
+    avatarUrl: null,
+    tipoMetodoPago: 'clabe',
+    metodoPago: '987654321098765432',
+  }
 ];
 
 /**
@@ -76,59 +107,56 @@ const MOCK_MIEMBROS: Miembro[] = [
 const MOCK_SALIDAS: Salida[] = [
   {
     id: '1',
-    titulo: 'Cine / Spiderman',
+    titulo: 'Viaje a la Playa',
     codigoInvitacion: 'A3B9X2',
     fechaCreacion: '2026-07-15T10:00:00',
-    miembros: [MOCK_MIEMBROS[0], MOCK_MIEMBROS[1], MOCK_MIEMBROS[2]],
+    miembros: [MOCK_MIEMBROS[0], MOCK_MIEMBROS[1], MOCK_MIEMBROS[2], MOCK_MIEMBROS[3], MOCK_MIEMBROS[4]],
     gastos: [
       {
         id: 'g1',
-        nombre: 'Boletos cine',
-        descripcion: '3 boletos sala IMAX',
-        monto: 450,
+        nombre: 'Gasolina',
+        descripcion: 'Tanque lleno ida y vuelta',
+        monto: 1200,
         fecha: '2026-07-20T16:00:00',
         metodoDivision: 'equitativo',
-        pagadoPor: MOCK_MIEMBROS[0],
-        miembrosParticipantes: [
-          MOCK_MIEMBROS[0],
-          MOCK_MIEMBROS[1],
-          MOCK_MIEMBROS[2],
-        ],
+        pagadoPor: MOCK_MIEMBROS[0], // Juan pagó
+        miembrosParticipantes: [MOCK_MIEMBROS[0], MOCK_MIEMBROS[1], MOCK_MIEMBROS[2], MOCK_MIEMBROS[3], MOCK_MIEMBROS[4]],
       },
       {
         id: 'g2',
-        nombre: 'Palomitas',
-        descripcion: 'Combo grande para compartir',
-        monto: 280,
+        nombre: 'Casetas',
+        descripcion: 'Peaje autopista',
+        monto: 400,
         fecha: '2026-07-20T16:30:00',
         metodoDivision: 'equitativo',
-        pagadoPor: MOCK_MIEMBROS[1],
-        miembrosParticipantes: [
-          MOCK_MIEMBROS[0],
-          MOCK_MIEMBROS[1],
-          MOCK_MIEMBROS[2],
-        ],
+        pagadoPor: MOCK_MIEMBROS[1], // Maria pagó
+        miembrosParticipantes: [MOCK_MIEMBROS[0], MOCK_MIEMBROS[1], MOCK_MIEMBROS[2], MOCK_MIEMBROS[3], MOCK_MIEMBROS[4]],
       },
       {
         id: 'g3',
-        nombre: 'Estacionamien',
-        descripcion: 'Estacionamiento del centro comercial',
-        monto: 60,
+        nombre: 'Cena Mariscos',
+        descripcion: 'Cena en el puerto',
+        monto: 2500,
         fecha: '2026-07-20T19:00:00',
         metodoDivision: 'manual',
-        pagadoPor: MOCK_MIEMBROS[2],
-        miembrosParticipantes: [MOCK_MIEMBROS[0], MOCK_MIEMBROS[2]],
+        pagadoPor: MOCK_MIEMBROS[2], // Carlos pagó
+        miembrosParticipantes: [MOCK_MIEMBROS[0], MOCK_MIEMBROS[1], MOCK_MIEMBROS[2]], // Solo 3 comieron
+        participantes: [
+          { miembro: MOCK_MIEMBROS[0], esInvitado: false, montoManual: 1000 },
+          { miembro: MOCK_MIEMBROS[1], esInvitado: true, montoManual: null }, // Maria invitada
+          { miembro: MOCK_MIEMBROS[2], esInvitado: false, montoManual: 1500 }
+        ]
       },
     ],
     pagos: [
       {
         id: 'p1',
-        deudorId: '2', // María García
-        pagadorId: '1', // Juan López
-        monto: 150,
+        deudorId: 'mock-user-001', // Juan
+        pagadorId: '3', // a Carlos
+        monto: 500,
         estado: 'pagado',
         fecha: '2026-07-21T10:00:00',
-        gastoId: 'g1'
+        gastoId: 'g3'
       }
     ],
   },
@@ -139,24 +167,56 @@ const MOCK_SALIDAS: Salida[] = [
     fechaCreacion: '2026-07-10T08:00:00',
     miembros: [
       MOCK_MIEMBROS[0],
-      MOCK_MIEMBROS[1],
-      MOCK_MIEMBROS[2],
-      MOCK_MIEMBROS[3],
+      MOCK_MIEMBROS[5],
+      MOCK_MIEMBROS[6],
+      MOCK_MIEMBROS[7],
     ],
     gastos: [
       {
         id: 'g4',
         nombre: 'Restaurante',
-        descripcion: 'Restaurante La Trattoria',
-        monto: 1200,
+        descripcion: 'Cuenta total de La Trattoria',
+        monto: 4000,
         fecha: '2026-07-12T21:00:00',
         metodoDivision: 'equitativo',
-        pagadoPor: MOCK_MIEMBROS[0],
-        miembrosParticipantes: MOCK_MIEMBROS,
+        pagadoPor: MOCK_MIEMBROS[0], // Juan pagó todo
+        miembrosParticipantes: [MOCK_MIEMBROS[0], MOCK_MIEMBROS[5], MOCK_MIEMBROS[6], MOCK_MIEMBROS[7]],
       },
     ],
     pagos: [],
   },
+  {
+    id: '3',
+    titulo: 'Cine Fin de Semana',
+    codigoInvitacion: 'J9F4L2',
+    fechaCreacion: '2026-07-05T08:00:00',
+    miembros: [
+      MOCK_MIEMBROS[0],
+      MOCK_MIEMBROS[1],
+    ],
+    gastos: [
+      {
+        id: 'g5',
+        nombre: 'Boletos',
+        descripcion: '2 boletos VIP',
+        monto: 300,
+        fecha: '2026-07-06T20:00:00',
+        metodoDivision: 'equitativo',
+        pagadoPor: MOCK_MIEMBROS[1], // Maria pagó
+        miembrosParticipantes: [MOCK_MIEMBROS[0], MOCK_MIEMBROS[1]],
+      },
+    ],
+    pagos: [
+      {
+        id: 'p2',
+        deudorId: 'mock-user-001', // Juan
+        pagadorId: '2', // a Maria
+        monto: 150,
+        estado: 'pagado',
+        fecha: '2026-07-07T10:00:00',
+      }
+    ],
+  }
 ];
 
 /**

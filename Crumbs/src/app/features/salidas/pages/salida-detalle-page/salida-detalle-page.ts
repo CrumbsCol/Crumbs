@@ -13,6 +13,7 @@ import { DrawerAgregarGasto } from '../../components/drawer-agregar-gasto/drawer
 import { DrawerAgregarIntegrantes } from '../../components/drawer-agregar-integrantes/drawer-agregar-integrantes';
 import { GastosCard } from '../../components/gastos-card/gastos-card';
 import { DesgloseGastoModal } from '../../components/modals/desglose-gasto-modal/desglose-gasto-modal';
+import { AvatarGroupComponent } from '../../../../shared/components/avatar-group/avatar-group';
 
 /**
  * Página de detalle de una salida.
@@ -33,6 +34,7 @@ import { DesgloseGastoModal } from '../../components/modals/desglose-gasto-modal
     DrawerAgregarGasto,
     DrawerAgregarIntegrantes,
     GastosCard,
+    AvatarGroupComponent,
   ],
   templateUrl: './salida-detalle-page.html',
   styleUrl: './salida-detalle-page.css',
