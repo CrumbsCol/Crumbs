@@ -1,0 +1,76 @@
+<!-- Card de Balances -->
+<mat-card class="panel-card" appearance="outlined">
+  <mat-card-header>
+    <mat-card-title class="text-base font-bold">Balances</mat-card-title>
+  </mat-card-header>
+  <mat-divider></mat-divider>
+  <mat-card-content class="p-0">
+    @if (balances().length === 0) {
+      <div class="empty-state">
+        <p>No hay balances calculados.</p>
+      </div>
+    } @else {
+      <mat-nav-list>
+        @for (balance of balances(); track balance.miembro.id) {
+          <mat-list-item>
+            <span matListItemTitle>{{ balance.miembro.nombre }}</span>
+            <span matListItemLine>
+              Adelantó: {{ balance.totalAdelantado | currency:'MXN':'symbol-narrow':'1.0-0' }}
+              · Corresponde: {{ balance.totalCorrespondiente | currency:'MXN':'symbol-narrow':'1.0-0' }}
+            </span>
+            <span matListItemMeta class="balance-meta" [class.positivo]="balance.balanceNeto > 0" [class.negativo]="balance.balanceNeto < 0">
+              @if (balance.balanceNeto > 0) {
+                Le deben {{ balance.balanceNeto | currency:'MXN':'symbol-narrow':'1.0-0' }}
+              } @else if (balance.balanceNeto < 0) {
+                Debe {{ (balance.balanceNeto * -1) | currency:'MXN':'symbol-narrow':'1.0-0' }}
+              } @else {
+                A mano
+              }
+            </span>
+          </mat-list-item>
+        }
+      </mat-nav-list>
+
+      <!-- Botón registrar pago para deudores -->
+      @for (balance of balances(); track balance.miembro.id) {
+        @if (balance.balanceNeto < 0) {
+          <div class="pago-accion">
+            <button
+              mat-button
+              class="btn-registrar-pago"
+              (click)="onRegistrarPago(balance.miembro.id, balances()[0].miembro.id, balance.balanceNeto * -1)"
+            >
+              {{ balance.miembro.nombre }}: Registrar Pago
+            </button>
+          </div>
+        }
+      }
+    }
+
+    <!-- Pagos pendientes -->
+    @if (pagos().length > 0) {
+      <mat-divider></mat-divider>
+      <div class="pagos-section">
+        <h4 class="section-subtitle">Pagos registrados</h4>
+        <mat-nav-list>
+          @for (pago of pagos(); track pago.id) {
+            <mat-list-item>
+              <span matListItemTitle>
+                {{ getNombreMiembro(pago.deudorId) }} → {{ getNombreMiembro(pago.pagadorId) }}
+              </span>
+              <span matListItemLine>
+                {{ pago.monto | currency:'MXN':'symbol-narrow':'1.0-0' }}
+                · <span [class.estado-pendiente]="pago.estado === 'pendiente'" [class.estado-pagado]="pago.estado === 'pagado'">{{ pago.estado }}</span>
+              </span>
+              @if (pago.estado === 'pendiente') {
+                <button matListItemMeta mat-button class="btn-confirmar" (click)="onConfirmarPago(pago.id)">
+                  Confirmar
+                </button>
+              }
+            </mat-list-item>
+          }
+        </mat-nav-list>
+      </div>
+    }
+  </mat-card-content>
+</mat-card>

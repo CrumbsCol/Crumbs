@@ -6,7 +6,15 @@
   } @else {
     <ul class="salidas-list" role="list">
       @for (salida of salidas(); track salida.id) {
-        <li class="salidas-list__item" matRipple>
+        <li
+          class="salidas-list__item"
+          matRipple
+          role="button"
+          tabindex="0"
+          [attr.aria-label]="'Ver salida: ' + salida.label"
+          (click)="salidaClick.emit(salida)"
+          (keydown.enter)="salidaClick.emit(salida)"
+        >
           <div class="salidas-list__content">
             <span class="salidas-list__label">{{ salida.label }}</span>
             <span class="salidas-list__description">{{ salida.description }}</span>

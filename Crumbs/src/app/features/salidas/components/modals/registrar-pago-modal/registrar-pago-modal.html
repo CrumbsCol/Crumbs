@@ -1,0 +1,33 @@
+<section class="modal-view" aria-label="Registrar Pago">
+  <h1 class="page-title">Registrar Pago</h1>
+  <div class="modal-card">
+    <p class="mb-4">Vas a registrar un pago para saldar tu deuda.</p>
+    
+    <div class="bg-gray-50 p-4 rounded-md border border-gray-200">
+      <div class="flex justify-between mb-2">
+        <span class="text-gray-600">Para:</span>
+        <span class="font-medium">{{ data.pagador.nombre }}</span>
+      </div>
+      
+      @if (data.pagador.tipoMetodoPago && data.pagador.metodoPago) {
+        <mat-divider class="my-2"></mat-divider>
+        <div class="flex flex-col mb-2">
+          <span class="text-gray-600 text-sm">Método de pago ({{ data.pagador.tipoMetodoPago | titlecase }}):</span>
+          <span class="font-medium font-mono text-gray-800 break-all">{{ data.pagador.metodoPago }}</span>
+        </div>
+      }
+
+      <mat-divider class="my-2"></mat-divider>
+      <div class="flex justify-between">
+        <span class="text-gray-600">Monto:</span>
+        <span class="font-bold text-lg text-emerald-600">{{ data.monto | currency:'MXN':'symbol-narrow':'1.0-0' }}</span>
+      </div>
+    </div>
+    
+    <p class="text-sm text-gray-500 mt-4">Al confirmar, el pago quedará registrado en el sistema.</p>
+  </div>
+  <div class="action-bar">
+    <button mat-button class="btn-cancelar" mat-dialog-close>Cancelar</button>
+    <button mat-flat-button class="btn-primary" (click)="confirmar()">Confirmar Pago</button>
+  </div>
+</section>

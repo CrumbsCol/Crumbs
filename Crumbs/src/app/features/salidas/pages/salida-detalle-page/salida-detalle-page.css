@@ -1,0 +1,174 @@
+/**
+ * Estilos de la página SalidaDetallePage.
+ * Usa variables de Material 3 para coherencia con el proyecto.
+ */
+
+:host {
+  display: block;
+  width: 100%;
+  min-height: calc(100vh - 64px);
+}
+
+/* Header */
+.header-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.header-row h1 {
+  color: var(--mat-sys-on-surface);
+}
+
+.codigo-invitacion {
+  font-size: 0.875rem;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+/* Grid de contenido: 2 columnas */
+.content-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+.col-izquierda {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.col-derecha {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Cards panel */
+.panel-card {
+  border-radius: 12px;
+}
+
+.empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.875rem;
+}
+
+/* Balances */
+.balance-meta {
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.balance-meta.positivo {
+  color: #2e7d32;
+}
+
+.balance-meta.negativo {
+  color: #c62828;
+}
+
+.pago-accion {
+  padding: 0.5rem 1rem;
+}
+
+.btn-registrar-pago {
+  font-size: 0.75rem;
+  color: var(--mat-sys-primary) !important;
+}
+
+.pagos-section {
+  padding: 0.5rem 0;
+}
+
+.section-subtitle {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--mat-sys-on-surface);
+  padding: 0.5rem 1rem;
+  margin: 0;
+}
+
+.estado-pendiente {
+  color: #e65100;
+  font-weight: 500;
+}
+
+.estado-pagado {
+  color: #2e7d32;
+  font-weight: 500;
+}
+
+.btn-confirmar {
+  font-size: 0.75rem;
+  color: var(--mat-sys-primary) !important;
+}
+
+/* Desglose por gasto */
+.desglose-item {
+  height: auto !important;
+  padding: 0.75rem 0 !important;
+}
+
+.participaciones-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.participacion-chip {
+  font-size: 0.7rem;
+  background-color: var(--mat-sys-surface-container);
+  padding: 0.125rem 0.5rem;
+  border-radius: 4px;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+/* Botones de acción - color primario (magenta del proyecto) */
+.acciones-bottom {
+  display: flex;
+  flex-direction: row;
+  gap: 1.5rem;
+  margin-top: 3rem;
+}
+
+.btn-accion {
+  flex: 1;
+  padding: 1.25rem 2rem;
+  font-size: 1rem;
+  font-weight: 400;
+  color: white;
+  background-color: var(--mat-sys-primary);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn-accion:hover {
+  opacity: 0.9;
+}
+
+.btn-accion:active {
+  transform: scale(0.98);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .content-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .acciones-bottom {
+    flex-direction: column;
+  }
+}

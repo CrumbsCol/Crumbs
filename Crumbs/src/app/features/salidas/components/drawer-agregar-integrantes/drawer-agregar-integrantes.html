@@ -1,0 +1,158 @@
+<!-- Drawer lateral derecho: Agregar Integrantes -->
+@if (abierto()) {
+  <div
+    class="drawer-overlay"
+    (click)="onCerrar()"
+    (keydown.escape)="onCerrar()"
+    tabindex="-1"
+  ></div>
+}
+
+<aside
+  class="drawer-panel"
+  [class.abierto]="abierto()"
+  role="dialog"
+  aria-labelledby="drawer-integrantes-titulo"
+  [attr.aria-hidden]="!abierto()"
+>
+  <div class="drawer-body">
+
+    <!-- UserName -->
+    <div class="campo">
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>UserName</mat-label>
+        <input
+          matInput
+          [ngModel]="busqueda()"
+          (ngModelChange)="busqueda.set($event)"
+          (keydown.enter)="buscar()"
+        />
+        <button mat-icon-button matSuffix type="button" aria-label="Buscar por username" (click)="buscar()">
+          <mat-icon>search</mat-icon>
+        </button>
+      </mat-form-field>
+    </div>
+
+    <!-- Correo electronico -->
+    <div class="campo">
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Correo electronico</mat-label>
+        <input
+          matInput
+          [ngModel]="busquedaEmail()"
+          (ngModelChange)="busquedaEmail.set($event)"
+          (keydown.enter)="buscarPorEmail()"
+        />
+        <button mat-icon-button matSuffix type="button" aria-label="Buscar por correo" (click)="buscarPorEmail()">
+          <mat-icon>search</mat-icon>
+        </button>
+      </mat-form-field>
+    </div>
+
+    <!-- Integrante Fantasma -->
+    <div class="campo">
+      <div class="fantasma-row">
+        <mat-form-field appearance="outline" class="fantasma-field">
+          <mat-label>Integrante Fantasma</mat-label>
+          <input
+            matInput
+            placeholder="Nombre del integrante"
+            maxlength="12"
+            [ngModel]="nombreFantasma()"
+            (ngModelChange)="nombreFantasma.set($event)"
+            (keydown.enter)="agregarFantasma()"
+          />
+          <mat-hint align="end">{{ nombreFantasma().length }}/12</mat-hint>
+        </mat-form-field>
+        <button
+          mat-raised-button
+          type="button"
+          class="btn-agregar-fantasma"
+          [disabled]="!nombreFantasma().trim()"
+          (click)="agregarFantasma()"
+        >
+          Agregar
+        </button>
+      </div>
+    </div>
+
+    <!-- Error de búsqueda -->
+    @if (errorBusqueda()) {
+      <p class="error-msg">{{ errorBusqueda() }}</p>
+    }
+
+    <!-- Seleccionados -->
+    @if (seleccionados().length > 0) {
+      <div class="campo">
+        <span class="campo-label">Seleccionados ({{ seleccionados().length }})</span>
+        <div class="miembros-lista">
+          @for (miembro of seleccionados(); track miembro.id) {
+            <div class="miembro-card seleccionado">
+              <div class="miembro-avatar">
+                <mat-icon>person</mat-icon>
+              </div>
+              <div class="miembro-info">
+                <span class="miembro-title">{{ miembro.nombre }}</span>
+                <span class="miembro-desc">
+                  @if (miembro.userName) {
+                    @{{ miembro.userName }}
+                  } @else {
+                    (Fantasma)
+                  }
+                </span>
+              </div>
+              <button mat-icon-button type="button" aria-label="Remover integrante" (click)="removerDeSeleccion(miembro.id)">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Miembros Frecuentes -->
+    <div class="campo">
+      <span class="campo-label">Miembros Frecuentes</span>
+      <div class="miembros-lista">
+        @for (miembro of miembrosFrecuentes(); track miembro.id) {
+          <button
+            type="button"
+            class="miembro-card"
+            [class.seleccionado]="yaSeleccionado(miembro.id)"
+            (click)="agregarASeleccion(miembro)"
+            [attr.aria-label]="'Agregar a ' + miembro.nombre"
+          >
+            <div class="miembro-avatar">
+              <mat-icon>person</mat-icon>
+            </div>
+            <div class="miembro-info">
+              <span class="miembro-title">{{ miembro.nombre }}</span>
+              <span class="miembro-desc">@{{ miembro.userName }}</span>
+            </div>
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Botones fijos abajo -->
+    <div class="drawer-footer">
+      <button
+        mat-button
+        type="button"
+        class="btn-cancelar"
+        (click)="onCerrar()"
+      >
+        Cancelar
+      </button>
+      <button
+        mat-raised-button
+        type="button"
+        class="btn-agregar"
+        [disabled]="seleccionados().length === 0"
+        (click)="confirmarAgregacion()"
+      >
+        Agregar
+      </button>
+    </div>
+  </div>
+</aside>

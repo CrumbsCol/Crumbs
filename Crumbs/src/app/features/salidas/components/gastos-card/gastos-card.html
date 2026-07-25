@@ -1,0 +1,30 @@
+<!-- Card de Gastos -->
+<mat-card class="panel-card" appearance="outlined">
+  <mat-card-header>
+    <mat-card-title class="text-base font-bold">Gastos</mat-card-title>
+  </mat-card-header>
+  <mat-divider></mat-divider>
+  <mat-card-content class="p-0">
+    @if (gastos().length === 0) {
+      <div class="empty-state">
+        <p>No hay gastos registrados aún.</p>
+      </div>
+    } @else {
+      <mat-nav-list>
+        @for (gasto of gastos(); track gasto.id) {
+          <a mat-list-item (click)="gastoClick.emit(gasto)" (keydown.enter)="gastoClick.emit(gasto)" tabindex="0" class="cursor-pointer">
+            <div matListItemTitle class="flex items-center">
+              <span>{{ gasto.nombre }}</span>
+              @if (gasto.pagadoPor.id === usuarioActual()?.id) {
+                <span class="ml-2 inline-flex items-center rounded-full bg-indigo-50 px-2 py-0.5 text-xs font-medium text-indigo-700 ring-1 ring-inset ring-indigo-700/10">Yo pagué</span>
+              }
+            </div>
+            <span matListItemLine>
+              {{ gasto.monto | currency:'MXN':'symbol-narrow':'1.0-0' }} · {{ gasto.fecha | date:'dd/MM/yyyy HH:mm' }}
+            </span>
+          </a>
+        }
+      </mat-nav-list>
+    }
+  </mat-card-content>
+</mat-card>

@@ -1,0 +1,48 @@
+<!-- Página de Detalle de Salida -->
+<section class="salida-detalle-container max-w-6xl mx-auto mt-8 px-4 pb-8">
+
+  @if (salida(); as salida) {
+  <!-- Encabezado: Título a la izquierda + Código de invitación a la derecha -->
+  <header class="header-row flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div>
+      <h1 class="text-3xl font-light">Salida: {{ salida.titulo }}</h1>
+      <!-- Miniaturas de integrantes -->
+      <div class="flex items-center gap-2 mt-3">
+        <span class="text-sm text-gray-500 mr-2">Integrantes:</span>
+        <app-avatar-group [miembros]="miembros()" [limite]="4"></app-avatar-group>
+        <button class="ml-2 text-indigo-600 text-sm hover:underline" (click)="abrirDrawerIntegrantes()">+
+          Añadir</button>
+      </div>
+    </div>
+    <span class="codigo-invitacion bg-gray-100 px-3 py-1 rounded-md text-sm">
+      Código de invitación: <strong class="font-mono text-gray-900">#{{ salida.codigoInvitacion }}</strong>
+    </span>
+  </header>
+
+  <!-- Layout de Gastos (Ancho completo) -->
+  <div class="mt-8">
+    <app-gastos-card [gastos]="gastos()" [usuarioActual]="usuarioActual()" (gastoClick)="abrirDesgloseGasto($event)" />
+  </div>
+
+  <!-- Botones de acción abajo-izquierda -->
+  <div class="acciones-bottom">
+    <button class="btn-accion" (click)="abrirDrawerGasto()" aria-label="Registrar un nuevo gasto">
+      + Registrar Gastos
+    </button>
+
+  </div>
+
+  } @else {
+  <div class="flex items-center justify-center py-20">
+    <p class="text-gray-400 text-lg">Salida no encontrada.</p>
+  </div>
+  }
+</section>
+
+<!-- Drawer: Agregar Gasto -->
+<app-drawer-agregar-gasto [abierto]="drawerGastoAbierto()" [miembros]="miembros()" (cerrar)="cerrarDrawerGasto()"
+  (gastoAgregado)="onGastoAgregado($event)" />
+
+<!-- Drawer: Agregar Integrantes -->
+<app-drawer-agregar-integrantes [abierto]="drawerIntegrantesAbierto()" (cerrar)="cerrarDrawerIntegrantes()"
+  (integrantesAgregados)="onIntegrantesAgregados($event)" />

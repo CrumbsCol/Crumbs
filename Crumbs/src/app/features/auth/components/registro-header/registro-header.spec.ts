@@ -27,10 +27,10 @@ describe('RegistroHeader', () => {
     expect(component).toBeTruthy();
   });
 
-  it('debería renderizar el texto "Logo"', () => {
+  it('debería renderizar el texto "Crumbs"', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     const logo = compiled.querySelector('.logo');
-    expect(logo?.textContent).toContain('Logo');
+    expect(logo?.textContent).toContain('Crumbs');
   });
 
   it('debería tener un enlace "Volver" que apunta a /login', () => {

@@ -64,6 +64,22 @@ export const routes: Routes = [
             (m) => m.DashboardPage
           ),
       },
+      {
+        // Vista global de saldos
+        path: 'balance',
+        loadComponent: () =>
+          import('./features/balance/pages/balance-page/balance-page').then(
+            (m) => m.BalancePage
+          ),
+      },
+      // Detalle de una salida (requiere ID en la URL)
+      {
+        path: 'salidas/:id',
+        loadComponent: () =>
+          import(
+            './features/salidas/pages/salida-detalle-page/salida-detalle-page'
+          ).then((m) => m.SalidaDetallePage),
+      },
 
       // Redirige la raíz vacía al perfil por defecto
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },

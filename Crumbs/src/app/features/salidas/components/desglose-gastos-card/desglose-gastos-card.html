@@ -1,0 +1,26 @@
+<!-- Card de Desglose por Gasto -->
+<mat-card class="panel-card" appearance="outlined">
+  <mat-card-header>
+    <mat-card-title class="text-base font-bold">Desglose por gasto</mat-card-title>
+  </mat-card-header>
+  <mat-divider></mat-divider>
+  <mat-card-content class="desglose-content">
+    @if (desgloseGastos().length === 0) {
+      <div class="empty-state">
+        <p>No hay gastos para desglosar.</p>
+      </div>
+    } @else {
+      @for (desglose of desgloseGastos(); track desglose.gasto.id) {
+        <div class="desglose-item">
+          <span class="desglose-titulo">{{ desglose.gasto.nombre }}</span>
+          <span class="desglose-pagador">Pagó: {{ desglose.pagador.nombre }}</span>
+          <div class="participaciones-line">
+            @for (p of desglose.participaciones; track p.miembro.id) {
+              <span class="participacion-chip">{{ p.miembro.nombre }}: {{ p.monto | currency:'MXN':'symbol-narrow':'1.0-0' }}</span>
+            }
+          </div>
+        </div>
+      }
+    }
+  </mat-card-content>
+</mat-card>

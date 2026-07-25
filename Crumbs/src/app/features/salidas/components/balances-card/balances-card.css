@@ -1,0 +1,70 @@
+/**
+ * Estilos del componente BalancesCard.
+ */
+
+:host {
+  display: block;
+}
+
+.panel-card {
+  border-radius: 12px;
+}
+
+.empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.875rem;
+}
+
+/* Balances */
+.balance-meta {
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.balance-meta.positivo {
+  color: #2e7d32;
+}
+
+.balance-meta.negativo {
+  color: #c62828;
+}
+
+.pago-accion {
+  padding: 0.5rem 1rem;
+}
+
+.btn-registrar-pago {
+  font-size: 0.75rem;
+  color: var(--mat-sys-primary) !important;
+}
+
+.pagos-section {
+  padding: 0.5rem 0;
+}
+
+.section-subtitle {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--mat-sys-on-surface);
+  padding: 0.5rem 1rem;
+  margin: 0;
+}
+
+.estado-pendiente {
+  color: #e65100;
+  font-weight: 500;
+}
+
+.estado-pagado {
+  color: #2e7d32;
+  font-weight: 500;
+}
+
+.btn-confirmar {
+  font-size: 0.75rem;
+  color: var(--mat-sys-primary) !important;
+}

@@ -1,7 +1,9 @@
-import { Component, computed, inject, PLATFORM_ID, signal } from '@angular/core';
+import { Component, computed, inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
+import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { UserService } from '../../../../core/services/user.service';
+import { SalidaService } from '../../../../core/services/salida.service';
 import { WelcomeHeaderComponent } from '../../components/welcome-header/welcome-header';
 import { DashboardActionsComponent } from '../../components/dashboard-actions/dashboard-actions';
 import { ActiveSalidasListComponent, Salida } from '../../components/active-salidas-list/active-salidas-list';
@@ -22,7 +24,9 @@ import { AgregarSalidaComponent } from '../../components/modales/agregar-salida/
 export class DashboardPage {
   private readonly platformId = inject(PLATFORM_ID);
   private readonly dialog = inject(MatDialog);
+  private readonly router = inject(Router);
   private readonly userService = inject(UserService);
+  private readonly salidaService = inject(SalidaService);
 
   readonly nickName = computed<string>(() => {
     const user = this.userService.currentUser();
@@ -30,12 +34,30 @@ export class DashboardPage {
     return user.nombre.split(' ')[0];
   });
 
-  /** Lista de salidas activas — empieza vacía, se llena al crear salidas */
-  readonly salidasActivas = signal<Salida[]>([]);
+  /** Lista de salidas activas derivada del SalidaService */
+  readonly salidasActivas = computed<Salida[]>(() => {
+    return this.salidaService.salidas().map((s) => ({
+      id: s.id,
+      label: s.titulo,
+      description: `${s.miembros.length} integrantes · ${s.gastos.length} gastos`,
+      fecha: new Date(s.fechaCreacion).toLocaleDateString('es-MX', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      }),
+    }));
+  });
 
   readonly isEmpty = computed<boolean>(() => this.salidasActivas().length === 0);
 
-  // Abre el modal de creación de salida
+  /**
+   * Navega al detalle de la salida seleccionada.
+   */
+  onSalidaClick(salida: Salida): void {
+    this.router.navigate(['/salidas', salida.id]);
+  }
+
+  /** Abre el modal de creación de salida */
   onCrearSalida(): void {
     if (!isPlatformBrowser(this.platformId)) return;
 
@@ -46,36 +68,17 @@ export class DashboardPage {
       autoFocus: true,
     }).afterClosed().subscribe((result: { nombre: string; descripcion: string; fecha: Date } | undefined) => {
       if (result?.nombre) {
-        // Formatear la fecha del Date object a string dd/MM/yyyy
-        const date = new Date(result.fecha);
-        const fechaStr = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
-
-        const newSalida: Salida = {
-          id: Date.now(),
-          label: result.nombre,
-          description: result.descripcion || '',
-          fecha: fechaStr,
-        };
-
-        // Agregar y ordenar de más antigua a más reciente
-        this.salidasActivas.update((list) => {
-          const updated = [...list, newSalida];
-          updated.sort((a, b) => {
-            // Parsear dd/MM/yyyy a Date para comparar
-            const parseDate = (s: string | undefined): number => {
-              if (!s) return 0;
-              const [d, m, y] = s.split('/').map(Number);
-              return new Date(y, m - 1, d).getTime();
-            };
-            return parseDate(a.fecha) - parseDate(b.fecha);
-          });
-          return updated;
+        // Crear la salida a través del servicio para que quede registrada
+        this.salidaService.crearSalida({
+          titulo: result.nombre,
+          descripcion: result.descripcion || '',
+          fecha: new Date(result.fecha).toISOString(),
         });
       }
     });
   }
 
-  // Abre el modal de agregar salida existente (por código)
+  /** Abre el modal de agregar salida existente (por código) */
   onAgregarSalida(): void {
     if (!isPlatformBrowser(this.platformId)) return;
 
@@ -84,6 +87,15 @@ export class DashboardPage {
       maxWidth: '500px',
       panelClass: 'modal-salida',
       autoFocus: true,
+    }).afterClosed().subscribe((result: { label: string; description: string; fecha: string } | undefined) => {
+      if (result?.label) {
+        // En modo mock, crear una nueva salida con el nombre proporcionado
+        this.salidaService.crearSalida({
+          titulo: result.label,
+          descripcion: result.description || '',
+          fecha: new Date().toISOString(),
+        });
+      }
     });
   }
 }

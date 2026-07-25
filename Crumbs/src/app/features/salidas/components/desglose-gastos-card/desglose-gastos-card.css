@@ -1,0 +1,64 @@
+/**
+ * Estilos del componente DesgloseGastosCard.
+ */
+
+:host {
+  display: block;
+}
+
+.panel-card {
+  border-radius: 12px;
+}
+
+.desglose-content {
+  padding: 0;
+}
+
+.empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.875rem;
+}
+
+/* Desglose por gasto */
+.desglose-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1rem 1rem;
+  border-bottom: 1px solid var(--mat-sys-outline-variant, #e0e0e0);
+}
+
+.desglose-item:last-child {
+  border-bottom: none;
+}
+
+.desglose-titulo {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--mat-sys-on-surface);
+}
+
+.desglose-pagador {
+  font-size: 0.8125rem;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.participaciones-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.participacion-chip {
+  font-size: 0.75rem;
+  background-color: var(--mat-sys-surface-container);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  color: var(--mat-sys-on-surface-variant);
+  white-space: nowrap;
+}

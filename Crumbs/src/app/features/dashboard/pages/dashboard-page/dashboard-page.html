@@ -13,7 +13,8 @@
     <!-- Columna derecha: tarjeta con la lista de salidas activas del usuario -->
     <app-active-salidas-list
       [salidas]="salidasActivas()"
-      [isEmpty]="isEmpty()">
+      [isEmpty]="isEmpty()"
+      (salidaClick)="onSalidaClick($event)">
     </app-active-salidas-list>
   </div>
 </section>
