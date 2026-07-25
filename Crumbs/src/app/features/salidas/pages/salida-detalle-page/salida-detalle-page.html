@@ -3,42 +3,34 @@
 
   @if (salida(); as salida) {
     <!-- Encabezado: Título a la izquierda + Código de invitación a la derecha -->
-    <header class="header-row">
-      <h1 class="text-3xl font-light">Salida: {{ salida.titulo }}</h1>
-      <span class="codigo-invitacion">
-        Código de invitación: <strong class="font-mono">#{{ salida.codigoInvitacion }}</strong>
+    <header class="header-row flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div>
+        <h1 class="text-3xl font-light">Salida: {{ salida.titulo }}</h1>
+        <!-- Miniaturas de integrantes -->
+        <div class="flex items-center gap-2 mt-3">
+          <span class="text-sm text-gray-500 mr-2">Integrantes:</span>
+          <div class="flex -space-x-2 overflow-hidden">
+            @for (miembro of miembros(); track miembro.id) {
+              <div class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-200 border-2 border-white text-xs font-medium text-gray-600" title="{{ miembro.nombre }}">
+                {{ miembro.nombre.substring(0, 2).toUpperCase() }}
+              </div>
+            }
+          </div>
+          <button class="ml-2 text-indigo-600 text-sm hover:underline" (click)="abrirDrawerIntegrantes()">+ Añadir</button>
+        </div>
+      </div>
+      <span class="codigo-invitacion bg-gray-100 px-3 py-1 rounded-md text-sm">
+        Código de invitación: <strong class="font-mono text-gray-900">#{{ salida.codigoInvitacion }}</strong>
       </span>
     </header>
 
-    <!-- Layout 2 columnas -->
-    <div class="content-grid">
-
-      <!-- Columna izquierda: Balances y Desglose -->
-      <div class="col-izquierda">
-
-        <!-- Balances Card -->
-        <app-balances-card
-          [balances]="balances()"
-          [pagos]="pagos()"
-          [miembros]="miembros()"
-          (registrarPago)="registrarPago($event.deudorId, $event.pagadorId, $event.monto)"
-          (confirmarPago)="confirmarPago($event)"
-        />
-
-        <!-- Desglose por Gasto Card -->
-        <app-desglose-gastos-card
-          [desgloseGastos]="desgloseGastos()"
-        />
-
-      </div>
-
-      <!-- Columna derecha: Panel de Gastos -->
-      <div class="col-derecha">
-        <app-gastos-card
-          [gastos]="gastos()"
-        />
-      </div>
-
+    <!-- Layout de Gastos (Ancho completo) -->
+    <div class="mt-8">
+      <app-gastos-card
+        [gastos]="gastos()"
+        [usuarioActual]="usuarioActual()"
+        (gastoClick)="abrirDesgloseGasto($event)"
+      />
     </div>
 
     <!-- Botones de acción abajo-izquierda -->

@@ -43,6 +43,12 @@ export interface Miembro {
    * Si es null, se mostrará un placeholder genérico.
    */
   avatarUrl: string | null;
+
+  /** Tipo de método de pago (ej. 'clabe', 'tarjeta', 'efectivo', 'paypal') */
+  tipoMetodoPago?: string;
+
+  /** Datos del método de pago (ej. número de cuenta, CLABE, o correo de paypal) */
+  metodoPago?: string;
 }
 
 /**
@@ -80,6 +86,9 @@ export interface Pago {
 
   /** Fecha del pago en formato ISO 8601 */
   fecha: string;
+
+  /** ID del gasto asociado (opcional) */
+  gastoId?: string;
 }
 
 /**

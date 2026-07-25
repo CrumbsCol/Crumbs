@@ -64,6 +64,14 @@ export const routes: Routes = [
             (m) => m.DashboardPage
           ),
       },
+      {
+        // Vista global de saldos
+        path: 'balance',
+        loadComponent: () =>
+          import('./features/balance/pages/balance-page/balance-page').then(
+            (m) => m.BalancePage
+          ),
+      },
       // Detalle de una salida (requiere ID en la URL)
       {
         path: 'salidas/:id',

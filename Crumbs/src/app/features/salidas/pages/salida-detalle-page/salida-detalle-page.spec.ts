@@ -82,14 +82,18 @@ describe('SalidaDetallePage', () => {
   });
 
   it('should register and confirm a payment', () => {
+    const initialCount = component.pagos().length;
     component.registrarPago('2', '1', 100);
     const pagos = component.pagos();
-    expect(pagos.length).toBe(1);
-    expect(pagos[0].estado).toBe('pendiente');
+    expect(pagos.length).toBe(initialCount + 1);
 
-    component.confirmarPago(pagos[0].id);
+    const newPago = pagos[pagos.length - 1];
+    expect(newPago.estado).toBe('pendiente');
+
+    component.confirmarPago(newPago.id);
     const pagosActualizados = component.pagos();
-    expect(pagosActualizados[0].estado).toBe('pagado');
+    const confirmedPago = pagosActualizados.find(p => p.id === newPago.id);
+    expect(confirmedPago?.estado).toBe('pagado');
   });
 
   it('should open and close the gasto drawer', () => {

@@ -5,14 +5,14 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatListModule } from '@angular/material/list';
+import { MatDialog } from '@angular/material/dialog';
 
 import { SalidaService } from '../../../../core/services/salida.service';
 import { Gasto, Miembro } from '../../../../core/interfaces/salida.interface';
 import { DrawerAgregarGasto } from '../../components/drawer-agregar-gasto/drawer-agregar-gasto';
 import { DrawerAgregarIntegrantes } from '../../components/drawer-agregar-integrantes/drawer-agregar-integrantes';
-import { BalancesCard } from '../../components/balances-card/balances-card';
 import { GastosCard } from '../../components/gastos-card/gastos-card';
-import { DesgloseGastosCard } from '../../components/desglose-gastos-card/desglose-gastos-card';
+import { DesgloseGastoModal } from '../../components/modals/desglose-gasto-modal/desglose-gasto-modal';
 
 /**
  * Página de detalle de una salida.
@@ -32,9 +32,7 @@ import { DesgloseGastosCard } from '../../components/desglose-gastos-card/desglo
     MatListModule,
     DrawerAgregarGasto,
     DrawerAgregarIntegrantes,
-    BalancesCard,
     GastosCard,
-    DesgloseGastosCard,
   ],
   templateUrl: './salida-detalle-page.html',
   styleUrl: './salida-detalle-page.css',
@@ -42,9 +40,13 @@ import { DesgloseGastosCard } from '../../components/desglose-gastos-card/desglo
 export class SalidaDetallePage implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly salidaService = inject(SalidaService);
+  private readonly dialog = inject(MatDialog);
 
   /** Signal de la salida actual cargada */
   readonly salida = this.salidaService.salidaActual;
+
+  /** Usuario actual en sesión */
+  readonly usuarioActual = this.salidaService.usuarioActual;
 
   /** Gastos ordenados cronológicamente (más reciente primero) */
   readonly gastos = this.salidaService.gastosOrdenados;
@@ -107,8 +109,8 @@ export class SalidaDetallePage implements OnInit {
   }
 
   /** Registra un pago de un deudor hacia un acreedor */
-  registrarPago(deudorId: string, pagadorId: string, monto: number): void {
-    this.salidaService.registrarPago(deudorId, pagadorId, monto);
+  registrarPago(deudorId: string, pagadorId: string, monto: number, gastoId?: string): void {
+    this.salidaService.registrarPago(deudorId, pagadorId, monto, gastoId);
   }
 
   /** Confirma un pago pendiente */
@@ -120,5 +122,35 @@ export class SalidaDetallePage implements OnInit {
   getNombreMiembro(id: string): string {
     const miembro = this.miembros().find((m) => m.id === id);
     return miembro?.nombre ?? 'Desconocido';
+  }
+
+  /** Abre el modal de desglose de un gasto */
+  abrirDesgloseGasto(gasto: Gasto): void {
+    const usuario = this.usuarioActual();
+    if (!usuario) return;
+
+    // Calcular las participaciones para pasarlas al modal
+    // Esto es un parche porque no tenemos expuesto calcularParticipaciones públicamente en el servicio,
+    // pero podemos obtenerlas del desglose de gastos global:
+    const desgloses = this.desgloseGastos();
+    const desglose = desgloses.find(d => d.gasto.id === gasto.id);
+    const participaciones = desglose ? desglose.participaciones : [];
+
+    const dialogRef = this.dialog.open(DesgloseGastoModal, {
+      width: '450px',
+      data: {
+        gasto,
+        usuarioActual: usuario,
+        pagos: this.pagos(),
+        participaciones
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result && result.action === 'registrar_pago') {
+        const payload = result.payload;
+        this.registrarPago(payload.deudorId, payload.pagadorId, payload.monto, payload.gastoId);
+      }
+    });
   }
 }

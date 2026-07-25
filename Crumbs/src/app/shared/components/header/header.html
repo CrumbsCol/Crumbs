@@ -8,6 +8,27 @@
 
   <!-- Navegación por pestañas usando Angular Material -->
   <nav mat-tab-nav-bar [tabPanel]="tabPanel">
+    <a
+      mat-tab-link
+      routerLink="/dashboard"
+      routerLinkActive
+      #homeActive="routerLinkActive"
+      [active]="homeActive.isActive"
+    >
+      Home
+    </a>
+
+    <!-- Tab Balance: se activa automáticamente cuando la ruta incluye /balance -->
+    <a
+      mat-tab-link
+      routerLink="/balance"
+      routerLinkActive
+      #balanceActive="routerLinkActive"
+      [active]="balanceActive.isActive"
+    >
+      Balance
+    </a>
+
     <!-- Tab Perfil: se activa automáticamente cuando la ruta incluye /perfil -->
     <a
       mat-tab-link

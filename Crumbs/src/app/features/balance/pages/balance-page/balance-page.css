@@ -1,0 +1,23 @@
+.balance-card {
+  border-radius: 12px;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.balance-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.balance-card.success {
+  border-left: 4px solid #10b981; /* emerald-500 */
+}
+
+.balance-card.danger {
+  border-left: 4px solid #f43f5e; /* rose-500 */
+}
+
+.net-balance-card {
+  border-radius: 12px;
+  background-color: #f8fafc; /* slate-50 */
+}

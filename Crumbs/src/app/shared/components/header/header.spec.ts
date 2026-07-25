@@ -37,9 +37,11 @@ describe('Header', () => {
   it('should render navigation links', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     const links = compiled.querySelectorAll('a[mat-tab-link]');
-    // Debe tener 2 tabs: Perfil y Salir
-    expect(links.length).toBe(2);
-    expect(links[0].textContent).toContain('Perfil');
-    expect(links[1].textContent).toContain('Salir');
+    // Debe tener 4 tabs: Home, Balance, Perfil y Salir
+    expect(links.length).toBe(4);
+    expect(links[0].textContent).toContain('Home');
+    expect(links[1].textContent).toContain('Balance');
+    expect(links[2].textContent).toContain('Perfil');
+    expect(links[3].textContent).toContain('Salir');
   });
 });

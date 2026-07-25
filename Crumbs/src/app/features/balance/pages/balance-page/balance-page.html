@@ -1,0 +1,63 @@
+<section class="max-w-4xl mx-auto mt-8 px-4 pb-8">
+  <header class="mb-8">
+    <h1 class="text-3xl font-light text-gray-900">Balance Global</h1>
+    <p class="text-gray-500 mt-2">Resumen de tus saldos en todas las salidas.</p>
+  </header>
+
+  @if (balanceGlobal(); as balance) {
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      
+      <!-- Tarjeta: Lo que me deben -->
+      <mat-card class="balance-card success" appearance="outlined">
+        <mat-card-header>
+          <mat-icon mat-card-avatar class="text-emerald-500">arrow_downward</mat-icon>
+          <mat-card-title>Me Deben</mat-card-title>
+          <mat-card-subtitle>Total a recibir</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content class="pt-4">
+          <div class="text-4xl font-bold text-emerald-600">
+            {{ balance.meDeben | currency:'MXN':'symbol-narrow':'1.0-0' }}
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Tarjeta: Lo que debo -->
+      <mat-card class="balance-card danger" appearance="outlined">
+        <mat-card-header>
+          <mat-icon mat-card-avatar class="text-rose-500">arrow_upward</mat-icon>
+          <mat-card-title>Debo</mat-card-title>
+          <mat-card-subtitle>Total a pagar</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content class="pt-4">
+          <div class="text-4xl font-bold text-rose-600">
+            {{ balance.debo | currency:'MXN':'symbol-narrow':'1.0-0' }}
+          </div>
+        </mat-card-content>
+      </mat-card>
+      
+    </div>
+
+    <!-- Resumen Neto -->
+    <mat-card class="mt-6 net-balance-card" appearance="outlined">
+      <mat-card-content class="flex items-center justify-between p-6">
+        <div>
+          <h2 class="text-xl font-medium text-gray-800">Balance Neto</h2>
+          <p class="text-sm text-gray-500 mt-1">
+            Diferencia entre lo que te deben y lo que debes.
+          </p>
+        </div>
+        <div class="text-3xl font-bold" 
+             [class.text-emerald-600]="balance.balanceNeto > 0"
+             [class.text-rose-600]="balance.balanceNeto < 0"
+             [class.text-gray-600]="balance.balanceNeto === 0">
+          {{ balance.balanceNeto | currency:'MXN':'symbol-narrow':'1.0-0' }}
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+  } @else {
+    <div class="flex justify-center py-10">
+      <p class="text-gray-400">Cargando balance...</p>
+    </div>
+  }
+</section>

@@ -1,0 +1,28 @@
+<section class="modal-view" aria-label="Información del Pago">
+  <h1 class="page-title">Información del Pago</h1>
+  <div class="modal-card">
+    <div class="space-y-3 py-2">
+      <div class="flex justify-between border-b pb-2">
+        <span class="text-gray-500 text-sm">Estado</span>
+        <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
+              [class.bg-green-100]="data.pago.estado === 'pagado'"
+              [class.text-green-700]="data.pago.estado === 'pagado'"
+              [class.bg-yellow-100]="data.pago.estado === 'pendiente'"
+              [class.text-yellow-700]="data.pago.estado === 'pendiente'">
+          {{ data.pago.estado | titlecase }}
+        </span>
+      </div>
+      <div class="flex justify-between border-b pb-2">
+        <span class="text-gray-500 text-sm">Monto</span>
+        <span class="font-medium">{{ data.pago.monto | currency:'MXN':'symbol-narrow':'1.0-0' }}</span>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-gray-500 text-sm">Fecha</span>
+        <span class="font-medium text-sm">{{ data.pago.fecha | date:'medium' }}</span>
+      </div>
+    </div>
+  </div>
+  <div class="action-bar">
+    <button mat-button class="btn-cancelar" mat-dialog-close>Cerrar</button>
+  </div>
+</section>

@@ -37,4 +37,10 @@ export interface User {
    * Si es null o undefined, se mostrará un placeholder genérico.
    */
   avatarUrl?: string | null;
+
+  /** Tipo de método de pago (ej. 'clabe', 'tarjeta', 'efectivo', 'paypal') */
+  tipoMetodoPago?: string;
+
+  /** Datos del método de pago (ej. número de cuenta, CLABE, o correo de paypal) */
+  metodoPago?: string;
 }

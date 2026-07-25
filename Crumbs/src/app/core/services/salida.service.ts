@@ -1,4 +1,4 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, inject } from '@angular/core';
 
 import {
   Salida,
@@ -6,6 +6,7 @@ import {
   Miembro,
   Pago,
 } from '../interfaces/salida.interface';
+import { UserService } from './user.service';
 
 /**
  * Representa el balance neto de un miembro en la salida.
@@ -39,6 +40,8 @@ const MOCK_MIEMBROS: Miembro[] = [
     userName: 'juanlopez',
     email: 'juan@example.com',
     avatarUrl: null,
+    tipoMetodoPago: 'clabe',
+    metodoPago: '012345678901234567',
   },
   {
     id: '2',
@@ -46,13 +49,17 @@ const MOCK_MIEMBROS: Miembro[] = [
     userName: 'mariagarcia',
     email: 'maria@example.com',
     avatarUrl: null,
+    tipoMetodoPago: 'tarjeta',
+    metodoPago: '4152 3134 5152 6163',
   },
   {
     id: '3',
-    nombre: 'Carlos Rdz',
-    userName: 'carlosrodriguez',
+    nombre: 'Carlos Ruiz',
+    userName: 'carlosruiz',
     email: 'carlos@example.com',
     avatarUrl: null,
+    tipoMetodoPago: 'paypal',
+    metodoPago: 'carlos@example.com',
   },
   {
     id: '4',
@@ -113,7 +120,17 @@ const MOCK_SALIDAS: Salida[] = [
         miembrosParticipantes: [MOCK_MIEMBROS[0], MOCK_MIEMBROS[2]],
       },
     ],
-    pagos: [],
+    pagos: [
+      {
+        id: 'p1',
+        deudorId: '2', // María García
+        pagadorId: '1', // Juan López
+        monto: 150,
+        estado: 'pagado',
+        fecha: '2026-07-21T10:00:00',
+        gastoId: 'g1'
+      }
+    ],
   },
   {
     id: '2',
@@ -161,6 +178,24 @@ export class SalidaService {
 
   /** Signal de solo lectura con todas las salidas disponibles */
   readonly salidas = this._salidas.asReadonly();
+
+  /** Inyectamos UserService para saber quién es el usuario logueado */
+  private readonly userService = inject(UserService);
+
+  /** Computed: Usuario actual adaptado a la interfaz Miembro (o null si no está autenticado) */
+  readonly usuarioActual = computed<Miembro | null>(() => {
+    const user = this.userService.currentUser();
+    if (!user) return null;
+    return {
+      id: user.id,
+      nombre: user.nombre,
+      userName: user.userName,
+      email: user.email ?? '',
+      avatarUrl: user.avatarUrl ?? null,
+      tipoMetodoPago: user.tipoMetodoPago,
+      metodoPago: user.metodoPago,
+    };
+  });
 
   /** Signal privado que almacena la salida actualmente seleccionada */
   private readonly _salidaActual = signal<Salida | null>(null);
@@ -243,6 +278,41 @@ export class SalidaService {
         balanceNeto: Math.round((data.adelantado - data.correspondiente) * 100) / 100,
       };
     });
+  });
+
+  /** Computed: Balance global del usuario actual en todas las salidas */
+  readonly balanceGlobal = computed(() => {
+    const salidas = this._salidas();
+    const usuario = this.usuarioActual();
+    if (!usuario) return { debo: 0, meDeben: 0, balanceNeto: 0 };
+
+    let adelantadoGlobal = 0;
+    let correspondienteGlobal = 0;
+
+    for (const salida of salidas) {
+      for (const gasto of salida.gastos) {
+        if (gasto.pagadoPor.id === usuario.id) {
+          adelantadoGlobal += gasto.monto;
+        }
+
+        const participaciones = this.calcularParticipaciones(gasto);
+        const miParticipacion = participaciones.find((p) => p.miembro.id === usuario.id);
+        if (miParticipacion) {
+          correspondienteGlobal += miParticipacion.monto;
+        }
+      }
+    }
+
+    const balanceNeto = Math.round((adelantadoGlobal - correspondienteGlobal) * 100) / 100;
+
+    // Si balanceNeto > 0, significa que me deben. Si < 0, significa que debo.
+    return {
+      totalAdelantado: adelantadoGlobal,
+      totalCorrespondiente: correspondienteGlobal,
+      balanceNeto: balanceNeto,
+      debo: balanceNeto < 0 ? Math.abs(balanceNeto) : 0,
+      meDeben: balanceNeto > 0 ? balanceNeto : 0,
+    };
   });
 
   /**
@@ -344,7 +414,7 @@ export class SalidaService {
   /**
    * Registra un nuevo pago (estado pendiente).
    */
-  registrarPago(deudorId: string, pagadorId: string, monto: number): void {
+  registrarPago(deudorId: string, pagadorId: string, monto: number, gastoId?: string): void {
     const salida = this._salidaActual();
     if (!salida) return;
 
@@ -355,6 +425,7 @@ export class SalidaService {
       monto,
       estado: 'pendiente',
       fecha: new Date().toISOString(),
+      gastoId,
     };
 
     this._salidaActual.set({

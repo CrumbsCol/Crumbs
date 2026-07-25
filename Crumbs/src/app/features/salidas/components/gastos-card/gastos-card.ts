@@ -1,10 +1,10 @@
-import { Component, input } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { DatePipe, CurrencyPipe } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatListModule } from '@angular/material/list';
 
-import { Gasto } from '../../../../core/interfaces/salida.interface';
+import { Gasto, Miembro } from '../../../../core/interfaces/salida.interface';
 
 /**
  * Componente que muestra la card de Gastos de una salida.
@@ -28,4 +28,10 @@ import { Gasto } from '../../../../core/interfaces/salida.interface';
 export class GastosCard {
   /** Lista de gastos ordenados cronológicamente */
   readonly gastos = input.required<Gasto[]>();
+
+  /** Usuario actual para determinar si "Yo pagué" */
+  readonly usuarioActual = input<Miembro | null>(null);
+
+  /** Evento emitido al hacer clic en un gasto */
+  readonly gastoClick = output<Gasto>();
 }
