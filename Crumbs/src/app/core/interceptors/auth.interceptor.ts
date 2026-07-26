@@ -49,9 +49,9 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   // Enviar la petición (con o sin token) y manejar errores de respuesta
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
-      // Si el backend responde 401, el token es inválido o expiró
-      // → Ejecutar logout para limpiar estado y redirigir a login
-      if (error.status === 401) {
+      // Si el backend responde 401 y NO es la petición de autoLogin (/me),
+      // el token es inválido o expiró → logout y redirigir a login
+      if (error.status === 401 && !req.url.includes('/me')) {
         authService.logout();
       }
 

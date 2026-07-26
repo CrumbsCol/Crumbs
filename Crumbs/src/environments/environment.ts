@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://api.crumbs.app/api',
+  apiUrl: '/api',
   useMocks: false,
 };

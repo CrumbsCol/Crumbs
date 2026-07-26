@@ -61,6 +61,7 @@ export class PerfilCard {
   readonly editForm = new FormGroup(
     {
       nombre: new FormControl('', [Validators.required]),
+      apellido: new FormControl('', [Validators.required]),
       userName: new FormControl('', [Validators.required]),
       fechaNacimiento: new FormControl('', [Validators.required]),
       password: new FormControl('', [
@@ -74,10 +75,9 @@ export class PerfilCard {
 
   /**
    * FormControls de solo lectura para el modo visualización.
-   * Se necesitan porque MatInput requiere un NgControl (formControl/ngModel)
-   * para funcionar correctamente con MatFormField.
    */
   readonly readonlyNombre = new FormControl('');
+  readonly readonlyApellido = new FormControl('');
   readonly readonlyUserName = new FormControl('');
   readonly readonlyFechaNacimiento = new FormControl('');
   readonly readonlyPassword = new FormControl('••••••••');
@@ -94,6 +94,7 @@ export class PerfilCard {
       if (this.editMode()) {
         this.editForm.patchValue({
           nombre: u.nombre,
+          apellido: u.apellido,
           userName: u.userName,
           fechaNacimiento: PerfilCard.toInputDate(u.fechaNacimiento),
           password: '',
@@ -105,6 +106,7 @@ export class PerfilCard {
       } else {
         // Actualizar los controles readonly con datos frescos
         this.readonlyNombre.setValue(u.nombre);
+        this.readonlyApellido.setValue(u.apellido);
         this.readonlyUserName.setValue(u.userName);
         this.readonlyFechaNacimiento.setValue(u.fechaNacimiento);
         this.readonlyPassword.setValue('••••••••');
@@ -194,6 +196,9 @@ export class PerfilCard {
 
     if (values.nombre && values.nombre !== u.nombre) {
       updates.nombre = values.nombre;
+    }
+    if (values.apellido && values.apellido !== u.apellido) {
+      updates.apellido = values.apellido;
     }
     if (values.userName && values.userName !== u.userName) {
       updates.userName = values.userName;

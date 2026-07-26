@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 
+import { AuthService } from '../../../../core/services/auth.service';
 import { RegistroHeader } from '../../components/registro-header/registro-header';
 import { RegistroForm } from '../../components/registro-form/registro-form';
 
@@ -9,12 +10,7 @@ import { RegistroForm } from '../../components/registro-form/registro-form';
  * Responsabilidades:
  * - Define el layout de 1 columna con header arriba y formulario centrado.
  * - Ensambla los componentes presentacionales RegistroHeader y RegistroForm.
- * - Recibe el evento registroSubmit del formulario y ejecuta la acción de registro.
- *
- * Se renderiza fuera del MainLayout (sin header compartido) porque las rutas
- * de autenticación no necesitan el header principal de la app.
- *
- * Futuro: inyectar AuthService y redirigir al login o dashboard tras registro exitoso.
+ * - Recibe el evento registroSubmit del formulario y ejecuta el registro vía AuthService.
  */
 @Component({
   selector: 'app-registro-page',
@@ -24,10 +20,11 @@ import { RegistroForm } from '../../components/registro-form/registro-form';
   styleUrl: './registro-page.css',
 })
 export class RegistroPage {
+  private readonly authService = inject(AuthService);
+
   /**
    * Maneja el evento de registro emitido por RegistroForm.
-   * Recibe los datos del formulario validados.
-   * Por ahora solo loguea en consola — en futuro llamará a AuthService.register().
+   * Llama al AuthService para registrar al usuario en el backend.
    */
   onRegister(data: {
     nombre: string;
@@ -37,6 +34,11 @@ export class RegistroPage {
     password: string;
     fechaNacimiento: string;
   }): void {
-    console.log('Registro:', data);
+    this.authService.register(data).subscribe({
+      error: (err) => {
+        // TODO: Mostrar error en la UI (ej: email duplicado)
+        console.error('Error de registro:', err);
+      },
+    });
   }
 }

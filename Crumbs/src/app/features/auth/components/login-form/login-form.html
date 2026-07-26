@@ -3,9 +3,9 @@
   <h2 class="form-title">Iniciar Sesión</h2>
 
   <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
-    <!-- Campo: Correo electrónico / Usuario -->
+    <!-- Campo: Correo electrónico -->
     <mat-form-field appearance="outline" class="form-field">
-      <mat-label>Correo electrónico / Usuario</mat-label>
+      <mat-label>Correo electrónico</mat-label>
       <input
         matInput
         formControlName="emailOrUsername"

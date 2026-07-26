@@ -1,51 +1,84 @@
 <section class="modal-view" aria-label="Detalle del Gasto">
   <h1 class="page-title">Detalle del Gasto</h1>
   <div class="modal-card">
+
+    <!-- Información básica del gasto -->
     <div class="mb-4">
       <h3 class="text-lg font-medium">{{ data.gasto.nombre }}</h3>
-      <p class="text-gray-500">{{ data.gasto.monto | currency:'MXN':'symbol-narrow':'1.0-0' }} · Pagado por {{ data.gasto.pagadoPor.nombre }}</p>
+      <p class="text-gray-500">
+        {{ data.gasto.monto | currency:'COP':'symbol-narrow':'1.0-0' }} · Pagado por {{ data.gasto.pagadoPor?.nombre }}
+      </p>
+      @if (data.gasto.descripcion) {
+        <p class="text-sm text-gray-400 mt-1">{{ data.gasto.descripcion }}</p>
+      }
+      <p class="text-xs text-gray-400 mt-1">
+        {{ data.gasto.fecha | date:'dd/MM/yyyy' }} · División {{ data.gasto.metodoDivision }}
+      </p>
     </div>
 
     <mat-divider></mat-divider>
 
+    <!-- Desglose de participantes: siempre se muestra -->
     <div class="mt-4">
-      @if (!esPagador) {
-        <div class="text-center p-4">
-          <p class="mb-2">Te corresponde pagar: <strong>{{ miParticipacion | currency:'MXN':'symbol-narrow':'1.0-0' }}</strong></p>
+      <h4 class="font-medium text-gray-700 mb-3">Participantes:</h4>
+      <mat-list>
+        @for (part of data.participaciones; track part.miembro?.id ?? $index) {
+          @if (part.miembro) {
+            <mat-list-item>
+              <div matListItemTitle class="flex justify-between items-center w-full">
+                <div class="flex items-center gap-2">
+                  <mat-icon class="text-gray-400" style="font-size: 20px; width: 20px; height: 20px;">person</mat-icon>
+                  <span>
+                    {{ part.miembro.nombre }}
+                    @if (part.miembro.id === data.gasto.pagadoPor?.id) {
+                      <span class="text-xs text-purple-600 ml-1">(pagó)</span>
+                    }
+                    @if (data.usuarioActual && part.miembro.id === data.usuarioActual.id) {
+                      <span class="text-xs text-blue-600 ml-1">(tú)</span>
+                    }
+                  </span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="font-medium">{{ part.monto | currency:'COP':'symbol-narrow':'1.0-0' }}</span>
+                  <!-- Estado del pago (solo para quienes NO son el pagador) -->
+                  @if (part.miembro.id !== data.gasto.pagadoPor?.id) {
+                    @if (haPagado(part.miembro.id)) {
+                      <button mat-icon-button color="primary" (click)="verInfoPago(part.miembro.id)" title="Pago confirmado">
+                        <mat-icon class="text-green-500">check_circle</mat-icon>
+                      </button>
+                    } @else {
+                      <mat-icon class="text-orange-400" title="Pendiente de pago">schedule</mat-icon>
+                    }
+                  }
+                </div>
+              </div>
+            </mat-list-item>
+          }
+        }
+      </mat-list>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- Acción: si NO soy el pagador y no he pagado -->
+    <div class="mt-4">
+      @if (!esPagador && data.usuarioActual) {
+        <div class="text-center p-3">
+          <p class="mb-2 text-sm text-gray-600">
+            Te corresponde pagar: <strong class="text-lg">{{ miParticipacion | currency:'COP':'symbol-narrow':'1.0-0' }}</strong>
+          </p>
           @if (yaPague) {
             <div class="text-green-600 flex items-center justify-center gap-1">
               <mat-icon>check_circle</mat-icon>
               <span>Ya registraste tu pago</span>
             </div>
-          } @else {
+          } @else if (miParticipacion > 0) {
             <button mat-flat-button class="btn-primary" (click)="abrirRegistrarPago()">Registrar Pago</button>
           }
         </div>
-      } @else {
-        <h4 class="font-medium text-gray-700 mb-2">Desglose (Te deben pagar):</h4>
-        <mat-list>
-          @for (part of data.participaciones; track part.miembro.id) {
-            @if (part.miembro.id !== data.usuarioActual.id) {
-              <mat-list-item>
-                <div matListItemTitle class="flex justify-between items-center w-full">
-                  <span>{{ part.miembro.nombre }}</span>
-                  <div class="flex items-center gap-2">
-                    <span class="text-gray-600">{{ part.monto | currency:'MXN':'symbol-narrow':'1.0-0' }}</span>
-                    @if (haPagado(part.miembro.id)) {
-                      <button mat-icon-button color="primary" (click)="verInfoPago(part.miembro.id)" title="Ver pago">
-                        <mat-icon class="text-green-500">check_circle</mat-icon>
-                      </button>
-                    } @else {
-                      <mat-icon class="text-gray-300" title="Pendiente">schedule</mat-icon>
-                    }
-                  </div>
-                </div>
-              </mat-list-item>
-            }
-          }
-        </mat-list>
       }
     </div>
+
   </div>
   <div class="action-bar">
     <button mat-button class="btn-cancelar" mat-dialog-close>Cerrar</button>

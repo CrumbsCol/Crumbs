@@ -1,12 +1,13 @@
 import { Component, inject, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 
 import { Miembro } from '../../../../core/interfaces/salida.interface';
-import { SalidaService } from '../../../../core/services/salida.service';
+import { environment } from '../../../../../environments/environment';
 
 /**
  * Panel lateral (drawer) para agregar integrantes a la salida.
@@ -32,7 +33,8 @@ import { SalidaService } from '../../../../core/services/salida.service';
   styleUrl: './drawer-agregar-integrantes.css',
 })
 export class DrawerAgregarIntegrantes {
-  private readonly salidaService = inject(SalidaService);
+  private readonly http = inject(HttpClient);
+  private readonly apiUrl = environment.apiUrl;
 
   /** Controla si el drawer está visible */
   readonly abierto = input<boolean>(false);
@@ -62,7 +64,20 @@ export class DrawerAgregarIntegrantes {
   readonly miembrosFrecuentes = signal<Miembro[]>([]);
 
   constructor() {
-    this.miembrosFrecuentes.set(this.salidaService.obtenerMiembrosFrecuentes());
+    // Cargar miembros frecuentes desde el backend
+    this.http.get<any[]>(`${this.apiUrl}/users/search/frecuentes`).subscribe({
+      next: (users) => {
+        const miembros: Miembro[] = users.map((u: any) => ({
+          id: u.id,
+          nombre: u.nombre,
+          userName: u.userName,
+          email: u.email,
+          avatarUrl: u.avatarUrl,
+        }));
+        this.miembrosFrecuentes.set(miembros);
+      },
+      error: () => this.miembrosFrecuentes.set([]),
+    });
   }
 
   /** Busca un miembro por userName exacto */
@@ -73,13 +88,22 @@ export class DrawerAgregarIntegrantes {
       return;
     }
 
-    const resultado = this.salidaService.buscarMiembro(query);
-    if (resultado) {
-      this.agregarASeleccion(resultado);
-      this.errorBusqueda.set('');
-    } else {
-      this.errorBusqueda.set(`No se encontró un usuario con "${query}".`);
-    }
+    this.http.get<any>(`${this.apiUrl}/users/search`, { params: { q: query } }).subscribe({
+      next: (user) => {
+        const miembro: Miembro = {
+          id: user.id,
+          nombre: user.nombre,
+          userName: user.userName,
+          email: user.email,
+          avatarUrl: user.avatarUrl,
+        };
+        this.agregarASeleccion(miembro);
+        this.errorBusqueda.set('');
+      },
+      error: () => {
+        this.errorBusqueda.set(`No se encontró un usuario con "${query}".`);
+      },
+    });
   }
 
   /** Busca un miembro por correo electrónico exacto */
@@ -90,13 +114,22 @@ export class DrawerAgregarIntegrantes {
       return;
     }
 
-    const resultado = this.salidaService.buscarMiembro(query);
-    if (resultado) {
-      this.agregarASeleccion(resultado);
-      this.errorBusqueda.set('');
-    } else {
-      this.errorBusqueda.set(`No se encontró un usuario con "${query}".`);
-    }
+    this.http.get<any>(`${this.apiUrl}/users/search`, { params: { q: query } }).subscribe({
+      next: (user) => {
+        const miembro: Miembro = {
+          id: user.id,
+          nombre: user.nombre,
+          userName: user.userName,
+          email: user.email,
+          avatarUrl: user.avatarUrl,
+        };
+        this.agregarASeleccion(miembro);
+        this.errorBusqueda.set('');
+      },
+      error: () => {
+        this.errorBusqueda.set(`No se encontró un usuario con "${query}".`);
+      },
+    });
   }
 
   /** Agrega un integrante fantasma (solo con nombre, sin cuenta real) */

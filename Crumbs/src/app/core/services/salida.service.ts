@@ -1,4 +1,5 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 
 import {
   Salida,
@@ -6,8 +7,9 @@ import {
   Miembro,
   Pago,
 } from '../interfaces/salida.interface';
-import { CrearGastoRequest } from '../interfaces/salida-request.interface';
+import { CrearGastoRequest, RegistrarPagoRequest } from '../interfaces/salida-request.interface';
 import { UserService } from './user.service';
+import { environment } from '../../../environments/environment';
 
 /**
  * Representa el balance neto de un miembro en la salida.
@@ -32,221 +34,34 @@ export interface DesgloseGasto {
 }
 
 /**
- * Datos mock de miembros para desarrollo.
- */
-const MOCK_MIEMBROS: Miembro[] = [
-  {
-    id: 'mock-user-001',
-    nombre: 'Juan López',
-    userName: 'juanlopez',
-    email: 'juan@example.com',
-    avatarUrl: null,
-    tipoMetodoPago: 'clabe',
-    metodoPago: '012345678901234567',
-  },
-  {
-    id: '2',
-    nombre: 'María García',
-    userName: 'mariagarcia',
-    email: 'maria@example.com',
-    avatarUrl: null,
-    tipoMetodoPago: 'tarjeta',
-    metodoPago: '4152 3134 5152 6163',
-  },
-  {
-    id: '3',
-    nombre: 'Carlos Ruiz',
-    userName: 'carlosruiz',
-    email: 'carlos@example.com',
-    avatarUrl: null,
-    tipoMetodoPago: 'paypal',
-    metodoPago: 'carlos@example.com',
-  },
-  {
-    id: '4',
-    nombre: 'Ana Martínez',
-    userName: 'anamartinez',
-    email: 'ana@example.com',
-    avatarUrl: null,
-  },
-  {
-    id: '5',
-    nombre: 'Luis Pérez',
-    userName: 'luisperez',
-    email: 'luis@example.com',
-    avatarUrl: null,
-    tipoMetodoPago: 'efectivo',
-  },
-  {
-    id: '6',
-    nombre: 'Sofia Castro',
-    userName: 'sofiac',
-    email: 'sofia@example.com',
-    avatarUrl: null,
-  },
-  {
-    id: '7',
-    nombre: 'Pedro Solís',
-    userName: 'pedros',
-    email: 'pedro@example.com',
-    avatarUrl: null,
-  },
-  {
-    id: '8',
-    nombre: 'Marta Torres',
-    userName: 'martat',
-    email: 'marta@example.com',
-    avatarUrl: null,
-    tipoMetodoPago: 'clabe',
-    metodoPago: '987654321098765432',
-  }
-];
-
-/**
- * Datos mock de salidas para desarrollo.
- */
-const MOCK_SALIDAS: Salida[] = [
-  {
-    id: '1',
-    titulo: 'Viaje a la Playa',
-    codigoInvitacion: 'A3B9X2',
-    fechaCreacion: '2026-07-15T10:00:00',
-    miembros: [MOCK_MIEMBROS[0], MOCK_MIEMBROS[1], MOCK_MIEMBROS[2], MOCK_MIEMBROS[3], MOCK_MIEMBROS[4]],
-    gastos: [
-      {
-        id: 'g1',
-        nombre: 'Gasolina',
-        descripcion: 'Tanque lleno ida y vuelta',
-        monto: 1200,
-        fecha: '2026-07-20T16:00:00',
-        metodoDivision: 'equitativo',
-        pagadoPor: MOCK_MIEMBROS[0], // Juan pagó
-        miembrosParticipantes: [MOCK_MIEMBROS[0], MOCK_MIEMBROS[1], MOCK_MIEMBROS[2], MOCK_MIEMBROS[3], MOCK_MIEMBROS[4]],
-      },
-      {
-        id: 'g2',
-        nombre: 'Casetas',
-        descripcion: 'Peaje autopista',
-        monto: 400,
-        fecha: '2026-07-20T16:30:00',
-        metodoDivision: 'equitativo',
-        pagadoPor: MOCK_MIEMBROS[1], // Maria pagó
-        miembrosParticipantes: [MOCK_MIEMBROS[0], MOCK_MIEMBROS[1], MOCK_MIEMBROS[2], MOCK_MIEMBROS[3], MOCK_MIEMBROS[4]],
-      },
-      {
-        id: 'g3',
-        nombre: 'Cena Mariscos',
-        descripcion: 'Cena en el puerto',
-        monto: 2500,
-        fecha: '2026-07-20T19:00:00',
-        metodoDivision: 'manual',
-        pagadoPor: MOCK_MIEMBROS[2], // Carlos pagó
-        miembrosParticipantes: [MOCK_MIEMBROS[0], MOCK_MIEMBROS[1], MOCK_MIEMBROS[2]], // Solo 3 comieron
-        participantes: [
-          { miembro: MOCK_MIEMBROS[0], esInvitado: false, montoManual: 1000 },
-          { miembro: MOCK_MIEMBROS[1], esInvitado: true, montoManual: null }, // Maria invitada
-          { miembro: MOCK_MIEMBROS[2], esInvitado: false, montoManual: 1500 }
-        ]
-      },
-    ],
-    pagos: [
-      {
-        id: 'p1',
-        deudorId: 'mock-user-001', // Juan
-        pagadorId: '3', // a Carlos
-        monto: 500,
-        estado: 'pagado',
-        fecha: '2026-07-21T10:00:00',
-        gastoId: 'g3'
-      }
-    ],
-  },
-  {
-    id: '2',
-    titulo: 'Cena de cumpleaños',
-    codigoInvitacion: 'K7M2P1',
-    fechaCreacion: '2026-07-10T08:00:00',
-    miembros: [
-      MOCK_MIEMBROS[0],
-      MOCK_MIEMBROS[5],
-      MOCK_MIEMBROS[6],
-      MOCK_MIEMBROS[7],
-    ],
-    gastos: [
-      {
-        id: 'g4',
-        nombre: 'Restaurante',
-        descripcion: 'Cuenta total de La Trattoria',
-        monto: 4000,
-        fecha: '2026-07-12T21:00:00',
-        metodoDivision: 'equitativo',
-        pagadoPor: MOCK_MIEMBROS[0], // Juan pagó todo
-        miembrosParticipantes: [MOCK_MIEMBROS[0], MOCK_MIEMBROS[5], MOCK_MIEMBROS[6], MOCK_MIEMBROS[7]],
-      },
-    ],
-    pagos: [],
-  },
-  {
-    id: '3',
-    titulo: 'Cine Fin de Semana',
-    codigoInvitacion: 'J9F4L2',
-    fechaCreacion: '2026-07-05T08:00:00',
-    miembros: [
-      MOCK_MIEMBROS[0],
-      MOCK_MIEMBROS[1],
-    ],
-    gastos: [
-      {
-        id: 'g5',
-        nombre: 'Boletos',
-        descripcion: '2 boletos VIP',
-        monto: 300,
-        fecha: '2026-07-06T20:00:00',
-        metodoDivision: 'equitativo',
-        pagadoPor: MOCK_MIEMBROS[1], // Maria pagó
-        miembrosParticipantes: [MOCK_MIEMBROS[0], MOCK_MIEMBROS[1]],
-      },
-    ],
-    pagos: [
-      {
-        id: 'p2',
-        deudorId: 'mock-user-001', // Juan
-        pagadorId: '2', // a Maria
-        monto: 150,
-        estado: 'pagado',
-        fecha: '2026-07-07T10:00:00',
-      }
-    ],
-  }
-];
-
-/**
- * Miembros frecuentes mock (usuarios que han sido añadidos en salidas anteriores).
- */
-const MOCK_MIEMBROS_FRECUENTES: Miembro[] = [...MOCK_MIEMBROS];
-
-/**
- * Servicio de gestión de Salidas en la aplicación Crumbs.
- *
- * Utiliza signals de Angular para mantener un estado reactivo.
- * Actualmente provee datos mock, pero está diseñado para que en el futuro
- * se reemplace por llamadas HTTP sin modificar los componentes consumidores.
+ * Servicio de gestión de Salidas conectado al backend real.
+ * Usa signals de Angular para estado reactivo + HttpClient para persistencia.
  */
 @Injectable({ providedIn: 'root' })
 export class SalidaService {
+  private readonly http = inject(HttpClient);
+  private readonly userService = inject(UserService);
+  private readonly apiUrl = environment.apiUrl;
+
   /** Signal privado con todas las salidas del usuario */
-  private readonly _salidas = signal<Salida[]>([...MOCK_SALIDAS]);
+  private readonly _salidas = signal<Salida[]>([]);
 
   /** Signal de solo lectura con todas las salidas disponibles */
   readonly salidas = this._salidas.asReadonly();
 
-  /** Inyectamos UserService para saber quién es el usuario logueado */
-  private readonly userService = inject(UserService);
-
-  /** Computed: Usuario actual adaptado a la interfaz Miembro (o null si no está autenticado) */
+  /** Computed: Usuario actual adaptado a la interfaz Miembro */
   readonly usuarioActual = computed<Miembro | null>(() => {
     const user = this.userService.currentUser();
     if (!user) return null;
+
+    // Si hay una salida cargada, buscar el SalidaMiembro correspondiente al user
+    const salida = this._salidaActual();
+    if (salida) {
+      const miembro = salida.miembros.find((m) => m.userName === user.userName);
+      if (miembro) return miembro;
+    }
+
+    // Fallback: construir desde datos del User (para vistas sin salida activa)
     return {
       id: user.id,
       nombre: user.nombre,
@@ -285,7 +100,7 @@ export class SalidaService {
     return salida?.pagos ?? [];
   });
 
-  /** Computed: desglose por gasto (quién pagó y cuánto le toca a cada uno) */
+  /** Computed: desglose por gasto */
   readonly desgloseGastos = computed<DesgloseGasto[]>(() => {
     const salida = this._salidaActual();
     if (!salida) return [];
@@ -307,20 +122,16 @@ export class SalidaService {
 
     const miembrosMap = new Map<string, { adelantado: number; correspondiente: number }>();
 
-    // Inicializar todos los miembros
     for (const m of salida.miembros) {
       miembrosMap.set(m.id, { adelantado: 0, correspondiente: 0 });
     }
 
-    // Calcular por cada gasto
     for (const gasto of salida.gastos) {
-      // El pagador adelantó el monto total
       const pagadorData = miembrosMap.get(gasto.pagadoPor.id);
       if (pagadorData) {
         pagadorData.adelantado += gasto.monto;
       }
 
-      // Calcular lo que le corresponde a cada participante
       const participaciones = this.calcularParticipaciones(gasto);
       for (const p of participaciones) {
         const data = miembrosMap.get(p.miembro.id);
@@ -330,128 +141,217 @@ export class SalidaService {
       }
     }
 
+    // Ajustar por pagos confirmados
+    for (const pago of salida.pagos) {
+      if (pago.estado === 'pagado') {
+        const deudorData = miembrosMap.get(pago.deudorId);
+        const acreedorData = miembrosMap.get(pago.pagadorId);
+        if (deudorData) deudorData.correspondiente -= pago.monto;
+        if (acreedorData) acreedorData.adelantado -= pago.monto;
+      }
+    }
+
     return salida.miembros.map((miembro) => {
       const data = miembrosMap.get(miembro.id) ?? { adelantado: 0, correspondiente: 0 };
       return {
         miembro,
         totalAdelantado: data.adelantado,
         totalCorrespondiente: data.correspondiente,
-        balanceNeto: Math.round((data.adelantado - data.correspondiente) * 100) / 100,
+        balanceNeto: data.adelantado - data.correspondiente,
       };
     });
   });
 
-  /** Computed: Balance global del usuario actual en todas las salidas */
+  /** Signal con salidas cargadas con detalle completo (para balance global) */
+  private readonly _salidasCompletas = signal<Salida[]>([]);
+
+  /** Computed: Balance global del usuario actual en TODAS sus salidas */
   readonly balanceGlobal = computed(() => {
-    const salidas = this._salidas();
-    const usuario = this.usuarioActual();
-    if (!usuario) return { debo: 0, meDeben: 0, balanceNeto: 0 };
+    const user = this.userService.currentUser();
+    if (!user) return { debo: 0, meDeben: 0, balanceNeto: 0, totalAdelantado: 0, totalCorrespondiente: 0 };
+
+    const salidas = this._salidasCompletas();
+    if (salidas.length === 0) return { debo: 0, meDeben: 0, balanceNeto: 0, totalAdelantado: 0, totalCorrespondiente: 0 };
 
     let adelantadoGlobal = 0;
     let correspondienteGlobal = 0;
 
     for (const salida of salidas) {
+      // Encontrar el SalidaMiembro que corresponde al user en esta salida
+      const miMiembro = salida.miembros.find((m) => m.userName === user.userName);
+      if (!miMiembro) continue;
+
       for (const gasto of salida.gastos) {
-        if (gasto.pagadoPor.id === usuario.id) {
+        if (!gasto || !gasto.pagadoPor) continue;
+
+        if (gasto.pagadoPor.id === miMiembro.id) {
           adelantadoGlobal += gasto.monto;
         }
 
         const participaciones = this.calcularParticipaciones(gasto);
-        const miParticipacion = participaciones.find((p) => p.miembro.id === usuario.id);
+        const miParticipacion = participaciones.find((p) => p.miembro?.id === miMiembro.id);
         if (miParticipacion) {
           correspondienteGlobal += miParticipacion.monto;
         }
       }
+
+      // Ajustar por pagos confirmados
+      for (const pago of salida.pagos) {
+        if (pago.estado === 'pagado') {
+          if (pago.deudorId === miMiembro.id) {
+            correspondienteGlobal -= pago.monto;
+          }
+          if (pago.pagadorId === miMiembro.id) {
+            adelantadoGlobal -= pago.monto;
+          }
+        }
+      }
     }
 
-    const balanceNeto = Math.round((adelantadoGlobal - correspondienteGlobal) * 100) / 100;
+    const balanceNeto = adelantadoGlobal - correspondienteGlobal;
 
-    // Si balanceNeto > 0, significa que me deben. Si < 0, significa que debo.
     return {
       totalAdelantado: adelantadoGlobal,
       totalCorrespondiente: correspondienteGlobal,
-      balanceNeto: balanceNeto,
+      balanceNeto,
       debo: balanceNeto < 0 ? Math.abs(balanceNeto) : 0,
       meDeben: balanceNeto > 0 ? balanceNeto : 0,
     };
   });
 
+  // ─── MÉTODOS PÚBLICOS (HTTP) ──────────────────────────────────────────
+
   /**
-   * Carga una salida por su ID.
+   * Carga todas las salidas del usuario autenticado desde el backend.
+   * El backend retorna _count en vez de arrays completos para el listado.
+   */
+  cargarSalidas(): void {
+    this.http.get<any[]>(`${this.apiUrl}/salidas`).subscribe({
+      next: (salidas) => {
+        // Mapear respuesta del backend al formato que espera el frontend
+        const mapped: Salida[] = salidas.map((s) => ({
+          id: s.id,
+          titulo: s.titulo,
+          descripcion: s.descripcion,
+          codigoInvitacion: s.codigoInvitacion,
+          fechaCreacion: s.fechaCreacion,
+          // Guardar los conteos para display, arrays vacíos (no undefined)
+          miembros: s.miembros ?? [],
+          gastos: s.gastos ?? [],
+          pagos: s.pagos ?? [],
+          _count: s._count ?? { miembros: 0, gastos: 0 },
+        }));
+        this._salidas.set(mapped);
+      },
+      error: () => this._salidas.set([]),
+    });
+  }
+
+  /**
+   * Carga el detalle completo de una salida por su ID.
    */
   cargarSalida(id: string): void {
-    const salida = this._salidas().find((s) => s.id === id) ?? null;
-    this._salidaActual.set(salida);
+    this.http.get<Salida>(`${this.apiUrl}/salidas/${id}`).subscribe({
+      next: (salida) => this._salidaActual.set(salida),
+      error: () => this._salidaActual.set(null),
+    });
+  }
+
+  /** Signal con balance detallado del backend */
+  private readonly _balanceDetallado = signal<any>(null);
+  readonly balanceDetallado = this._balanceDetallado.asReadonly();
+
+  /**
+   * Carga el balance detallado del usuario (por persona y salida).
+   */
+  cargarBalanceDetallado(): void {
+    this.http.get<any>(`${this.apiUrl}/balance-detallado`).subscribe({
+      next: (data) => this._balanceDetallado.set(data),
+      error: () => this._balanceDetallado.set(null),
+    });
   }
 
   /**
-   * Crea una nueva salida y la agrega a la lista.
-   * Devuelve la salida creada con su ID asignado.
-   *
-   * @param datos - Título, descripción opcional y fecha de la salida.
-   * @param miembrosIniciales - Integrantes seleccionados al momento de crear (opcional).
+   * Carga el detalle de todas las salidas para calcular el balance global.
+   * Primero carga la lista, luego el detalle de cada una.
    */
-  crearSalida(datos: { titulo: string; descripcion?: string; fecha: string }, miembrosIniciales?: Miembro[]): Salida {
-    const codigo = Math.random().toString(36).substring(2, 8).toUpperCase();
-    const nuevaSalida: Salida = {
-      id: String(this._salidas().length + 1),
+  cargarBalanceGlobal(): void {
+    this.http.get<any[]>(`${this.apiUrl}/salidas`).subscribe({
+      next: (salidas) => {
+        if (salidas.length === 0) {
+          this._salidasCompletas.set([]);
+          return;
+        }
+        // Cargar detalle de cada salida
+        const detalles: Salida[] = [];
+        let loaded = 0;
+        for (const s of salidas) {
+          this.http.get<Salida>(`${this.apiUrl}/salidas/${s.id}`).subscribe({
+            next: (detalle) => {
+              detalles.push(detalle);
+              loaded++;
+              if (loaded === salidas.length) {
+                this._salidasCompletas.set(detalles);
+              }
+            },
+            error: () => {
+              loaded++;
+              if (loaded === salidas.length) {
+                this._salidasCompletas.set(detalles);
+              }
+            },
+          });
+        }
+      },
+      error: () => this._salidasCompletas.set([]),
+    });
+  }
+
+  /**
+   * Crea una nueva salida en el backend.
+   */
+  crearSalida(datos: { titulo: string; descripcion?: string; fecha: string }, miembrosIniciales?: Miembro[]): void {
+    this.http.post<Salida>(`${this.apiUrl}/salidas`, {
       titulo: datos.titulo,
       descripcion: datos.descripcion,
-      codigoInvitacion: codigo,
-      fechaCreacion: datos.fecha,
-      miembros: miembrosIniciales ?? [],
-      gastos: [],
-      pagos: [],
-    };
+    }).subscribe({
+      next: (salida) => {
+        this._salidas.update((list) => [...list, salida]);
 
-    this._salidas.update((list) => [...list, nuevaSalida]);
-    return nuevaSalida;
+        // Si hay integrantes iniciales, agregarlos uno por uno
+        if (miembrosIniciales && miembrosIniciales.length > 0) {
+          for (const m of miembrosIniciales) {
+            const body = m.userName
+              ? { userName: m.userName }
+              : { nombreFantasma: m.nombre };
+            this.http.post(`${this.apiUrl}/salidas/${salida.id}/integrantes`, body).subscribe();
+          }
+        }
+      },
+    });
   }
 
   /**
-   * Busca una salida por código de invitación y la devuelve.
-   * Simula unirse a una salida existente.
+   * Unirse a una salida por código de invitación.
    */
-  unirseASalida(codigo: string): Salida | null {
-    const salida = this._salidas().find(
-      (s) => s.codigoInvitacion.toLowerCase() === codigo.toLowerCase()
-    );
-    return salida ?? null;
+  unirseASalida(codigo: string): void {
+    this.http.post<any>(`${this.apiUrl}/salidas/join`, { codigoInvitacion: codigo }).subscribe({
+      next: () => this.cargarSalidas(),
+    });
   }
 
   /**
-   * Agrega un nuevo gasto a la salida actual.
+   * Agrega un nuevo gasto a la salida actual vía HTTP.
    */
   agregarGasto(request: CrearGastoRequest): void {
     const salida = this._salidaActual();
     if (!salida) return;
 
-    const pagador = salida.miembros.find((m) => m.id === request.pagadoPorMiembroId);
-    if (!pagador) return;
-
-    const miembrosParticipantes = salida.miembros.filter((m) =>
-      request.participantes.some((p) => p.salidaMiembroId === m.id)
-    );
-
-    const nuevoGasto: Gasto = {
-      id: `g${Date.now()}`,
-      nombre: request.nombre,
-      descripcion: request.descripcion,
-      monto: request.monto,
-      fecha: request.fecha,
-      metodoDivision: request.metodoDivision,
-      pagadoPor: pagador,
-      miembrosParticipantes,
-      participantes: request.participantes.map((p) => ({
-        miembro: salida.miembros.find((m) => m.id === p.salidaMiembroId)!,
-        esInvitado: p.esInvitado,
-        montoManual: p.montoManual,
-      })),
-    };
-
-    this._salidaActual.set({
-      ...salida,
-      gastos: [...salida.gastos, nuevoGasto],
+    this.http.post(`${this.apiUrl}/salidas/${salida.id}/gastos`, request).subscribe({
+      next: () => {
+        // Recargar la salida completa para tener datos frescos
+        this.cargarSalida(salida.id);
+      },
     });
   }
 
@@ -462,36 +362,19 @@ export class SalidaService {
     const salida = this._salidaActual();
     if (!salida) return;
 
-    const idsExistentes = new Set(salida.miembros.map((m) => m.id));
-    const miembrosFiltrados = nuevos.filter((m) => !idsExistentes.has(m.id));
-
-    if (miembrosFiltrados.length === 0) return;
-
-    this._salidaActual.set({
-      ...salida,
-      miembros: [...salida.miembros, ...miembrosFiltrados],
-    });
-  }
-
-  /**
-   * Obtiene la lista de miembros frecuentes para sugerir al agregar integrantes.
-   */
-  obtenerMiembrosFrecuentes(): Miembro[] {
-    return MOCK_MIEMBROS_FRECUENTES;
-  }
-
-  /**
-   * Busca un miembro por userName o email exacto.
-   */
-  buscarMiembro(query: string): Miembro | null {
-    const normalizado = query.toLowerCase().trim();
-    return (
-      MOCK_MIEMBROS.find(
-        (m) =>
-          m.userName.toLowerCase() === normalizado ||
-          m.email.toLowerCase() === normalizado
-      ) ?? null
-    );
+    for (const m of nuevos) {
+      const body = m.userName
+        ? { userName: m.userName }
+        : { nombreFantasma: m.nombre };
+      this.http.post(`${this.apiUrl}/salidas/${salida.id}/integrantes`, body).subscribe({
+        next: () => {
+          // Recargar después del último
+          if (m === nuevos[nuevos.length - 1]) {
+            this.cargarSalida(salida.id);
+          }
+        },
+      });
+    }
   }
 
   /**
@@ -501,19 +384,9 @@ export class SalidaService {
     const salida = this._salidaActual();
     if (!salida) return;
 
-    const nuevoPago: Pago = {
-      id: `p${Date.now()}`,
-      deudorId,
-      pagadorId,
-      monto,
-      estado: 'pendiente',
-      fecha: new Date().toISOString(),
-      gastoId,
-    };
-
-    this._salidaActual.set({
-      ...salida,
-      pagos: [...salida.pagos, nuevoPago],
+    const body: RegistrarPagoRequest = { deudorId, pagadorId, monto, gastoId };
+    this.http.post(`${this.apiUrl}/salidas/${salida.id}/pagos`, body).subscribe({
+      next: () => this.cargarSalida(salida.id),
     });
   }
 
@@ -524,25 +397,78 @@ export class SalidaService {
     const salida = this._salidaActual();
     if (!salida) return;
 
-    const pagosActualizados = salida.pagos.map((p) =>
-      p.id === pagoId ? { ...p, estado: 'pagado' as const } : p
-    );
-
-    this._salidaActual.set({
-      ...salida,
-      pagos: pagosActualizados,
+    this.http.patch(`${this.apiUrl}/salidas/${salida.id}/pagos/${pagoId}/confirmar`, {}).subscribe({
+      next: () => this.cargarSalida(salida.id),
     });
   }
 
   /**
+   * Salda la deuda de un fantasma: registra pago + lo confirma automáticamente.
+   * El fantasma es el deudor, y el creador (usuario actual) es el acreedor.
+   */
+  saldarDeudaFantasma(fantasmaMiembroId: string, monto: number): void {
+    const salida = this._salidaActual();
+    const usuario = this.usuarioActual();
+    if (!salida || !usuario) return;
+
+    // Crear el pago (fantasma → creador)
+    const body = {
+      deudorId: fantasmaMiembroId,
+      pagadorId: usuario.id, // El creador es el acreedor
+      monto,
+    };
+
+    this.http.post<any>(`${this.apiUrl}/salidas/${salida.id}/pagos`, body).subscribe({
+      next: (pago) => {
+        // Confirmar inmediatamente
+        this.http.patch(`${this.apiUrl}/salidas/${salida.id}/pagos/${pago.id}/confirmar`, {}).subscribe({
+          next: () => this.cargarSalida(salida.id),
+        });
+      },
+    });
+  }
+
+  /** Signal con datos de fantasmas de la salida actual */
+  private readonly _fantasmas = signal<any[]>([]);
+  readonly fantasmas = this._fantasmas.asReadonly();
+
+  /**
+   * Carga el resumen de fantasmas de una salida (solo para el creador).
+   */
+  cargarFantasmas(salidaId: string): void {
+    this.http.get<any[]>(`${this.apiUrl}/salidas/${salidaId}/fantasmas`).subscribe({
+      next: (data) => this._fantasmas.set(data),
+      error: () => this._fantasmas.set([]),
+    });
+  }
+
+  /**
+   * Obtiene la lista de miembros frecuentes (usuarios de salidas anteriores).
+   */
+  obtenerMiembrosFrecuentes(): Miembro[] {
+    // Por ahora retorna vacío — se puede implementar un endpoint específico
+    return [];
+  }
+
+  /**
+   * Busca un miembro por userName o email.
+   * TODO: Implementar endpoint de búsqueda en el backend.
+   */
+  buscarMiembro(query: string): Miembro | null {
+    // No disponible sin endpoint — retorna null
+    return null;
+  }
+
+  // ─── MÉTODOS PRIVADOS ─────────────────────────────────────────────────
+
+  /**
    * Calcula las participaciones de un gasto.
-   * En modo equitativo, divide entre todos los no-invitados.
-   * En modo manual, usa los montos asignados.
    */
   private calcularParticipaciones(gasto: Gasto): { miembro: Miembro; monto: number }[] {
-    // Si tiene participantes con info extendida, usarla
     if (gasto.participantes && gasto.participantes.length > 0) {
-      const noInvitados = gasto.participantes.filter((p) => !p.esInvitado);
+      const noInvitados = gasto.participantes.filter((p) => p && p.miembro && !p.esInvitado);
+
+      if (noInvitados.length === 0) return [];
 
       if (gasto.metodoDivision === 'manual') {
         return noInvitados.map((p) => ({
@@ -551,21 +477,27 @@ export class SalidaService {
         }));
       }
 
-      // Equitativo: dividir entre no-invitados
-      const count = noInvitados.length || 1;
-      const montoPorPersona = Math.round((gasto.monto / count) * 100) / 100;
-      return noInvitados.map((p) => ({
+      const count = noInvitados.length;
+      const cuota = Math.floor(gasto.monto / count);
+      const residuo = gasto.monto - cuota * count;
+
+      return noInvitados.map((p, index) => ({
         miembro: p.miembro,
-        monto: montoPorPersona,
+        monto: index === 0 ? cuota + residuo : cuota,
       }));
     }
 
-    // Fallback: usar miembrosParticipantes (sin info de invitados)
-    const count = gasto.miembrosParticipantes.length || 1;
-    const montoPorPersona = Math.round((gasto.monto / count) * 100) / 100;
-    return gasto.miembrosParticipantes.map((m) => ({
+    // Fallback: usar miembrosParticipantes
+    const members = gasto.miembrosParticipantes?.filter((m) => m && m.id) ?? [];
+    if (members.length === 0) return [];
+
+    const count = members.length;
+    const cuota = Math.floor(gasto.monto / count);
+    const residuo = gasto.monto - cuota * count;
+
+    return members.map((m, index) => ({
       miembro: m,
-      monto: montoPorPersona,
+      monto: index === 0 ? cuota + residuo : cuota,
     }));
   }
 }
