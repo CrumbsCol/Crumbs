@@ -171,6 +171,7 @@ Cada feature implementada debe tener su spec documentado:
 | `dashboard-view` | ✅ Implementado |
 | `salidas` | ✅ Implementado |
 | `compatibilidad-backend` | ✅ Implementado |
+| `gestion-fantasmas` | ✅ Implementado |
 
 ---
 
@@ -182,3 +183,14 @@ Cada feature implementada debe tener su spec documentado:
 | `npm test` | Ejecutar todos los tests con Vitest |
 | `npm run build` | Build de producción |
 | `ng g c <ruta>` | Generar componente con los 4 archivos |
+
+---
+
+## Docker y Producción
+
+- En desarrollo: SSR desactivado (`angular.json` dev config: `ssr: false, prerender: false`)
+- En producción: Angular se compila como SPA estática (`npm run build`) y se sirve via Nginx
+- La `apiUrl` en producción es `/api` (relativa — Nginx hace proxy al backend)
+- La `apiUrl` en desarrollo es `http://localhost:8000/api` (backend directo)
+- `useMocks: false` en ambos environments
+- El build de producción se copia a `Back/nginx/dist/` antes de construir la imagen Docker

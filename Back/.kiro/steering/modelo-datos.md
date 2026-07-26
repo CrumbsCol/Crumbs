@@ -38,3 +38,9 @@
 - Salida: agregado campo `descripcion` (VARCHAR 100, NULL)
 - Frontend envía DTOs con solo IDs (no objetos completos) para gastos y pagos
 - Miembro.id en el frontend siempre corresponde a SalidaMiembro.id
+- PATCH /api/me para actualizar perfil de usuario
+- GET /api/salidas/:id/fantasmas para gestión de integrantes fantasma
+- GET /api/balance-detallado para balance global por persona/salida
+- GET /api/users/search/frecuentes para miembros frecuentes
+- Creador de salida puede confirmar pagos donde acreedor es fantasma
+- Pagos sin gastoId se consideran al verificar estado de pago en desglose
