@@ -8,7 +8,8 @@
  * @example
  * ```typescript
  * const user: User = {
- *   nombre: 'Juan López',
+ *   nombre: 'Juan',
+ *   apellido: 'López',
  *   userName: 'juanlopez',
  *   fechaNacimiento: '15/03/1995',
  *   email: 'juan@example.com',
@@ -20,8 +21,11 @@ export interface User {
   /** Identificador único del usuario (asignado por el backend) */
   id: string;
 
-  /** Nombre completo del usuario */
+  /** Primer nombre del usuario */
   nombre: string;
+
+  /** Apellido del usuario */
+  apellido: string;
 
   /** Nombre de usuario único (handle) */
   userName: string;

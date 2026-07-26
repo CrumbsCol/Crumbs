@@ -26,16 +26,16 @@ export type EstadoPago = 'pendiente' | 'pagado';
  * ```
  */
 export interface Miembro {
-  /** Identificador único del miembro */
+  /** Identificador único del miembro (SalidaMiembro.id en contexto de salida) */
   id: string;
 
   /** Nombre completo del miembro */
   nombre: string;
 
-  /** Nombre de usuario único (handle) */
+  /** Nombre de usuario único (handle). Vacío si es fantasma. */
   userName: string;
 
-  /** Correo electrónico del miembro */
+  /** Correo electrónico del miembro. Vacío si es fantasma. */
   email: string;
 
   /**
@@ -49,6 +49,12 @@ export interface Miembro {
 
   /** Datos del método de pago (ej. número de cuenta, CLABE, o correo de paypal) */
   metodoPago?: string;
+
+  /** Indica si el miembro es un integrante fantasma (sin cuenta registrada) */
+  esFantasma?: boolean;
+
+  /** Rol del miembro en la salida */
+  rol?: 'creador' | 'integrante';
 }
 
 /**
@@ -158,6 +164,9 @@ export interface Salida {
 
   /** Título descriptivo de la salida (Ej: "Cine / Spiderman") */
   titulo: string;
+
+  /** Descripción de la salida (opcional) */
+  descripcion?: string;
 
   /** Código único de invitación para compartir (Ej: "A3B9X2") */
   codigoInvitacion: string;
