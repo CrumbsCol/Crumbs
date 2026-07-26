@@ -1,0 +1,22 @@
+# Docker Compose para prueba local (ambos en host mode)
+# En AWS se usa la versión con redes Docker (backend conecta a RDS directamente)
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: crumbs-backend
+    env_file: .env.prod
+    network_mode: host
+    restart: unless-stopped
+
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    container_name: crumbs-nginx
+    network_mode: host
+    restart: unless-stopped
+    depends_on:
+      - backend

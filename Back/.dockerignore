@@ -1,0 +1,12 @@
+node_modules
+dist
+generated
+.env
+.env.prod
+.git
+.gitignore
+*.md
+test
+coverage
+.kiro
+src/docs
