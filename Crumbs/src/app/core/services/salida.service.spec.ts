@@ -1,160 +1,123 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
 import { SalidaService } from './salida.service';
 import { UserService } from './user.service';
-import { Gasto, Miembro, ParticipanteGasto } from '../interfaces/salida.interface';
-import { User } from '../interfaces/user.interface';
 
 describe('SalidaService', () => {
   let service: SalidaService;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let userServiceSpy: any;
-
-  const mockUser: User = { id: 'mock-user-001', nombre: 'Juan', apellido: 'López', email: 'juan@example.com', userName: 'juanlopez', fechaNacimiento: '01/01/2000', avatarUrl: null };
-  
-  const mockMiembro1: Miembro = { id: 'mock-user-001', nombre: 'Juan López', email: '', userName: '', avatarUrl: null };
-  const mockMiembro2: Miembro = { id: '2', nombre: 'Maria', email: '', userName: '', avatarUrl: null };
-  const mockMiembro3: Miembro = { id: '3', nombre: 'Carlos', email: '', userName: '', avatarUrl: null };
+  let httpMock: HttpTestingController;
 
   beforeEach(() => {
-    userServiceSpy = { currentUser: vi.fn() };
-    userServiceSpy.currentUser.mockReturnValue(mockUser);
-
     TestBed.configureTestingModule({
       providers: [
         SalidaService,
-        { provide: UserService, useValue: userServiceSpy }
-      ]
+        UserService,
+        provideHttpClient(),
+        provideHttpClientTesting(),
+      ],
     });
     service = TestBed.inject(SalidaService);
+    httpMock = TestBed.inject(HttpTestingController);
   });
 
-  it('should be created', () => {
+  afterEach(() => {
+    httpMock.verify();
+  });
+
+  it('debería crear el servicio', () => {
     expect(service).toBeTruthy();
   });
 
-  describe('Salidas Management', () => {
-    it('should create a new salida', () => {
-      const initialCount = service.salidas().length;
-      const nueva = service.crearSalida({ titulo: 'Test Salida', fecha: new Date().toISOString() });
-      
-      expect(nueva.id).toBeDefined();
-      expect(nueva.titulo).toBe('Test Salida');
-      expect(service.salidas().length).toBe(initialCount + 1);
-    });
+  it('debería cargar salidas desde el backend', () => {
+    service.cargarSalidas();
 
-    it('should set current salida on cargarSalida', () => {
-      service.cargarSalida('1');
-      expect(service.salidaActual()?.id).toBe('1');
-    });
+    const req = httpMock.expectOne((r) => r.url.includes('/salidas'));
+    expect(req.request.method).toBe('GET');
+    req.flush([{ id: '1', titulo: 'Test', _count: { miembros: 2, gastos: 1 } }]);
 
-    it('should add members to current salida', () => {
-      const nueva = service.crearSalida({ titulo: 'Test', fecha: new Date().toISOString() });
-      service.cargarSalida(nueva.id);
-      
-      service.agregarMiembros([mockMiembro1, mockMiembro2]);
-      
-      expect(service.miembros().length).toBe(2);
-      expect(service.miembros()[0].id).toBe('mock-user-001');
-    });
+    expect(service.salidas().length).toBe(1);
   });
 
-  describe('Gastos and Balances', () => {
-    beforeEach(() => {
-      const nueva = service.crearSalida({ titulo: 'Test', fecha: new Date().toISOString() });
-      service.cargarSalida(nueva.id);
-      service.agregarMiembros([mockMiembro1, mockMiembro2, mockMiembro3]);
-    });
+  it('debería cargar detalle de una salida', () => {
+    const mockSalida = {
+      id: '1',
+      titulo: 'Test',
+      descripcion: null,
+      codigoInvitacion: 'ABC123',
+      fechaCreacion: '2026-07-26T00:00:00Z',
+      miembros: [],
+      gastos: [],
+      pagos: [],
+    };
 
-    it('should correctly calculate equitativo division', () => {
-      const gasto: Omit<Gasto, 'id'> = {
-        nombre: 'Cena',
-        monto: 300,
-        fecha: new Date().toISOString(),
-        metodoDivision: 'equitativo',
-        pagadoPor: mockMiembro1,
-        miembrosParticipantes: [mockMiembro1, mockMiembro2, mockMiembro3],
-      };
-      
-      service.agregarGasto(gasto);
-      
-      const balances = service.balances();
-      const b1 = balances.find(b => b.miembro.id === mockMiembro1.id)!;
-      const b2 = balances.find(b => b.miembro.id === mockMiembro2.id)!;
-      
-      // Juan pagó 300, le tocan 100. Balance neto = +200
-      expect(b1.totalAdelantado).toBe(300);
-      expect(b1.totalCorrespondiente).toBe(100);
-      expect(b1.balanceNeto).toBe(200);
-      
-      // Maria pagó 0, le tocan 100. Balance neto = -100
-      expect(b2.totalAdelantado).toBe(0);
-      expect(b2.totalCorrespondiente).toBe(100);
-      expect(b2.balanceNeto).toBe(-100);
-    });
+    service.cargarSalida('1');
 
-    it('should correctly calculate manual division with invitados', () => {
-      const part1: ParticipanteGasto = { miembro: mockMiembro1, esInvitado: false, montoManual: 50 };
-      const part2: ParticipanteGasto = { miembro: mockMiembro2, esInvitado: true, montoManual: null };
-      const part3: ParticipanteGasto = { miembro: mockMiembro3, esInvitado: false, montoManual: 150 };
-      
-      const gasto: Omit<Gasto, 'id'> = {
-        nombre: 'Comida',
-        monto: 200,
-        fecha: new Date().toISOString(),
-        metodoDivision: 'manual',
-        pagadoPor: mockMiembro2,
-        miembrosParticipantes: [mockMiembro1, mockMiembro2, mockMiembro3],
-        participantes: [part1, part2, part3]
-      };
-      
-      service.agregarGasto(gasto);
-      
-      const balances = service.balances();
-      const b1 = balances.find(b => b.miembro.id === mockMiembro1.id)!; // Juan (pagó 0, debe 50)
-      const b2 = balances.find(b => b.miembro.id === mockMiembro2.id)!; // Maria (pagó 200, invitada, debe 0)
-      const b3 = balances.find(b => b.miembro.id === mockMiembro3.id)!; // Carlos (pagó 0, debe 150)
-      
-      expect(b1.balanceNeto).toBe(-50);
-      expect(b2.balanceNeto).toBe(200);
-      expect(b3.balanceNeto).toBe(-150);
-    });
+    const req = httpMock.expectOne((r) => r.url.includes('/salidas/1'));
+    expect(req.request.method).toBe('GET');
+    req.flush(mockSalida);
+
+    expect(service.salidaActual()).toBeTruthy();
+    expect(service.salidaActual()?.titulo).toBe('Test');
   });
 
-  describe('Payments', () => {
-    beforeEach(() => {
-      const nueva = service.crearSalida({ titulo: 'Test', fecha: new Date().toISOString() });
-      service.cargarSalida(nueva.id);
-    });
+  it('debería crear una salida via HTTP', () => {
+    service.crearSalida({ titulo: 'Nueva', fecha: '2026-07-26' });
 
-    it('should register a pending payment', () => {
-      service.registrarPago('mock-user-001', '2', 150, 'g1');
-      
-      const pagos = service.pagos();
-      expect(pagos.length).toBe(1);
-      expect(pagos[0].estado).toBe('pendiente');
-      expect(pagos[0].monto).toBe(150);
-    });
-
-    it('should confirm a pending payment', () => {
-      service.registrarPago('mock-user-001', '2', 150);
-      const pagoId = service.pagos()[0].id;
-      
-      service.confirmarPago(pagoId);
-      
-      const pagos = service.pagos();
-      expect(pagos[0].estado).toBe('pagado');
-    });
+    const req = httpMock.expectOne((r) => r.url.includes('/salidas') && r.method === 'POST');
+    expect(req.request.body.titulo).toBe('Nueva');
+    req.flush({ id: '2', titulo: 'Nueva', codigoInvitacion: 'XYZ789' });
   });
 
-  describe('Global Balance', () => {
-    it('should calculate global balance correctly', () => {
-      // By default MOCK_SALIDAS has mock-user-001 paying 1200 + 4000 = 5200 in some expenses,
-      // participating in others... this is a high-level check ensuring the computed signal works.
-      const bg = service.balanceGlobal();
-      expect(bg).toBeDefined();
-      expect(bg.totalAdelantado).toBeGreaterThanOrEqual(0);
-      expect(bg.totalCorrespondiente).toBeGreaterThanOrEqual(0);
+  it('debería agregar gasto via HTTP', () => {
+    // Primero cargar una salida actual
+    service.cargarSalida('1');
+    const salReq = httpMock.expectOne((r) => r.url.includes('/salidas/1'));
+    salReq.flush({ id: '1', titulo: 'T', miembros: [], gastos: [], pagos: [], codigoInvitacion: 'A', fechaCreacion: '', descripcion: null });
+
+    service.agregarGasto({
+      nombre: 'Test',
+      monto: 1000,
+      fecha: '2026-07-26',
+      metodoDivision: 'equitativo',
+      pagadoPorMiembroId: 'miembro-1',
+      participantes: [{ salidaMiembroId: 'miembro-1', esInvitado: false, montoManual: null }],
     });
+
+    const gastoReq = httpMock.expectOne((r) => r.url.includes('/gastos') && r.method === 'POST');
+    expect(gastoReq.request.body.nombre).toBe('Test');
+    expect(gastoReq.request.body.pagadoPorMiembroId).toBe('miembro-1');
+    gastoReq.flush({});
+
+    // Después de agregar, recarga la salida
+    const reloadReq = httpMock.expectOne((r) => r.url.includes('/salidas/1'));
+    reloadReq.flush({ id: '1', titulo: 'T', miembros: [], gastos: [], pagos: [], codigoInvitacion: 'A', fechaCreacion: '', descripcion: null });
+  });
+
+  it('debería registrar pago via HTTP', () => {
+    service.cargarSalida('1');
+    const salReq = httpMock.expectOne((r) => r.url.includes('/salidas/1'));
+    salReq.flush({ id: '1', titulo: 'T', miembros: [{ id: 'm1', nombre: 'Test', userName: 'test', email: '', avatarUrl: null }], gastos: [], pagos: [], codigoInvitacion: 'A', fechaCreacion: '', descripcion: null });
+
+    service.registrarPago('deudor-1', 'pagador-1', 500);
+
+    const pagoReq = httpMock.expectOne((r) => r.url.includes('/pagos') && r.method === 'POST');
+    expect(pagoReq.request.body.deudorId).toBe('deudor-1');
+    expect(pagoReq.request.body.monto).toBe(500);
+    pagoReq.flush({});
+
+    const reloadReq = httpMock.expectOne((r) => r.url.includes('/salidas/1'));
+    reloadReq.flush({ id: '1', titulo: 'T', miembros: [], gastos: [], pagos: [], codigoInvitacion: 'A', fechaCreacion: '', descripcion: null });
+  });
+
+  it('debería cargar balance detallado', () => {
+    service.cargarBalanceDetallado();
+
+    const req = httpMock.expectOne((r) => r.url.includes('/balance-detallado'));
+    expect(req.request.method).toBe('GET');
+    req.flush({ totalMeDeben: 1000, totalDebo: 500, balanceNeto: 500, creditos: [], deudas: [] });
+
+    expect(service.balanceDetallado()?.totalMeDeben).toBe(1000);
   });
 });

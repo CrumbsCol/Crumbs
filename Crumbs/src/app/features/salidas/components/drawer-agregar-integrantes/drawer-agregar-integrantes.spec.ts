@@ -1,5 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { ComponentRef } from '@angular/core';
 
@@ -8,60 +11,44 @@ import { Miembro } from '../../../../core/interfaces/salida.interface';
 
 /**
  * Tests unitarios para el componente DrawerAgregarIntegrantes.
- * Verifica la creación, búsqueda de miembros, selección, fantasmas y agregación en lote.
+ * Verifica la creación, fantasmas, selección y agregación en lote.
  */
 describe('DrawerAgregarIntegrantes', () => {
   let component: DrawerAgregarIntegrantes;
   let componentRef: ComponentRef<DrawerAgregarIntegrantes>;
   let fixture: ComponentFixture<DrawerAgregarIntegrantes>;
+  let httpTestingController: HttpTestingController;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [DrawerAgregarIntegrantes],
-      providers: [provideRouter([])],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideRouter([]),
+        provideNoopAnimations(),
+      ],
     }).compileComponents();
+
+    httpTestingController = TestBed.inject(HttpTestingController);
 
     fixture = TestBed.createComponent(DrawerAgregarIntegrantes);
     component = fixture.componentInstance;
     componentRef = fixture.componentRef;
     componentRef.setInput('abierto', false);
     fixture.detectChanges();
+
+    // Flush the initial frecuentes request
+    const req = httpTestingController.match((r) =>
+      r.url.includes('/users/search/frecuentes')
+    );
+    if (req.length > 0) {
+      req[0].flush([]);
+    }
   });
 
   it('should create the component', () => {
     expect(component).toBeTruthy();
-  });
-
-  it('should have frequent members loaded', () => {
-    expect(component.miembrosFrecuentes().length).toBeGreaterThan(0);
-  });
-
-  it('should find a member by userName', () => {
-    component.busqueda.set('juanlopez');
-    component.buscar();
-    expect(component.seleccionados().length).toBe(1);
-    expect(component.seleccionados()[0].userName).toBe('juanlopez');
-    expect(component.errorBusqueda()).toBe('');
-  });
-
-  it('should find a member by email', () => {
-    component.busquedaEmail.set('maria@example.com');
-    component.buscarPorEmail();
-    expect(component.seleccionados().length).toBe(1);
-    expect(component.seleccionados()[0].email).toBe('maria@example.com');
-  });
-
-  it('should show error when member not found', () => {
-    component.busqueda.set('noexiste');
-    component.buscar();
-    expect(component.seleccionados().length).toBe(0);
-    expect(component.errorBusqueda()).toContain('noexiste');
-  });
-
-  it('should show error when search is empty', () => {
-    component.busqueda.set('');
-    component.buscar();
-    expect(component.errorBusqueda()).toBeTruthy();
   });
 
   it('should add ghost member (integrante fantasma)', () => {
@@ -126,5 +113,47 @@ describe('DrawerAgregarIntegrantes', () => {
     component.integrantesAgregados.subscribe(() => (emitted = true));
     component.confirmarAgregacion();
     expect(emitted).toBe(false);
+  });
+
+  it('should show error when search is empty', () => {
+    component.busqueda.set('');
+    component.buscar();
+    expect(component.errorBusqueda()).toBeTruthy();
+  });
+
+  it('should make HTTP call when searching by userName', () => {
+    component.busqueda.set('juanlopez');
+    component.buscar();
+
+    const req = httpTestingController.expectOne((r) =>
+      r.url.includes('/users/search') && r.params.get('q') === 'juanlopez'
+    );
+    expect(req.request.method).toBe('GET');
+
+    req.flush({
+      id: '10',
+      nombre: 'Juan',
+      apellido: 'López',
+      userName: 'juanlopez',
+      email: 'juan@example.com',
+      avatarUrl: null,
+    });
+
+    expect(component.seleccionados().length).toBe(1);
+    expect(component.seleccionados()[0].userName).toBe('juanlopez');
+    expect(component.errorBusqueda()).toBe('');
+  });
+
+  it('should show error when search finds no user', () => {
+    component.busqueda.set('noexiste');
+    component.buscar();
+
+    const req = httpTestingController.expectOne((r) =>
+      r.url.includes('/users/search') && r.params.get('q') === 'noexiste'
+    );
+    req.flush('Not found', { status: 404, statusText: 'Not Found' });
+
+    expect(component.seleccionados().length).toBe(0);
+    expect(component.errorBusqueda()).toContain('noexiste');
   });
 });

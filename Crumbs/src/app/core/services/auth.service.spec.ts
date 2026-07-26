@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { Router } from '@angular/router';
 import { AuthService } from './auth.service';
 import { UserService } from './user.service';
@@ -13,16 +14,37 @@ describe('AuthService', () => {
   let routerSpy: any;
   let userService: UserService;
 
+  // Store for our fake localStorage
+  let store: Record<string, string>;
+
   beforeEach(() => {
+    store = {};
     const spy = { navigate: vi.fn() };
 
+    // Mock localStorage globally using Object.defineProperty
+    const localStorageMock = {
+      getItem: vi.fn((key: string) => store[key] ?? null),
+      setItem: vi.fn((key: string, value: string) => { store[key] = value; }),
+      removeItem: vi.fn((key: string) => { delete store[key]; }),
+      clear: vi.fn(() => { store = {}; }),
+      get length() { return Object.keys(store).length; },
+      key: vi.fn((index: number) => Object.keys(store)[index] ?? null),
+    };
+
+    Object.defineProperty(globalThis, 'localStorage', {
+      value: localStorageMock,
+      writable: true,
+      configurable: true,
+    });
+
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
       providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
         AuthService,
         UserService,
-        { provide: Router, useValue: spy }
-      ]
+        { provide: Router, useValue: spy },
+      ],
     });
 
     service = TestBed.inject(AuthService);
@@ -30,13 +52,9 @@ describe('AuthService', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     routerSpy = TestBed.inject(Router) as any;
     userService = TestBed.inject(UserService);
-    
+
     // Default to mock mode false for tests unless specified
     environment.useMocks = false;
-    
-    vi.spyOn(Storage.prototype, 'setItem');
-    vi.spyOn(Storage.prototype, 'removeItem');
-    vi.spyOn(Storage.prototype, 'getItem').mockReturnValue(null);
   });
 
   afterEach(() => {
@@ -52,13 +70,13 @@ describe('AuthService', () => {
 
     const req = httpTestingController.expectOne(`${environment.apiUrl}/auth/login`);
     expect(req.request.method).toEqual('POST');
-    
+
     req.flush({
       accessToken: 'real-token',
-      user: { id: '1', nombre: 'Real', apellido: 'User', email: 'test@example.com', userName: 'real', fechaNacimiento: '01/01/2000', avatarUrl: null }
+      user: { id: '1', nombre: 'Real', apellido: 'User', email: 'test@example.com', userName: 'real', fechaNacimiento: '01/01/2000', avatarUrl: null },
     });
 
-    expect(Storage.prototype.setItem).toHaveBeenCalledWith('access_token', 'real-token');
+    expect(localStorage.setItem).toHaveBeenCalledWith('access_token', 'real-token');
     expect(userService.currentUser()?.nombre).toBe('Real');
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/dashboard']);
   });
@@ -68,18 +86,18 @@ describe('AuthService', () => {
 
     service.login({ emailOrUsername: 'test@example.com', password: 'password' }).subscribe();
 
-    expect(Storage.prototype.setItem).toHaveBeenCalledWith('access_token', 'mock-jwt-token-for-development');
+    expect(localStorage.setItem).toHaveBeenCalledWith('access_token', 'mock-jwt-token-for-development');
     expect(userService.currentUser()?.id).toBe('mock-user-001');
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/dashboard']);
-    
+
     // Verify no HTTP request was made
     httpTestingController.expectNone(`${environment.apiUrl}/auth/login`);
   });
 
   it('should logout correctly', () => {
     service.logout();
-    
-    expect(Storage.prototype.removeItem).toHaveBeenCalledWith('access_token');
+
+    expect(localStorage.removeItem).toHaveBeenCalledWith('access_token');
     expect(userService.currentUser()).toBeNull();
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/login']);
   });
@@ -90,39 +108,36 @@ describe('AuthService', () => {
   });
 
   it('should autologin if token exists in mock mode', () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (Storage.prototype.getItem as any).mockReturnValue('some-token');
+    store['access_token'] = 'some-token';
     environment.useMocks = true;
-    
+
     service.autoLogin().subscribe();
-    
+
     expect(userService.currentUser()?.id).toBe('mock-user-001');
   });
 
   it('should autologin with real API if token exists and not in mock mode', () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (Storage.prototype.getItem as any).mockReturnValue('real-token');
-    
+    store['access_token'] = 'real-token';
+
     service.autoLogin().subscribe();
-    
+
     const req = httpTestingController.expectOne(`${environment.apiUrl}/me`);
     expect(req.request.method).toEqual('GET');
-    
+
     req.flush({ id: '2', nombre: 'Real', apellido: 'Autologin', email: 'test@example.com', userName: 'real2', fechaNacimiento: '01/01/2000', avatarUrl: null });
-    
+
     expect(userService.currentUser()?.nombre).toBe('Real');
   });
 
   it('should handle autologin failure (invalid token)', () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (Storage.prototype.getItem as any).mockReturnValue('bad-token');
-    
+    store['access_token'] = 'bad-token';
+
     service.autoLogin().subscribe();
-    
+
     const req = httpTestingController.expectOne(`${environment.apiUrl}/me`);
     req.flush('Unauthorized', { status: 401, statusText: 'Unauthorized' });
-    
-    expect(Storage.prototype.removeItem).toHaveBeenCalledWith('access_token');
+
+    expect(localStorage.removeItem).toHaveBeenCalledWith('access_token');
     expect(userService.currentUser()).toBeNull();
   });
 });
