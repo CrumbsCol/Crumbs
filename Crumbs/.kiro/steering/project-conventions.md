@@ -77,12 +77,14 @@ Esto genera los 4 archivos con la estructura base correcta.
 - Validadores custom como **métodos estáticos** del componente.
 - Mensajes de error con `<mat-error>` y bloques `@if/@else if` para errores específicos.
 - Componentes de Material con `appearance="outline"`.
+- Validar montos como **enteros positivos** con `Validators.pattern(/^\d+$/)` además de min/max.
 
 ### Comunicación entre componentes
 
 - **Padre → Hijo:** Angular `input()` (signal-based).
 - **Hijo → Padre:** Angular `output()` para emitir eventos.
 - **Servicios:** Solo en pages/orquestadores o en `core/services/`.
+- **DTOs de Request:** Las interfaces en `salida-request.interface.ts` definen los payloads que se envían al backend (solo IDs y datos mínimos, sin objetos anidados completos).
 
 ---
 
@@ -91,7 +93,7 @@ Esto genera los 4 archivos con la estructura base correcta.
 ```
 src/app/
 ├── core/                    # Servicios globales, modelos, guards, interceptors
-│   ├── interfaces/          # Interfaces de dominio
+│   ├── interfaces/          # Interfaces de dominio + DTOs de request
 │   ├── services/            # Servicios (auth, user, salida, etc.)
 │   ├── guards/              # Route guards
 │   └── interceptors/        # HTTP interceptors
@@ -168,6 +170,7 @@ Cada feature implementada debe tener su spec documentado:
 | `auth-architecture` | ✅ Implementado |
 | `dashboard-view` | ✅ Implementado |
 | `salidas` | ✅ Implementado |
+| `compatibilidad-backend` | ✅ Implementado |
 
 ---
 

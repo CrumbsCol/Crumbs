@@ -12,6 +12,9 @@
 - codigoInvitacion: exactamente 6 caracteres, UNIQUE
 - Gasto.nombre: máximo 12 caracteres
 - Salida.titulo: máximo 20 caracteres
+- Salida.descripcion: máximo 100 caracteres, nullable
+- User.nombre: máximo 50 caracteres (primer nombre)
+- User.apellido: máximo 50 caracteres
 - UNIQUE(gastoId, salidaMiembroId) en GastoParticipante
 - UNIQUE(salidaId, userId) en SalidaMiembro (cuando userId no es NULL)
 
@@ -29,3 +32,9 @@
 - Generar migración o usar `npx prisma db push`
 - Actualizar DTOs si cambian campos
 - Verificar que los tests reflejen los nuevos campos
+
+## Cambios recientes (2026-07-26)
+- User: campo `nombre` (VARCHAR 100) dividido en `nombre` (VARCHAR 50) + `apellido` (VARCHAR 50), ambos NOT NULL
+- Salida: agregado campo `descripcion` (VARCHAR 100, NULL)
+- Frontend envía DTOs con solo IDs (no objetos completos) para gastos y pagos
+- Miembro.id en el frontend siempre corresponde a SalidaMiembro.id

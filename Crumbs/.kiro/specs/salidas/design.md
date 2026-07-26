@@ -49,10 +49,15 @@ Definidas en `src/app/core/interfaces/salida.interface.ts`:
 ```typescript
 /** Representa un miembro/participante de una salida */
 export interface Miembro {
-  id: string;
+  id: string;             // SalidaMiembro.id en contexto de salida
   nombre: string;
   userName: string;
   email: string;
+  avatarUrl: string | null;
+  tipoMetodoPago?: string;
+  metodoPago?: string;
+  esFantasma?: boolean;   // true si es integrante sin cuenta
+  rol?: 'creador' | 'integrante';
 }
 
 /** Representa la participación de un miembro en un gasto */
@@ -111,8 +116,8 @@ export class SalidaService {
   /** Carga una salida por su ID */
   cargarSalida(id: string): void;
 
-  /** Agrega un gasto a la salida actual */
-  agregarGasto(gasto: Omit<Gasto, 'id'>): void;
+  /** Agrega un gasto a la salida actual (recibe DTO con solo IDs) */
+  agregarGasto(request: CrearGastoRequest): void;
 
   /** Agrega un miembro a la salida actual */
   agregarMiembro(miembro: Miembro): void;
@@ -172,7 +177,7 @@ SalidaDetallePage (orquestador)
 ├── [gastos]="currentSalida()?.gastos" ──▶ desglose-gastos-card
 │   [miembros]="currentSalida()?.miembros"
 ├── [miembros]="currentSalida()?.miembros" ──▶ drawer-agregar-gasto
-│   (gastoAgregado)="onGastoAgregado($event)" ◀──
+│   (gastoAgregado)="onGastoAgregado($event)" ◀── emite CrearGastoRequest (DTOs con IDs)
 └── (integranteAgregado)="onIntegranteAgregado($event)" ◀── drawer-agregar-integrantes
 ```
 
