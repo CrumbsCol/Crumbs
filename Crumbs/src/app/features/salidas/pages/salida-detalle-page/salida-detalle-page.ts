@@ -90,7 +90,7 @@ export class SalidaDetallePage implements OnInit {
 
   /** Computed: si hay miembros fantasma en la salida */
   readonly tieneFantasmas = computed(() => {
-    return this.miembros().some((m: any) => m.esFantasma);
+    return this.miembros().some((m) => m.esFantasma);
   });
 
   ngOnInit(): void {

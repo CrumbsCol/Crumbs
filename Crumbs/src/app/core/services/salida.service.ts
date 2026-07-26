@@ -11,6 +11,45 @@ import { CrearGastoRequest, RegistrarPagoRequest } from '../interfaces/salida-re
 import { UserService } from './user.service';
 import { environment } from '../../../environments/environment';
 
+/** Respuesta del endpoint GET /api/balance-detallado */
+export interface BalanceDetalladoResponse {
+  totalMeDeben: number;
+  totalDebo: number;
+  balanceNeto: number;
+  creditos: { persona: string; monto: number; salida: string; salidaId: string }[];
+  deudas: { persona: string; monto: number; salida: string; salidaId: string }[];
+}
+
+/** Resumen de un fantasma con balance y pagos pendientes */
+export interface FantasmaResumen {
+  miembro: { id: string; nombre: string; esFantasma: boolean; rol: string };
+  balance: { totalAdelantado: number; totalCorrespondiente: number; balanceNeto: number };
+  pagosPendientes: { id: string; monto: number; deudorId: string; deudorNombre: string; fecha: string }[];
+}
+
+/** Elemento de la lista de salidas del backend */
+interface SalidaListItem {
+  id: string;
+  titulo: string;
+  descripcion?: string;
+  codigoInvitacion: string;
+  fechaCreacion: string;
+  miembros?: Miembro[];
+  gastos?: Gasto[];
+  pagos?: { id: string; monto: number; estado: string }[];
+  _count?: { miembros: number; gastos: number };
+}
+
+/** Respuesta del endpoint POST /api/salidas/:id/pagos */
+interface PagoResponse {
+  id: string;
+  deudorId: string;
+  pagadorId: string;
+  monto: number;
+  estado: string;
+  fecha: string;
+}
+
 /**
  * Representa el balance neto de un miembro en la salida.
  */
@@ -226,7 +265,7 @@ export class SalidaService {
    * El backend retorna _count en vez de arrays completos para el listado.
    */
   cargarSalidas(): void {
-    this.http.get<any[]>(`${this.apiUrl}/salidas`).subscribe({
+    this.http.get<SalidaListItem[]>(`${this.apiUrl}/salidas`).subscribe({
       next: (salidas) => {
         // Mapear respuesta del backend al formato que espera el frontend
         const mapped: Salida[] = salidas.map((s) => ({
@@ -238,7 +277,7 @@ export class SalidaService {
           // Guardar los conteos para display, arrays vacíos (no undefined)
           miembros: s.miembros ?? [],
           gastos: s.gastos ?? [],
-          pagos: s.pagos ?? [],
+          pagos: (s.pagos ?? []) as Pago[],
           _count: s._count ?? { miembros: 0, gastos: 0 },
         }));
         this._salidas.set(mapped);
@@ -258,14 +297,14 @@ export class SalidaService {
   }
 
   /** Signal con balance detallado del backend */
-  private readonly _balanceDetallado = signal<any>(null);
+  private readonly _balanceDetallado = signal<BalanceDetalladoResponse | null>(null);
   readonly balanceDetallado = this._balanceDetallado.asReadonly();
 
   /**
    * Carga el balance detallado del usuario (por persona y salida).
    */
   cargarBalanceDetallado(): void {
-    this.http.get<any>(`${this.apiUrl}/balance-detallado`).subscribe({
+    this.http.get<BalanceDetalladoResponse>(`${this.apiUrl}/balance-detallado`).subscribe({
       next: (data) => this._balanceDetallado.set(data),
       error: () => this._balanceDetallado.set(null),
     });
@@ -276,7 +315,7 @@ export class SalidaService {
    * Primero carga la lista, luego el detalle de cada una.
    */
   cargarBalanceGlobal(): void {
-    this.http.get<any[]>(`${this.apiUrl}/salidas`).subscribe({
+    this.http.get<SalidaListItem[]>(`${this.apiUrl}/salidas`).subscribe({
       next: (salidas) => {
         if (salidas.length === 0) {
           this._salidasCompletas.set([]);
@@ -335,7 +374,7 @@ export class SalidaService {
    * Unirse a una salida por código de invitación.
    */
   unirseASalida(codigo: string): void {
-    this.http.post<any>(`${this.apiUrl}/salidas/join`, { codigoInvitacion: codigo }).subscribe({
+    this.http.post<{ message: string }>(`${this.apiUrl}/salidas/join`, { codigoInvitacion: codigo }).subscribe({
       next: () => this.cargarSalidas(),
     });
   }
@@ -418,7 +457,7 @@ export class SalidaService {
       monto,
     };
 
-    this.http.post<any>(`${this.apiUrl}/salidas/${salida.id}/pagos`, body).subscribe({
+    this.http.post<PagoResponse>(`${this.apiUrl}/salidas/${salida.id}/pagos`, body).subscribe({
       next: (pago) => {
         // Confirmar inmediatamente
         this.http.patch(`${this.apiUrl}/salidas/${salida.id}/pagos/${pago.id}/confirmar`, {}).subscribe({
@@ -429,14 +468,14 @@ export class SalidaService {
   }
 
   /** Signal con datos de fantasmas de la salida actual */
-  private readonly _fantasmas = signal<any[]>([]);
+  private readonly _fantasmas = signal<FantasmaResumen[]>([]);
   readonly fantasmas = this._fantasmas.asReadonly();
 
   /**
    * Carga el resumen de fantasmas de una salida (solo para el creador).
    */
   cargarFantasmas(salidaId: string): void {
-    this.http.get<any[]>(`${this.apiUrl}/salidas/${salidaId}/fantasmas`).subscribe({
+    this.http.get<FantasmaResumen[]>(`${this.apiUrl}/salidas/${salidaId}/fantasmas`).subscribe({
       next: (data) => this._fantasmas.set(data),
       error: () => this._fantasmas.set([]),
     });
@@ -454,7 +493,8 @@ export class SalidaService {
    * Busca un miembro por userName o email.
    * TODO: Implementar endpoint de búsqueda en el backend.
    */
-  buscarMiembro(query: string): Miembro | null {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  buscarMiembro(_query: string): Miembro | null {
     // No disponible sin endpoint — retorna null
     return null;
   }

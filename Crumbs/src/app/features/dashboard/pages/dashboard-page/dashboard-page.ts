@@ -9,6 +9,7 @@ import { DashboardActionsComponent } from '../../components/dashboard-actions/da
 import { ActiveSalidasListComponent, Salida } from '../../components/active-salidas-list/active-salidas-list';
 import { CrearSalidaComponent } from '../../components/modales/crear-salida/crear-salida.component';
 import { AgregarSalidaComponent } from '../../components/modales/agregar-salida/agregar-salida.component';
+import { Miembro } from '../../../../core/interfaces/salida.interface';
 
 @Component({
   selector: 'app-dashboard-page',
@@ -43,7 +44,7 @@ export class DashboardPage implements OnInit {
 
   /** Lista de salidas activas derivada del SalidaService */
   readonly salidasActivas = computed<Salida[]>(() => {
-    return this.salidaService.salidas().map((s: any) => ({
+    return this.salidaService.salidas().map((s) => ({
       id: s.id,
       label: s.titulo,
       description: `${s._count?.miembros ?? s.miembros?.length ?? 0} integrantes · ${s._count?.gastos ?? s.gastos?.length ?? 0} gastos`,
@@ -73,7 +74,7 @@ export class DashboardPage implements OnInit {
       maxWidth: '500px',
       panelClass: 'modal-salida',
       autoFocus: true,
-    }).afterClosed().subscribe((result: { nombre: string; descripcion: string; fecha: Date; integrantes?: any[] } | undefined) => {
+    }).afterClosed().subscribe((result: { nombre: string; descripcion: string; fecha: Date; integrantes?: Miembro[] } | undefined) => {
       if (result?.nombre) {
         // Crear la salida a través del servicio con los integrantes seleccionados
         this.salidaService.crearSalida(

@@ -9,6 +9,16 @@ import { MatInputModule } from '@angular/material/input';
 import { Miembro } from '../../../../core/interfaces/salida.interface';
 import { environment } from '../../../../../environments/environment';
 
+/** Resultado de búsqueda de usuario */
+interface UserSearchResult {
+  id: string;
+  nombre: string;
+  apellido?: string;
+  userName: string;
+  email: string;
+  avatarUrl: string | null;
+}
+
 /**
  * Panel lateral (drawer) para agregar integrantes a la salida.
  *
@@ -65,9 +75,9 @@ export class DrawerAgregarIntegrantes {
 
   constructor() {
     // Cargar miembros frecuentes desde el backend
-    this.http.get<any[]>(`${this.apiUrl}/users/search/frecuentes`).subscribe({
+    this.http.get<UserSearchResult[]>(`${this.apiUrl}/users/search/frecuentes`).subscribe({
       next: (users) => {
-        const miembros: Miembro[] = users.map((u: any) => ({
+        const miembros: Miembro[] = users.map((u) => ({
           id: u.id,
           nombre: u.nombre,
           userName: u.userName,
@@ -88,7 +98,7 @@ export class DrawerAgregarIntegrantes {
       return;
     }
 
-    this.http.get<any>(`${this.apiUrl}/users/search`, { params: { q: query } }).subscribe({
+    this.http.get<UserSearchResult>(`${this.apiUrl}/users/search`, { params: { q: query } }).subscribe({
       next: (user) => {
         const miembro: Miembro = {
           id: user.id,
@@ -114,7 +124,7 @@ export class DrawerAgregarIntegrantes {
       return;
     }
 
-    this.http.get<any>(`${this.apiUrl}/users/search`, { params: { q: query } }).subscribe({
+    this.http.get<UserSearchResult>(`${this.apiUrl}/users/search`, { params: { q: query } }).subscribe({
       next: (user) => {
         const miembro: Miembro = {
           id: user.id,

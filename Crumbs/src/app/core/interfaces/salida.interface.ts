@@ -182,4 +182,7 @@ export interface Salida {
 
   /** Lista de pagos registrados entre miembros */
   pagos: Pago[];
+
+  /** Conteo de miembros y gastos (presente en respuestas de listado) */
+  _count?: { miembros: number; gastos: number };
 }
