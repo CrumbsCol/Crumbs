@@ -1,0 +1,39 @@
+<mat-table [dataSource]="data()" class="w-full bg-transparent">
+  @for (col of columns(); track col.key) {
+    <ng-container [matColumnDef]="col.key">
+      <mat-header-cell *matHeaderCellDef class="text-sm font-semibold text-primary/90"> {{ col.header }} </mat-header-cell>
+      <mat-cell *matCellDef="let element" class="text-gray-800 font-medium">
+        @if (getCustomTemplate(col.key); as template) {
+          <ng-container *ngTemplateOutlet="template; context: { $implicit: element }"></ng-container>
+        } @else {
+          @switch (col.type) {
+            @case ('date') {
+              {{ element[col.key] | date: (col.format || 'short') }}
+            }
+            @case ('currency') {
+              {{ element[col.key] | currency: (col.format || 'USD') }}
+            }
+            @default {
+              {{ element[col.key] }}
+            }
+          }
+        }
+      </mat-cell>
+    </ng-container>
+  }
+
+  <mat-header-row *matHeaderRowDef="displayedColumns()"></mat-header-row>
+  <mat-row 
+    *matRowDef="let row; columns: displayedColumns()"
+    (click)="rowClick.emit(row)"
+    (keydown.enter)="rowClick.emit(row)"
+    tabindex="0"
+    class="cursor-pointer hover:bg-white/40 transition-colors focus:outline-none focus:bg-white/50 border-b border-white/30"
+  ></mat-row>
+</mat-table>
+
+@if (data().length === 0) {
+  <div class="empty-state p-8 text-center text-gray-500">
+    <ng-content select="[empty-state]"></ng-content>
+  </div>
+}

@@ -1,8 +1,7 @@
 import { Component, input, output } from '@angular/core';
-import { DatePipe, CurrencyPipe } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
-import { MatListModule } from '@angular/material/list';
+import { TableComponent, TableColumn, TableColumnDefDirective } from '../../../../shared/components/table/table.component';
 
 import { Gasto, Miembro } from '../../../../core/interfaces/salida.interface';
 
@@ -10,17 +9,16 @@ import { Gasto, Miembro } from '../../../../core/interfaces/salida.interface';
  * Componente que muestra la card de Gastos de una salida.
  *
  * Presenta la lista de gastos registrados con su monto y fecha,
- * ordenados cronológicamente (más reciente primero).
+ * ordenados cronológicamente (más reciente primero) usando la tabla compartida.
  */
 @Component({
   selector: 'app-gastos-card',
   standalone: true,
   imports: [
-    DatePipe,
-    CurrencyPipe,
     MatCardModule,
     MatDividerModule,
-    MatListModule,
+    TableComponent,
+    TableColumnDefDirective
   ],
   templateUrl: './gastos-card.html',
   styleUrl: './gastos-card.css',
@@ -34,4 +32,11 @@ export class GastosCard {
 
   /** Evento emitido al hacer clic en un gasto */
   readonly gastoClick = output<Gasto>();
+
+  /** Configuración de las columnas para la tabla de gastos */
+  tableColumns: TableColumn[] = [
+    { key: 'nombre', header: 'Concepto' },
+    { key: 'monto', header: 'Monto', type: 'currency', format: 'MXN' },
+    { key: 'fecha', header: 'Fecha', type: 'date', format: 'dd/MM/yyyy HH:mm' }
+  ];
 }

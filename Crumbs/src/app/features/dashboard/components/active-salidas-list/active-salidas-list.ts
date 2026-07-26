@@ -1,6 +1,5 @@
 import { Component, input, output } from '@angular/core';
-import { MatListModule } from '@angular/material/list';
-import { MatRippleModule } from '@angular/material/core';
+import { TableComponent, TableColumn } from '../../../../shared/components/table/table.component';
 
 // Modelo de datos para cada salida que aparece en la lista
 export interface Salida {
@@ -11,17 +10,13 @@ export interface Salida {
 }
 
 /**
- * Componente visual (Dumb Component) que renderiza la lista de salidas activas.
- * 
- * Recibe la lista de salidas y un estado booleano `isEmpty` para mostrar
- * ya sea la lista renderizada o un mensaje de estado vacío.
- * Aplica estilos especiales a la primera salida (activa) de la lista.
- * Emite un evento al hacer clic en una salida para que el padre maneje la navegación.
+ * Componente visual (Dumb Component) que renderiza la lista de salidas activas
+ * usando el componente tabla genérico.
  */
 @Component({
   selector: 'app-active-salidas-list',
   standalone: true,
-  imports: [MatListModule, MatRippleModule],
+  imports: [TableComponent],
   templateUrl: './active-salidas-list.html',
   styleUrl: './active-salidas-list.css'
 })
@@ -40,4 +35,11 @@ export class ActiveSalidasListComponent {
 
   /** Evento emitido al hacer clic en una salida. Envía la salida seleccionada. */
   salidaClick = output<Salida>();
+
+  /** Configuración de columnas para la tabla */
+  tableColumns: TableColumn[] = [
+    { key: 'label', header: 'Salida', type: 'text' },
+    { key: 'description', header: 'Descripción', type: 'text' },
+    { key: 'fecha', header: 'Fecha', type: 'text' }
+  ];
 }

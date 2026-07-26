@@ -1,29 +1,15 @@
-<div class="salidas-card" role="region" aria-label="Mis Salidas Activas">
-  <h2 class="salidas-card__title">Mis Salidas Activas</h2>
+<div class="glass rounded-3xl overflow-hidden mb-6" role="region" aria-label="Mis Salidas Activas">
+  <div class="bg-white/30 border-b border-white/40 px-6 py-4">
+    <h2 class="font-display text-2xl text-primary drop-shadow-sm tracking-wide m-0">Mis Salidas Activas</h2>
+  </div>
 
   @if (isEmpty()) {
-    <p class="salidas-card__empty" role="status">No tienes salidas activas en este momento.</p>
+    <div class="p-8 text-center text-primary/70 font-medium" role="status">No tienes salidas activas en este momento.</div>
   } @else {
-    <ul class="salidas-list" role="list">
-      @for (salida of salidas(); track salida.id) {
-        <li
-          class="salidas-list__item"
-          matRipple
-          role="button"
-          tabindex="0"
-          [attr.aria-label]="'Ver salida: ' + salida.label"
-          (click)="salidaClick.emit(salida)"
-          (keydown.enter)="salidaClick.emit(salida)"
-        >
-          <div class="salidas-list__content">
-            <span class="salidas-list__label">{{ salida.label }}</span>
-            <span class="salidas-list__description">{{ salida.description }}</span>
-          </div>
-          @if (salida.fecha) {
-            <span class="salidas-list__date">{{ salida.fecha }}</span>
-          }
-        </li>
-      }
-    </ul>
+    <app-table
+      [data]="salidas()"
+      [columns]="tableColumns"
+      (rowClick)="salidaClick.emit($event)">
+    </app-table>
   }
 </div>

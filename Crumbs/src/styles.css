@@ -2,6 +2,38 @@
 
 @import 'tailwindcss';
 
+:root {
+  /* Design Tokens */
+  --color-primary: #421146; /* Violeta Oscuro */
+  --color-accent: #EBA3FF; /* Lila Claro */
+  --color-surface-glass: rgba(255, 255, 255, 0.65);
+  --color-border-glass: rgba(255, 255, 255, 0.4);
+}
+
+@theme {
+  --color-primary: var(--color-primary);
+  --color-accent: var(--color-accent);
+  
+  --font-sans: 'Inter', sans-serif;
+  --font-display: 'Pacifico', cursive;
+}
+
+/* Base App Background */
+body {
+  background: linear-gradient(135deg, #fdf4ff 0%, #f3e8ff 100%);
+  background-attachment: fixed;
+  min-height: 100vh;
+}
+
+/* Glassmorphism Utility */
+.glass {
+  background: var(--color-surface-glass) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--color-border-glass) !important;
+  box-shadow: 0 8px 32px 0 rgba(66, 17, 70, 0.05) !important; /* Soft primary shadow */
+}
+
 /* ─── Modal de salidas: estilo global para el panel del diálogo ─────────────── */
 .modal-salida .mdc-dialog__surface {
   border-radius: 1rem !important;

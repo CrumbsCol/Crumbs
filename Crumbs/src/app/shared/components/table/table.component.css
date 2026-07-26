@@ -1,0 +1,15 @@
+mat-table {
+  background: transparent;
+}
+mat-row {
+  outline: none;
+}
+mat-row:focus-visible {
+  background-color: var(--mat-sys-surface-container-highest, #f3f4f6);
+}
+.empty-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100px;
+}
