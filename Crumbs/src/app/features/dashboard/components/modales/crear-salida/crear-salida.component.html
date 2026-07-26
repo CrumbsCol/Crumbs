@@ -62,21 +62,32 @@
         </mat-form-field>
       </div>
 
-      <!-- Cabecera de integrantes con botón para agregar (sin funcionalidad aún) -->
+      <!-- Cabecera de integrantes con botón para abrir el drawer -->
       <div class="integrantes-header">
         <h2>Integrantes</h2>
-        <button mat-icon-button type="button" aria-label="Agregar integrante">
+        <button
+          mat-icon-button
+          type="button"
+          aria-label="Agregar integrante"
+          (click)="abrirDrawerIntegrantes()"
+        >
           <mat-icon>person_add</mat-icon>
         </button>
       </div>
 
-      <!-- Lista de integrantes -->
+      <!-- Lista de integrantes seleccionados -->
       @for (integrante of integrantes(); track integrante.id) {
         <div class="integrante-item">
           <mat-icon class="integrante-avatar">person</mat-icon>
           <div class="integrante-info">
             <span class="integrante-nombre">{{ integrante.nombre }}</span>
-            <span class="integrante-descripcion">{{ integrante.descripcion }}</span>
+            <span class="integrante-descripcion">
+              @if (integrante.userName) {
+                @{{ integrante.userName }}
+              } @else {
+                Integrante fantasma
+              }
+            </span>
           </div>
           <button
             mat-icon-button
@@ -98,3 +109,10 @@
     <button mat-flat-button class="btn-agregar" (click)="onAgregar()">Agregar</button>
   </div>
 </section>
+
+<!-- Drawer lateral reutilizado para agregar integrantes -->
+<app-drawer-agregar-integrantes
+  [abierto]="drawerIntegrantesAbierto()"
+  (cerrar)="cerrarDrawerIntegrantes()"
+  (integrantesAgregados)="onIntegrantesAgregados($event)"
+/>

@@ -17,12 +17,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatSelectModule } from '@angular/material/select';
 
-// Modelo de datos para cada integrante de la salida
-export interface Integrante {
-  id: number;
-  nombre: string;
-  descripcion: string;
-}
+import { Miembro } from '../../../../../core/interfaces/salida.interface';
+import { DrawerAgregarIntegrantes } from '../../../../salidas/components/drawer-agregar-integrantes/drawer-agregar-integrantes';
 
 /**
  * Validador personalizado para el campo de hora.
@@ -54,6 +50,7 @@ function horaValidator(control: AbstractControl): ValidationErrors | null {
     MatIconModule,
     MatListModule,
     MatSelectModule,
+    DrawerAgregarIntegrantes,
   ],
   templateUrl: './crear-salida.component.html',
   styleUrl: './crear-salida.component.scss',
@@ -83,13 +80,34 @@ export class CrearSalidaComponent {
   // Opciones del selector AM/PM
   readonly periodos = ['AM', 'PM'];
 
-  /** Lista de integrantes de la salida — ejemplo eliminable */
-  readonly integrantes = signal<Integrante[]>([
-    { id: 1, nombre: 'Ana García', descripcion: 'Guía de montaña' },
-  ]);
+  /** Lista de integrantes seleccionados para la salida (Miembro del dominio) */
+  readonly integrantes = signal<Miembro[]>([]);
 
-  // Elimina un integrante de la lista por su id
-  removeIntegrante(id: number): void {
+  /** Controla si el drawer de agregar integrantes está visible */
+  readonly drawerIntegrantesAbierto = signal(false);
+
+  /** Abre el drawer de agregar integrantes */
+  abrirDrawerIntegrantes(): void {
+    this.drawerIntegrantesAbierto.set(true);
+  }
+
+  /** Cierra el drawer de agregar integrantes */
+  cerrarDrawerIntegrantes(): void {
+    this.drawerIntegrantesAbierto.set(false);
+  }
+
+  /** Recibe los integrantes seleccionados desde el drawer y los agrega a la lista */
+  onIntegrantesAgregados(nuevos: Miembro[]): void {
+    this.integrantes.update((actuales) => {
+      const idsExistentes = new Set(actuales.map((m) => m.id));
+      const filtrados = nuevos.filter((m) => !idsExistentes.has(m.id));
+      return [...actuales, ...filtrados];
+    });
+    this.cerrarDrawerIntegrantes();
+  }
+
+  /** Elimina un integrante de la lista por su id */
+  removeIntegrante(id: string): void {
     this.integrantes.update((list) => list.filter((i) => i.id !== id));
   }
 
@@ -98,7 +116,7 @@ export class CrearSalidaComponent {
     this.dialogRef.close();
   }
 
-  // Cierra el modal y devuelve los datos del formulario al dashboard
+  // Cierra el modal y devuelve los datos del formulario + integrantes al dashboard
   onAgregar(): void {
     this.form.markAllAsTouched();
     if (this.form.valid) {
@@ -106,6 +124,7 @@ export class CrearSalidaComponent {
         nombre: this.form.get('nombre')?.value,
         descripcion: this.form.get('descripcion')?.value,
         fecha: this.form.get('fecha')?.value,
+        integrantes: this.integrantes(),
       });
     }
   }

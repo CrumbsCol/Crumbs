@@ -66,14 +66,17 @@ export class DashboardPage {
       maxWidth: '500px',
       panelClass: 'modal-salida',
       autoFocus: true,
-    }).afterClosed().subscribe((result: { nombre: string; descripcion: string; fecha: Date } | undefined) => {
+    }).afterClosed().subscribe((result: { nombre: string; descripcion: string; fecha: Date; integrantes?: any[] } | undefined) => {
       if (result?.nombre) {
-        // Crear la salida a través del servicio para que quede registrada
-        this.salidaService.crearSalida({
-          titulo: result.nombre,
-          descripcion: result.descripcion || '',
-          fecha: new Date(result.fecha).toISOString(),
-        });
+        // Crear la salida a través del servicio con los integrantes seleccionados
+        this.salidaService.crearSalida(
+          {
+            titulo: result.nombre,
+            descripcion: result.descripcion || '',
+            fecha: new Date(result.fecha).toISOString(),
+          },
+          result.integrantes
+        );
       }
     });
   }
