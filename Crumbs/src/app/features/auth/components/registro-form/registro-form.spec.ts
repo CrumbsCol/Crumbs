@@ -6,7 +6,7 @@ import { RegistroForm } from './registro-form';
 
 /**
  * Tests unitarios para RegistroForm (componente presentacional).
- * Verifica validaciones de los 5 campos, coincidencia de contraseñas,
+ * Verifica validaciones de los 7 campos, coincidencia de contraseñas,
  * estado del botón y emisión del evento registroSubmit.
  */
 describe('RegistroForm', () => {
@@ -34,12 +34,40 @@ describe('RegistroForm', () => {
     expect(component.registroForm.valid).toBe(false);
   });
 
-  it('debería tener los 5 controles del formulario', () => {
+  it('debería tener los 7 controles del formulario', () => {
+    expect(component.registroForm.contains('nombre')).toBe(true);
+    expect(component.registroForm.contains('apellido')).toBe(true);
     expect(component.registroForm.contains('email')).toBe(true);
     expect(component.registroForm.contains('userName')).toBe(true);
     expect(component.registroForm.contains('password')).toBe(true);
     expect(component.registroForm.contains('confirmPassword')).toBe(true);
     expect(component.registroForm.contains('fechaNacimiento')).toBe(true);
+  });
+
+  // ─── Validaciones: nombre ───────────────────────────────────────────
+  it('debería marcar nombre como inválido cuando está vacío', () => {
+    const control = component.registroForm.controls.nombre;
+    control.setValue('');
+    expect(control.hasError('required')).toBe(true);
+  });
+
+  it('debería marcar nombre como válido con valor', () => {
+    const control = component.registroForm.controls.nombre;
+    control.setValue('Juan');
+    expect(control.valid).toBe(true);
+  });
+
+  // ─── Validaciones: apellido ───────────────────────────────────────────
+  it('debería marcar apellido como inválido cuando está vacío', () => {
+    const control = component.registroForm.controls.apellido;
+    control.setValue('');
+    expect(control.hasError('required')).toBe(true);
+  });
+
+  it('debería marcar apellido como válido con valor', () => {
+    const control = component.registroForm.controls.apellido;
+    control.setValue('López');
+    expect(control.valid).toBe(true);
   });
 
   // ─── Validaciones: email ──────────────────────────────────────────────
@@ -145,6 +173,8 @@ describe('RegistroForm', () => {
 
   // ─── Formulario completo válido ───────────────────────────────────────
   it('debería tener el formulario válido con todos los datos correctos', () => {
+    component.registroForm.controls.nombre.setValue('Juan');
+    component.registroForm.controls.apellido.setValue('López');
     component.registroForm.controls.email.setValue('usuario@ejemplo.com');
     component.registroForm.controls.userName.setValue('juanlopez');
     component.registroForm.controls.password.setValue('Abcdef1!');
@@ -164,6 +194,8 @@ describe('RegistroForm', () => {
   });
 
   it('debería habilitar el botón cuando el formulario es válido', () => {
+    component.registroForm.controls.nombre.setValue('Juan');
+    component.registroForm.controls.apellido.setValue('López');
     component.registroForm.controls.email.setValue('usuario@ejemplo.com');
     component.registroForm.controls.userName.setValue('juanlopez');
     component.registroForm.controls.password.setValue('Abcdef1!');
@@ -180,6 +212,8 @@ describe('RegistroForm', () => {
   // ─── Emisión del evento registroSubmit ─────────────────────────────────
   it('debería emitir registroSubmit con los datos al hacer submit válido', () => {
     const emitSpy = vi.spyOn(component.registroSubmit, 'emit');
+    component.registroForm.controls.nombre.setValue('Juan');
+    component.registroForm.controls.apellido.setValue('López');
     component.registroForm.controls.email.setValue('usuario@ejemplo.com');
     component.registroForm.controls.userName.setValue('juanlopez');
     component.registroForm.controls.password.setValue('Abcdef1!');
@@ -189,6 +223,8 @@ describe('RegistroForm', () => {
     component.onSubmit();
 
     expect(emitSpy).toHaveBeenCalledWith({
+      nombre: 'Juan',
+      apellido: 'López',
       email: 'usuario@ejemplo.com',
       userName: 'juanlopez',
       password: 'Abcdef1!',

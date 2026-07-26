@@ -30,6 +30,8 @@ export class RegistroPage {
    * Por ahora solo loguea en consola — en futuro llamará a AuthService.register().
    */
   onRegister(data: {
+    nombre: string;
+    apellido: string;
     email: string;
     userName: string;
     password: string;

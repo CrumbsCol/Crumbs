@@ -48,6 +48,8 @@ describe('RegistroPage', () => {
   it('debería loguear los datos cuando se llama onRegister', () => {
     const consoleSpy = vi.spyOn(console, 'log');
     const data = {
+      nombre: 'Juan',
+      apellido: 'López',
       email: 'usuario@ejemplo.com',
       userName: 'juanlopez',
       password: 'Abcdef1!',
