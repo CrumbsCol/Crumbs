@@ -6,6 +6,7 @@ import {
   Miembro,
   Pago,
 } from '../interfaces/salida.interface';
+import { CrearGastoRequest } from '../interfaces/salida-request.interface';
 import { UserService } from './user.service';
 
 /**
@@ -386,15 +387,19 @@ export class SalidaService {
   /**
    * Crea una nueva salida y la agrega a la lista.
    * Devuelve la salida creada con su ID asignado.
+   *
+   * @param datos - Título, descripción opcional y fecha de la salida.
+   * @param miembrosIniciales - Integrantes seleccionados al momento de crear (opcional).
    */
-  crearSalida(datos: { titulo: string; descripcion?: string; fecha: string }): Salida {
+  crearSalida(datos: { titulo: string; descripcion?: string; fecha: string }, miembrosIniciales?: Miembro[]): Salida {
     const codigo = Math.random().toString(36).substring(2, 8).toUpperCase();
     const nuevaSalida: Salida = {
       id: String(this._salidas().length + 1),
       titulo: datos.titulo,
+      descripcion: datos.descripcion,
       codigoInvitacion: codigo,
       fechaCreacion: datos.fecha,
-      miembros: [],
+      miembros: miembrosIniciales ?? [],
       gastos: [],
       pagos: [],
     };
@@ -417,13 +422,31 @@ export class SalidaService {
   /**
    * Agrega un nuevo gasto a la salida actual.
    */
-  agregarGasto(gasto: Omit<Gasto, 'id'>): void {
+  agregarGasto(request: CrearGastoRequest): void {
     const salida = this._salidaActual();
     if (!salida) return;
 
+    const pagador = salida.miembros.find((m) => m.id === request.pagadoPorMiembroId);
+    if (!pagador) return;
+
+    const miembrosParticipantes = salida.miembros.filter((m) =>
+      request.participantes.some((p) => p.salidaMiembroId === m.id)
+    );
+
     const nuevoGasto: Gasto = {
-      ...gasto,
       id: `g${Date.now()}`,
+      nombre: request.nombre,
+      descripcion: request.descripcion,
+      monto: request.monto,
+      fecha: request.fecha,
+      metodoDivision: request.metodoDivision,
+      pagadoPor: pagador,
+      miembrosParticipantes,
+      participantes: request.participantes.map((p) => ({
+        miembro: salida.miembros.find((m) => m.id === p.salidaMiembroId)!,
+        esInvitado: p.esInvitado,
+        montoManual: p.montoManual,
+      })),
     };
 
     this._salidaActual.set({

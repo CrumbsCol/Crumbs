@@ -9,6 +9,7 @@ import { MatDialog } from '@angular/material/dialog';
 
 import { SalidaService } from '../../../../core/services/salida.service';
 import { Gasto, Miembro } from '../../../../core/interfaces/salida.interface';
+import { CrearGastoRequest } from '../../../../core/interfaces/salida-request.interface';
 import { DrawerAgregarGasto } from '../../components/drawer-agregar-gasto/drawer-agregar-gasto';
 import { DrawerAgregarIntegrantes } from '../../components/drawer-agregar-integrantes/drawer-agregar-integrantes';
 import { GastosCard } from '../../components/gastos-card/gastos-card';
@@ -99,7 +100,7 @@ export class SalidaDetallePage implements OnInit {
   }
 
   /** Maneja el evento de gasto agregado desde el drawer */
-  onGastoAgregado(gasto: Omit<Gasto, 'id'>): void {
+  onGastoAgregado(gasto: CrearGastoRequest): void {
     this.salidaService.agregarGasto(gasto);
     this.cerrarDrawerGasto();
   }

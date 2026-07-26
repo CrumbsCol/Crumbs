@@ -10,7 +10,7 @@ describe('SalidaService', () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let userServiceSpy: any;
 
-  const mockUser: User = { id: 'mock-user-001', nombre: 'Juan López', email: 'juan@example.com', userName: 'juanlopez', fechaNacimiento: '01/01/2000', avatarUrl: null };
+  const mockUser: User = { id: 'mock-user-001', nombre: 'Juan', apellido: 'López', email: 'juan@example.com', userName: 'juanlopez', fechaNacimiento: '01/01/2000', avatarUrl: null };
   
   const mockMiembro1: Miembro = { id: 'mock-user-001', nombre: 'Juan López', email: '', userName: '', avatarUrl: null };
   const mockMiembro2: Miembro = { id: '2', nombre: 'Maria', email: '', userName: '', avatarUrl: null };
