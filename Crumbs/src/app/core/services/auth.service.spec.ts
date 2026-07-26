@@ -55,11 +55,11 @@ describe('AuthService', () => {
     
     req.flush({
       accessToken: 'real-token',
-      user: { id: '1', nombre: 'Real User', email: 'test@example.com', userName: 'real', fechaNacimiento: '01/01/2000', avatarUrl: null }
+      user: { id: '1', nombre: 'Real', apellido: 'User', email: 'test@example.com', userName: 'real', fechaNacimiento: '01/01/2000', avatarUrl: null }
     });
 
     expect(Storage.prototype.setItem).toHaveBeenCalledWith('access_token', 'real-token');
-    expect(userService.currentUser()?.nombre).toBe('Real User');
+    expect(userService.currentUser()?.nombre).toBe('Real');
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/dashboard']);
   });
 
@@ -108,9 +108,9 @@ describe('AuthService', () => {
     const req = httpTestingController.expectOne(`${environment.apiUrl}/me`);
     expect(req.request.method).toEqual('GET');
     
-    req.flush({ id: '2', nombre: 'Real Autologin', email: 'test@example.com', userName: 'real2', fechaNacimiento: '01/01/2000', avatarUrl: null });
+    req.flush({ id: '2', nombre: 'Real', apellido: 'Autologin', email: 'test@example.com', userName: 'real2', fechaNacimiento: '01/01/2000', avatarUrl: null });
     
-    expect(userService.currentUser()?.nombre).toBe('Real Autologin');
+    expect(userService.currentUser()?.nombre).toBe('Real');
   });
 
   it('should handle autologin failure (invalid token)', () => {

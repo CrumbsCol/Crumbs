@@ -8,7 +8,8 @@ import { User } from '../interfaces/user.interface';
  */
 const MOCK_USER: User = {
   id: 'mock-user-001',
-  nombre: 'Juan López',
+  nombre: 'Juan',
+  apellido: 'López',
   userName: 'juanlopez',
   fechaNacimiento: '15/03/1995',
   email: 'juan@example.com',
