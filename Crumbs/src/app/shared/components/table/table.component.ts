@@ -6,7 +6,7 @@ export interface TableColumn {
   key: string;
   header: string;
   type?: 'text' | 'date' | 'currency' | 'custom';
-  format?: string; // Ej: 'dd/MM/yyyy HH:mm' para fechas o 'MXN' para monedas
+  format?: string; // Ej: 'dd/MM/yyyy HH:mm' para fechas o 'COP' para monedas
   align?: 'left' | 'center' | 'right'; // Para alineación de la columna
 }
 

@@ -32,7 +32,7 @@ export interface TableColumn {
   key: string;       // Propiedad del objeto a mostrar
   header: string;    // Título de la columna
   type?: 'text' | 'date' | 'currency' | 'custom'; // Tipo de dato (por defecto 'text')
-  format?: string;   // Formato adicional (ej. 'dd/MM/yyyy' para date, 'MXN' para currency)
+  format?: string;   // Formato adicional (ej. 'dd/MM/yyyy' para date, 'COP' para currency)
 }
 ```
 
@@ -49,7 +49,7 @@ export interface TableColumn {
 ```typescript
 misColumnas: TableColumn[] = [
   { key: 'nombre', header: 'Nombre', type: 'text' },
-  { key: 'monto', header: 'Total', type: 'currency', format: 'MXN' },
+  { key: 'monto', header: 'Total', type: 'currency', format: 'COP' },
   { key: 'fecha', header: 'Fecha', type: 'date', format: 'dd/MM/yyyy' }
 ];
 ```

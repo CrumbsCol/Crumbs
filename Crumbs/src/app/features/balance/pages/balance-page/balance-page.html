@@ -16,7 +16,7 @@
         </mat-card-header>
         <mat-card-content class="pt-4">
           <div class="text-4xl font-bold text-emerald-600">
-            {{ balance.meDeben | currency:'MXN':'symbol-narrow':'1.0-0' }}
+            {{ balance.meDeben | currency:'COP':'symbol-narrow':'1.0-0' }}
           </div>
         </mat-card-content>
       </mat-card>
@@ -30,7 +30,7 @@
         </mat-card-header>
         <mat-card-content class="pt-4">
           <div class="text-4xl font-bold text-rose-600">
-            {{ balance.debo | currency:'MXN':'symbol-narrow':'1.0-0' }}
+            {{ balance.debo | currency:'COP':'symbol-narrow':'1.0-0' }}
           </div>
         </mat-card-content>
       </mat-card>
@@ -50,7 +50,7 @@
              [class.text-emerald-600]="balance.balanceNeto > 0"
              [class.text-rose-600]="balance.balanceNeto < 0"
              [class.text-gray-600]="balance.balanceNeto === 0">
-          {{ balance.balanceNeto | currency:'MXN':'symbol-narrow':'1.0-0' }}
+          {{ balance.balanceNeto | currency:'COP':'symbol-narrow':'1.0-0' }}
         </div>
       </mat-card-content>
     </mat-card>

@@ -3,7 +3,7 @@
   <div class="modal-card">
     <div class="mb-4">
       <h3 class="text-lg font-medium">{{ data.gasto.nombre }}</h3>
-      <p class="text-gray-500">{{ data.gasto.monto | currency:'MXN':'symbol-narrow':'1.0-0' }} · Pagado por {{ data.gasto.pagadoPor.nombre }}</p>
+      <p class="text-gray-500">{{ data.gasto.monto | currency:'COP':'symbol-narrow':'1.0-0' }} · Pagado por {{ data.gasto.pagadoPor.nombre }}</p>
     </div>
 
     <mat-divider></mat-divider>
@@ -11,7 +11,7 @@
     <div class="mt-4">
       @if (!esPagador) {
         <div class="text-center p-4">
-          <p class="mb-2">Te corresponde pagar: <strong>{{ miParticipacion | currency:'MXN':'symbol-narrow':'1.0-0' }}</strong></p>
+          <p class="mb-2">Te corresponde pagar: <strong>{{ miParticipacion | currency:'COP':'symbol-narrow':'1.0-0' }}</strong></p>
           @if (yaPague) {
             <div class="text-green-600 flex items-center justify-center gap-1">
               <mat-icon>check_circle</mat-icon>
@@ -30,7 +30,7 @@
                 <div matListItemTitle class="flex justify-between items-center w-full">
                   <span>{{ part.miembro.nombre }}</span>
                   <div class="flex items-center gap-2">
-                    <span class="text-gray-600">{{ part.monto | currency:'MXN':'symbol-narrow':'1.0-0' }}</span>
+                    <span class="text-gray-600">{{ part.monto | currency:'COP':'symbol-narrow':'1.0-0' }}</span>
                     @if (haPagado(part.miembro.id)) {
                       <button mat-icon-button color="primary" (click)="verInfoPago(part.miembro.id)" title="Ver pago">
                         <mat-icon class="text-green-500">check_circle</mat-icon>

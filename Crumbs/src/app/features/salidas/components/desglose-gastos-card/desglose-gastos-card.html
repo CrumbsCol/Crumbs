@@ -16,7 +16,7 @@
           <span class="desglose-pagador">Pagó: {{ desglose.pagador.nombre }}</span>
           <div class="participaciones-line">
             @for (p of desglose.participaciones; track p.miembro.id) {
-              <span class="participacion-chip">{{ p.miembro.nombre }}: {{ p.monto | currency:'MXN':'symbol-narrow':'1.0-0' }}</span>
+              <span class="participacion-chip">{{ p.miembro.nombre }}: {{ p.monto | currency:'COP':'symbol-narrow':'1.0-0' }}</span>
             }
           </div>
         </div>
