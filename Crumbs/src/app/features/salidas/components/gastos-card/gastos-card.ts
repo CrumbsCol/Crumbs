@@ -1,9 +1,11 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, ViewChild, TemplateRef, OnInit } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
-import { TableComponent, TableColumn, TableColumnDefDirective } from '../../../../shared/components/table/table.component';
+import { TableComponent, TableColumn } from '../../../../shared/components/table/table.component';
 
 import { Gasto, Miembro } from '../../../../core/interfaces/salida.interface';
+
+import { CommonModule } from '@angular/common';
 
 /**
  * Componente que muestra la card de Gastos de una salida.
@@ -15,28 +17,34 @@ import { Gasto, Miembro } from '../../../../core/interfaces/salida.interface';
   selector: 'app-gastos-card',
   standalone: true,
   imports: [
+    CommonModule,
     MatCardModule,
     MatDividerModule,
-    TableComponent,
-    TableColumnDefDirective
+    TableComponent
   ],
   templateUrl: './gastos-card.html',
   styleUrl: './gastos-card.css',
 })
-export class GastosCard {
+export class GastosCard implements OnInit {
   /** Lista de gastos ordenados cronológicamente */
-  readonly gastos = input.required<Gasto[]>();
+  gastos = input<Gasto[]>([]);
 
   /** Usuario actual para determinar si "Yo pagué" */
-  readonly usuarioActual = input<Miembro | null>(null);
+  usuarioActual = input<Miembro | null>(null);
 
   /** Evento emitido al hacer clic en un gasto */
-  readonly gastoClick = output<Gasto>();
+  gastoClick = output<Gasto>();
 
-  /** Configuración de las columnas para la tabla de gastos */
   tableColumns: TableColumn[] = [
-    { key: 'nombre', header: 'Concepto' },
-    { key: 'monto', header: 'Monto', type: 'currency', format: 'MXN' },
-    { key: 'fecha', header: 'Fecha', type: 'date', format: 'dd/MM/yyyy HH:mm' }
+    { key: 'info', header: '' },
+    { key: 'fecha', header: '', type: 'date', format: 'dd/MM/yyyy HH:mm', align: 'right' }
   ];
+
+  @ViewChild('infoTemplate', { static: true }) infoTemplate!: TemplateRef<unknown>;
+
+  customTemplates: Record<string, TemplateRef<unknown>> = {};
+
+  ngOnInit() {
+    this.customTemplates = { 'info': this.infoTemplate };
+  }
 }

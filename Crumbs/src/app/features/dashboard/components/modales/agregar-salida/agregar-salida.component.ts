@@ -1,11 +1,13 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { Location } from '@angular/common';
 import { MatDialogRef } from '@angular/material/dialog';
+import { Router } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { SalidaService } from '../../../../../core/services/salida.service';
 
 @Component({
   selector: 'app-agregar-salida',
@@ -23,7 +25,9 @@ import { MatIconModule } from '@angular/material/icon';
 export class AgregarSalidaComponent {
   // Permite volver a la pantalla anterior sin conocer la ruta exacta
   private readonly location = inject(Location);
+  private readonly router = inject(Router);
   private readonly dialogRef = inject(MatDialogRef<AgregarSalidaComponent>, { optional: true });
+  private readonly salidaService = inject(SalidaService);
   // Constructor de formularios reactivos
   private readonly fb = inject(FormBuilder);
 
@@ -32,6 +36,9 @@ export class AgregarSalidaComponent {
     // Solo letras y números — el patrón rechaza espacios y caracteres especiales
     codigo: ['', [Validators.required, Validators.pattern(/^[a-zA-Z0-9]+$/)]],
   });
+
+  // Signal para mostrar errores si el código no se encuentra
+  readonly errorBusqueda = signal<string>('');
 
   // Vuelve a la pantalla anterior (dashboard)
   onCancelar(): void {
@@ -42,18 +49,22 @@ export class AgregarSalidaComponent {
     }
   }
 
-  // Por implementar: buscará la salida por código y unirá al usuario
+  // Busca la salida por código y une al usuario
   onUnirme(): void {
     if (this.form.invalid) return;
     
-    const newSalida = {
-      label: 'Salida Unida (' + this.form.value.codigo + ')',
-      description: 'Te has unido a esta salida exitosamente.',
-      fecha: new Date().toLocaleDateString()
-    };
-    
-    if (this.dialogRef) {
-      this.dialogRef.close(newSalida);
+    this.errorBusqueda.set('');
+    const codigo = this.form.value.codigo;
+    const salida = this.salidaService.unirseASalida(codigo);
+
+    if (salida) {
+      if (this.dialogRef) {
+        this.dialogRef.close({ id: salida.id });
+      } else {
+        this.router.navigate(['/salidas', salida.id]);
+      }
+    } else {
+      this.errorBusqueda.set('No se encontró ninguna salida con ese código.');
     }
   }
 }

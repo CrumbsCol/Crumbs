@@ -17,12 +17,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatSelectModule } from '@angular/material/select';
 
-// Modelo de datos para cada integrante de la salida
-export interface Integrante {
-  id: number;
-  nombre: string;
-  descripcion: string;
-}
+import { Miembro } from '../../../../../core/interfaces/salida.interface';
+import { DrawerAgregarIntegrantes } from '../../../../salidas/components/drawer-agregar-integrantes/drawer-agregar-integrantes';
 
 /**
  * Validador personalizado para el campo de hora.
@@ -52,8 +48,10 @@ function horaValidator(control: AbstractControl): ValidationErrors | null {
     MatNativeDateModule,
     MatButtonModule,
     MatIconModule,
+    MatIconModule,
     MatListModule,
     MatSelectModule,
+    DrawerAgregarIntegrantes,
   ],
   templateUrl: './crear-salida.component.html',
   styleUrl: './crear-salida.component.scss',
@@ -83,14 +81,31 @@ export class CrearSalidaComponent {
   // Opciones del selector AM/PM
   readonly periodos = ['AM', 'PM'];
 
-  /** Lista de integrantes de la salida — ejemplo eliminable */
-  readonly integrantes = signal<Integrante[]>([
-    { id: 1, nombre: 'Ana García', descripcion: 'Guía de montaña' },
-  ]);
+  /** Controla la visibilidad del drawer de agregar integrantes */
+  readonly drawerIntegrantesAbierto = signal(false);
+
+  /** Lista de integrantes de la salida */
+  readonly integrantes = signal<Miembro[]>([]);
 
   // Elimina un integrante de la lista por su id
-  removeIntegrante(id: number): void {
+  removeIntegrante(id: string): void {
     this.integrantes.update((list) => list.filter((i) => i.id !== id));
+  }
+
+  /** Abre el drawer para agregar integrantes */
+  abrirDrawerIntegrantes(): void {
+    this.drawerIntegrantesAbierto.set(true);
+  }
+
+  /** Cierra el drawer de agregar integrantes */
+  cerrarDrawerIntegrantes(): void {
+    this.drawerIntegrantesAbierto.set(false);
+  }
+
+  /** Maneja el evento de integrantes agregados desde el drawer */
+  onIntegrantesAgregados(miembros: Miembro[]): void {
+    this.integrantes.set(miembros);
+    this.cerrarDrawerIntegrantes();
   }
 
   // Cierra el modal sin guardar
@@ -106,6 +121,7 @@ export class CrearSalidaComponent {
         nombre: this.form.get('nombre')?.value,
         descripcion: this.form.get('descripcion')?.value,
         fecha: this.form.get('fecha')?.value,
+        integrantes: this.integrantes(),
       });
     }
   }

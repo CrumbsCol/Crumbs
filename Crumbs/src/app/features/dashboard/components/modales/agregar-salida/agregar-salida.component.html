@@ -22,6 +22,12 @@
           <mat-error>Solo se permiten letras y números</mat-error>
         }
       </mat-form-field>
+      
+      @if (errorBusqueda()) {
+        <p class="error-msg" style="color: var(--sys-error, #ff4c4c); font-size: 0.875rem; text-align: center; margin-top: 0.5rem;">
+          {{ errorBusqueda() }}
+        </p>
+      }
     </form>
   </div>
 

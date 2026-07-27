@@ -1,9 +1,11 @@
 <!-- Pantalla de creación de una nueva salida: nombre, descripción, fecha/hora e integrantes -->
 <section class="crear-salida-view" aria-label="Crear nueva salida">
-  <h1 class="page-title">Crear Salida</h1>
+  <div class="crear-salida-header">
+    <h2 class="font-display text-2xl text-primary m-0 tracking-wide">Crear Salida</h2>
+  </div>
 
-  <!-- Tarjeta principal que contiene el formulario -->
-  <div class="crear-salida-card">
+  <div class="crear-salida-body">
+    <div class="crear-salida-card">
     <form [formGroup]="form">
 
       <!-- Nombre de la salida (obligatorio) -->
@@ -62,10 +64,10 @@
         </mat-form-field>
       </div>
 
-      <!-- Cabecera de integrantes con botón para agregar (sin funcionalidad aún) -->
+      <!-- Cabecera de integrantes con botón para agregar -->
       <div class="integrantes-header">
         <h2>Integrantes</h2>
-        <button mat-icon-button type="button" aria-label="Agregar integrante">
+        <button mat-icon-button type="button" aria-label="Agregar integrante" (click)="abrirDrawerIntegrantes()">
           <mat-icon>person_add</mat-icon>
         </button>
       </div>
@@ -76,7 +78,7 @@
           <mat-icon class="integrante-avatar">person</mat-icon>
           <div class="integrante-info">
             <span class="integrante-nombre">{{ integrante.nombre }}</span>
-            <span class="integrante-descripcion">{{ integrante.descripcion }}</span>
+            <span class="integrante-descripcion">{{ integrante.userName || '(Invitado)' }}</span>
           </div>
           <button
             mat-icon-button
@@ -90,11 +92,19 @@
         </div>
       }
     </form>
+    </div>
   </div>
 
   <!-- Barra de acciones -->
   <div class="action-bar">
     <button mat-button class="btn-cancelar" (click)="onCancelar()">Cancelar</button>
-    <button mat-flat-button class="btn-agregar" (click)="onAgregar()">Agregar</button>
+    <button mat-flat-button class="btn-agregar" [disabled]="form.invalid" (click)="onAgregar()">Crear</button>
   </div>
 </section>
+
+<!-- Drawer para agregar integrantes -->
+<app-drawer-agregar-integrantes
+  [abierto]="drawerIntegrantesAbierto()"
+  (cerrar)="cerrarDrawerIntegrantes()"
+  (integrantesAgregados)="onIntegrantesAgregados($event)">
+</app-drawer-agregar-integrantes>

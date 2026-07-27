@@ -1,23 +1,28 @@
+<!-- Template personalizado para la columna 'info' -->
+<ng-template #infoTemplate let-gasto>
+  <div class="flex flex-col py-2">
+    <div class="flex items-center">
+      <span class="font-medium text-gray-800 text-base">{{ gasto?.nombre }}</span>
+      @if (gasto?.pagadoPor?.id === usuarioActual()?.id) {
+      <span
+        class="ml-2 inline-flex items-center rounded-full bg-accent/40 px-2.5 py-0.5 text-xs font-semibold text-primary border border-primary/20 shadow-sm">Yo
+        pagué</span>
+      }
+    </div>
+    <span class="text-primary font-bold text-sm mt-1">{{ gasto?.monto | currency:'MXN' }}</span>
+  </div>
+</ng-template>
+
 <!-- Card de Gastos -->
 <mat-card class="glass !rounded-3xl mt-4 border-0 shadow-none" appearance="outlined">
-  <mat-card-header class="bg-white/30 border-b border-white/40 px-6 py-4 !block">
+  <mat-card-header class=" border-b border-white/40 px-6 py-4 !block">
     <mat-card-title class="font-display text-2xl text-primary drop-shadow-sm tracking-wide m-0">Gastos</mat-card-title>
   </mat-card-header>
-  <mat-card-content class="p-0">
-    <app-table
-      [data]="gastos()"
-      [columns]="tableColumns"
+  <mat-card-content class="px-0 pt-4 pb-2">
+
+
+    <app-table [data]="gastos()" [columns]="tableColumns" [showHeaders]="false" [customTemplates]="customTemplates"
       (rowClick)="gastoClick.emit($event)">
-      
-      <!-- Template personalizado para la columna 'nombre' -->
-      <ng-template appTableColumnDef="nombre" let-gasto>
-        <div class="flex items-center">
-          <span class="font-medium text-gray-800">{{ gasto.nombre }}</span>
-          @if (gasto.pagadoPor.id === usuarioActual()?.id) {
-            <span class="ml-2 inline-flex items-center rounded-full bg-accent/40 px-2.5 py-0.5 text-xs font-semibold text-primary border border-primary/20 shadow-sm">Yo pagué</span>
-          }
-        </div>
-      </ng-template>
 
       <!-- Estado vacío personalizado -->
       <div empty-state>

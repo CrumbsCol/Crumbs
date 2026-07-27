@@ -19,27 +19,32 @@
   transition: opacity 0.3s ease;
 }
 
-/* ─── Panel del drawer (lateral derecho) ──────────────────────────────── */
+/* ─── Panel del drawer (ahora modal centrado) ──────────────────────────────── */
 .drawer-panel {
   position: fixed;
-  top: 0;
-  right: 0;
-  height: 100vh;
-  width: 420px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.95);
+  height: auto;
+  max-height: 90vh;
+  width: 90%;
+  max-width: 460px;
   background-color: var(--mat-sys-surface);
   z-index: 1000;
-  /* Oculto fuera de pantalla por defecto */
-  transform: translateX(100%);
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
-  box-shadow: -4px 0 12px rgba(0, 0, 0, 0.08);
-  border-radius: 16px 0 0 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  border-radius: 16px;
 }
 
-/* Estado abierto: desliza el panel a la vista */
+/* Estado abierto */
 .drawer-panel.abierto {
-  transform: translateX(0);
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 1;
+  pointer-events: auto;
 }
 
 /* ─── Cuerpo scrollable del formulario ────────────────────────────────── */
@@ -224,11 +229,21 @@
 
 /* Botón "Agregar" */
 .btn-agregar {
-  background-color: var(--mat-sys-surface-container) !important;
-  color: var(--mat-sys-on-surface) !important;
   border-radius: 8px !important;
   padding: 0.5rem 2rem !important;
   font-size: 0.875rem;
+  font-weight: 500;
+  transition: opacity 0.2s ease;
+}
+
+.btn-agregar:not(:disabled) {
+  background-color: var(--color-primary) !important;
+  color: white !important;
+}
+
+.btn-agregar:disabled {
+  background-color: var(--mat-sys-surface-container) !important;
+  color: var(--mat-sys-on-surface-variant) !important;
 }
 
 /* ─── Indicador de total manual (suma de montos asignados) ────────────── */

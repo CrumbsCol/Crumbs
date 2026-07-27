@@ -73,7 +73,7 @@ describe('GastosCard', () => {
 
   it('should render gasto names in the list', () => {
     const compiled = fixture.nativeElement as HTMLElement;
-    const items = compiled.querySelectorAll('.mat-column-nombre span');
+    const items = compiled.querySelectorAll('.mat-column-info .text-base');
     expect(items.length).toBe(2);
     expect(items[0].textContent?.trim()).toBe('Boletos cine');
     expect(items[1].textContent?.trim()).toBe('Palomitas');

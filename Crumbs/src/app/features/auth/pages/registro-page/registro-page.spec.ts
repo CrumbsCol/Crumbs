@@ -29,10 +29,7 @@ describe('RegistroPage', () => {
     expect(component).toBeTruthy();
   });
 
-  it('debería renderizar el componente de header', () => {
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('app-registro-header')).toBeTruthy();
-  });
+
 
   it('debería renderizar el componente de formulario', () => {
     const compiled = fixture.nativeElement as HTMLElement;

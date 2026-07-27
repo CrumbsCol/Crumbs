@@ -99,13 +99,16 @@ describe('CrearSalidaComponent', () => {
   });
 
   // ─── Integrantes ────────────────────────────────────────────────────────────
-  it('debe iniciar con un integrante de ejemplo', () => {
-    expect(component.integrantes().length).toBe(1);
-    expect(component.integrantes()[0].nombre).toBe('Ana García');
+  it('debe iniciar sin integrantes', () => {
+    expect(component.integrantes().length).toBe(0);
   });
 
   it('removeIntegrante elimina el integrante por id', () => {
-    component.removeIntegrante(1);
+    component.integrantes.set([
+      { id: 'u1', nombre: 'Ana García', userName: 'ana_g', email: 'ana@example.com', avatarUrl: null, tipoMetodoPago: 'efectivo' }
+    ]);
+    expect(component.integrantes().length).toBe(1);
+    component.removeIntegrante('u1');
     expect(component.integrantes().length).toBe(0);
   });
 
@@ -146,17 +149,17 @@ describe('CrearSalidaComponent', () => {
 
   // ─── Template ───────────────────────────────────────────────────────────────
   it('muestra el título "Crear Salida"', () => {
-    const h1: HTMLElement = fixture.nativeElement.querySelector('h1');
-    expect(h1?.textContent?.trim()).toBe('Crear Salida');
+    const h2: HTMLElement = fixture.nativeElement.querySelector('h2');
+    expect(h2?.textContent?.trim()).toBe('Crear Salida');
   });
 
-  it('muestra dos botones en la action bar: "Cancelar" y "Agregar"', () => {
+  it('muestra dos botones en la action bar: "Cancelar" y "Crear"', () => {
     const actionBar: HTMLElement = fixture.nativeElement.querySelector('.action-bar');
     const buttons = actionBar?.querySelectorAll('button');
     expect(buttons?.length).toBe(2);
     const labels = Array.from(buttons ?? []).map((b) => b.textContent?.trim());
     expect(labels).toContain('Cancelar');
-    expect(labels).toContain('Agregar');
+    expect(labels).toContain('Crear');
   });
 
   it('muestra la sección de integrantes con título "Integrantes"', () => {
@@ -169,7 +172,11 @@ describe('CrearSalidaComponent', () => {
     expect(addBtn).not.toBeNull();
   });
 
-  it('muestra el integrante de ejemplo con botón de eliminar', () => {
+  it('muestra el integrante con botón de eliminar cuando hay uno en la lista', () => {
+    component.integrantes.set([
+      { id: 'u1', nombre: 'Ana García', userName: 'ana_g', email: 'ana@example.com', avatarUrl: null, tipoMetodoPago: 'efectivo' }
+    ]);
+    fixture.detectChanges();
     const items = fixture.nativeElement.querySelectorAll('.integrante-item');
     expect(items.length).toBe(1);
     const deleteBtn = items[0].querySelector('.integrante-delete');

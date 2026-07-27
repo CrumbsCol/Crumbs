@@ -6,7 +6,7 @@
   /* Design Tokens */
   --color-primary: #421146; /* Violeta Oscuro */
   --color-accent: #EBA3FF; /* Lila Claro */
-  --color-surface-glass: rgba(255, 255, 255, 0.65);
+  --color-surface-glass: rgba(255, 255, 255, 0.35);
   --color-border-glass: rgba(255, 255, 255, 0.4);
 }
 
@@ -20,9 +20,33 @@
 
 /* Base App Background */
 body {
-  background: linear-gradient(135deg, #fdf4ff 0%, #f3e8ff 100%);
-  background-attachment: fixed;
   min-height: 100vh;
+  margin: 0;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Background pseudo-element to apply blur without blurring the app content */
+body::before {
+  content: "";
+  position: fixed;
+  top: -50px;
+  left: -50px;
+  right: -50px;
+  bottom: -50px;
+  background-image: url('assets/4.1.svg');
+  background-size: cover;
+  background-position: left center;
+  background-repeat: no-repeat;
+  filter: blur(4px); /* Blur base para todas las páginas */
+  opacity: 0.8; /* Suavizar un poco la imagen */
+  z-index: -1;
+  transition: filter 0.5s ease-in-out;
+}
+
+/* Reducir el blur drásticamente en las pantallas de inicio de sesión/registro */
+body.is-auth::before {
+  filter: none !important; /* Sin blur para apreciar la imagen */
 }
 
 /* Glassmorphism Utility */
@@ -48,4 +72,11 @@ body {
 /* Asegura que el overlay del datepicker no quede cortado por el diálogo */
 .cdk-overlay-container {
   z-index: 1100 !important;
+}
+
+/* Forzar centrado de modales en pantalla (corrige posibles conflictos de reset CSS) */
+.cdk-global-overlay-wrapper {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
 }

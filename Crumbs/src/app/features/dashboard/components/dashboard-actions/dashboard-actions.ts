@@ -22,23 +22,10 @@ import { MatButtonModule } from '@angular/material/button';
       >
         Crear Salida
       </button>
-
-      <!-- Botón secundario (outlined): abre el formulario para unirse a una salida existente por código -->
-      <button
-        mat-flat-button
-        class="action-btn action-btn--secondary"
-        aria-label="Agregar una salida existente"
-        (click)="agregarSalida.emit()"
-      >
-        Agregar Salida
-      </button>
     </div>
   `,
   styleUrl: './dashboard-actions.css'
 })
 export class DashboardActionsComponent {
-  /** Evento emitido cuando el usuario hace clic en "Crear Salida" */
   crearSalida = output<void>();
-  /** Evento emitido cuando el usuario hace clic en "Agregar Salida" */
-  agregarSalida = output<void>();
 }

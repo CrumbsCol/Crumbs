@@ -1,6 +1,10 @@
 import { Component } from '@angular/core';
 
-import { RegistroHeader } from '../../components/registro-header/registro-header';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { RouterLink } from '@angular/router';
+
 import { RegistroForm } from '../../components/registro-form/registro-form';
 
 /**
@@ -19,7 +23,7 @@ import { RegistroForm } from '../../components/registro-form/registro-form';
 @Component({
   selector: 'app-registro-page',
   standalone: true,
-  imports: [RegistroHeader, RegistroForm],
+  imports: [RegistroForm, MatButtonModule, MatIconModule, MatTooltipModule, RouterLink],
   templateUrl: './registro-page.html',
   styleUrl: './registro-page.css',
 })
@@ -35,6 +39,7 @@ export class RegistroPage {
     password: string;
     fechaNacimiento: string;
   }): void {
+    // TODO: Conectar con el backend (DB) para guardar el nuevo usuario y luego redirigir.
     console.log('Registro:', data);
   }
 }

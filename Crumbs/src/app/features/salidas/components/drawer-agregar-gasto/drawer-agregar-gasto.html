@@ -15,8 +15,14 @@
   aria-labelledby="drawer-gasto-titulo"
   [attr.aria-hidden]="!abierto()"
 >
+  <!-- Cabecera del modal -->
+  <div class="px-8 pt-6 pb-2 border-b border-gray-100">
+    <h2 id="drawer-gasto-titulo" class="font-display text-2xl text-primary m-0 tracking-wide">Registrar Gasto</h2>
+  </div>
+
   <!-- Formulario -->
-  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="drawer-body">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col flex-1 overflow-hidden">
+    <div class="drawer-body">
 
     <!-- Nombre -->
     <div class="campo">
@@ -153,8 +159,10 @@
       </div>
     }
 
+    </div>
+
     <!-- Botones fijos abajo -->
-    <div class="drawer-footer">
+    <div class="drawer-footer flex-shrink-0">
       <button
         mat-button
         type="button"

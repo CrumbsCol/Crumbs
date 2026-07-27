@@ -4,11 +4,15 @@ import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { UserService } from '../../../../core/services/user.service';
 import { SalidaService } from '../../../../core/services/salida.service';
+import { Miembro } from '../../../../core/interfaces/salida.interface';
 import { WelcomeHeaderComponent } from '../../components/welcome-header/welcome-header';
 import { DashboardActionsComponent } from '../../components/dashboard-actions/dashboard-actions';
 import { ActiveSalidasListComponent, Salida } from '../../components/active-salidas-list/active-salidas-list';
 import { CrearSalidaComponent } from '../../components/modales/crear-salida/crear-salida.component';
 import { AgregarSalidaComponent } from '../../components/modales/agregar-salida/agregar-salida.component';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-dashboard-page',
@@ -16,7 +20,10 @@ import { AgregarSalidaComponent } from '../../components/modales/agregar-salida/
   imports: [
     WelcomeHeaderComponent,
     DashboardActionsComponent,
-    ActiveSalidasListComponent
+    ActiveSalidasListComponent,
+    MatButtonModule,
+    MatIconModule,
+    MatTooltipModule
   ],
   templateUrl: './dashboard-page.html',
   styleUrl: './dashboard-page.css',
@@ -40,11 +47,7 @@ export class DashboardPage {
       id: s.id,
       label: s.titulo,
       description: `${s.miembros.length} integrantes · ${s.gastos.length} gastos`,
-      fecha: new Date(s.fechaCreacion).toLocaleDateString('es-MX', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-      }),
+      fecha: s.fechaCreacion,
     }));
   });
 
@@ -66,13 +69,14 @@ export class DashboardPage {
       maxWidth: '500px',
       panelClass: 'modal-salida',
       autoFocus: true,
-    }).afterClosed().subscribe((result: { nombre: string; descripcion: string; fecha: Date } | undefined) => {
+    }).afterClosed().subscribe((result: { nombre: string; descripcion: string; fecha: Date; integrantes?: Miembro[] } | undefined) => {
       if (result?.nombre) {
         // Crear la salida a través del servicio para que quede registrada
         this.salidaService.crearSalida({
           titulo: result.nombre,
           descripcion: result.descripcion || '',
           fecha: new Date(result.fecha).toISOString(),
+          miembros: result.integrantes || [],
         });
       }
     });
@@ -87,14 +91,10 @@ export class DashboardPage {
       maxWidth: '500px',
       panelClass: 'modal-salida',
       autoFocus: true,
-    }).afterClosed().subscribe((result: { label: string; description: string; fecha: string } | undefined) => {
-      if (result?.label) {
-        // En modo mock, crear una nueva salida con el nombre proporcionado
-        this.salidaService.crearSalida({
-          titulo: result.label,
-          descripcion: result.description || '',
-          fecha: new Date().toISOString(),
-        });
+    }).afterClosed().subscribe((result: { id: string } | undefined) => {
+      if (result?.id) {
+        // Redirigir a la salida a la que nos acabamos de unir
+        this.router.navigate(['/salidas', result.id]);
       }
     });
   }

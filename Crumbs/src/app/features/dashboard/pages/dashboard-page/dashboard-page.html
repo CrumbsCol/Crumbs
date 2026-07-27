@@ -1,20 +1,23 @@
 <section class="dashboard-view" aria-label="Panel principal">
-  <!-- Título de bienvenida personalizado -->
-  <app-welcome-header [nickName]="nickName()"></app-welcome-header>
+  <!-- Cabecera superior: Saludo y botón de agregar -->
+  <div class="flex justify-between items-center mb-2">
+    <app-welcome-header [nickName]="nickName()"></app-welcome-header>
+    
+    <button mat-icon-button color="primary" class="hover:bg-primary/10" matTooltip="Unirme con código" aria-label="Unirme con código" (click)="onAgregarSalida()">
+      <mat-icon>add</mat-icon>
+    </button>
+  </div>
 
-  <!-- Grid principal: 1 columna en móvil, 2 columnas en escritorio -->
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-    <!-- Columna izquierda: botones de acción principales -->
-    <app-dashboard-actions
-      (crearSalida)="onCrearSalida()"
-      (agregarSalida)="onAgregarSalida()">
-    </app-dashboard-actions>
-
-    <!-- Columna derecha: tarjeta con la lista de salidas activas del usuario -->
+  <!-- Layout stacked: Tabla arriba, botones abajo -->
+  <div class="flex flex-col gap-6 mt-6">
     <app-active-salidas-list
       [salidas]="salidasActivas()"
       [isEmpty]="isEmpty()"
       (salidaClick)="onSalidaClick($event)">
     </app-active-salidas-list>
+
+    <app-dashboard-actions
+      (crearSalida)="onCrearSalida()">
+    </app-dashboard-actions>
   </div>
 </section>

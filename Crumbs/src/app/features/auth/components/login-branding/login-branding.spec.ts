@@ -23,7 +23,7 @@ describe('LoginBranding', () => {
 
   it('should render the app title "Crumbs"', () => {
     const compiled = fixture.nativeElement as HTMLElement;
-    const title = compiled.querySelector('.branding-title');
+    const title = compiled.querySelector('h1');
     expect(title?.textContent).toContain('Crumbs');
   });
 

@@ -93,6 +93,7 @@ export class AuthService {
    * @returns Observable que completa tras el login exitoso o emite error.
    */
   login(credentials: LoginRequest): Observable<void> {
+    // TODO: Implementar inicio de sesión real contra el backend (DB) validando credenciales.
     this._isLoading.set(true);
 
     // ─── Modo mock: simula login sin backend ───
@@ -136,6 +137,7 @@ export class AuthService {
    * 3. Redirige a la página de login.
    */
   logout(): void {
+    // TODO: Notificar al backend (DB) para invalidar la sesión/token actual si es necesario.
     this.removeToken();
     this.userService.clearUser();
     this.router.navigate(['/login']);

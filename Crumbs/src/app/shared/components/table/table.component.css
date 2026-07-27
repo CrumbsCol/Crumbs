@@ -1,11 +1,22 @@
 mat-table {
   background: transparent;
 }
+.mat-mdc-row, .mat-mdc-cell, .mat-mdc-header-cell {
+  border-bottom: none !important;
+}
 mat-row {
   outline: none;
+  transition: background-color 0.2s ease;
+  border-radius: 16px;
+  overflow: hidden;
 }
+
+mat-row:hover {
+  background-color: rgba(255, 255, 255, 0.4) !important;
+}
+
 mat-row:focus-visible {
-  background-color: var(--mat-sys-surface-container-highest, #f3f4f6);
+  background-color: rgba(255, 255, 255, 0.5) !important;
 }
 .empty-state {
   display: flex;

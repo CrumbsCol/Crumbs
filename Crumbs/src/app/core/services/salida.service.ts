@@ -233,6 +233,7 @@ const MOCK_MIEMBROS_FRECUENTES: Miembro[] = [...MOCK_MIEMBROS];
  */
 @Injectable({ providedIn: 'root' })
 export class SalidaService {
+  // TODO: Consultar el listado de salidas con todos sus datos filtrando por el usuario logueado desde el backend (DB).
   /** Signal privado con todas las salidas del usuario */
   private readonly _salidas = signal<Salida[]>([...MOCK_SALIDAS]);
 
@@ -387,14 +388,15 @@ export class SalidaService {
    * Crea una nueva salida y la agrega a la lista.
    * Devuelve la salida creada con su ID asignado.
    */
-  crearSalida(datos: { titulo: string; descripcion?: string; fecha: string }): Salida {
+  crearSalida(datos: { titulo: string; descripcion?: string; fecha: string; miembros?: Miembro[] }): Salida {
+    // TODO: Enviar o publicar esta nueva salida en el backend (DB) una vez conectado.
     const codigo = Math.random().toString(36).substring(2, 8).toUpperCase();
     const nuevaSalida: Salida = {
       id: String(this._salidas().length + 1),
       titulo: datos.titulo,
       codigoInvitacion: codigo,
       fechaCreacion: datos.fecha,
-      miembros: [],
+      miembros: datos.miembros || [],
       gastos: [],
       pagos: [],
     };
@@ -408,16 +410,33 @@ export class SalidaService {
    * Simula unirse a una salida existente.
    */
   unirseASalida(codigo: string): Salida | null {
+    // TODO: Enviar código al backend (DB) para unirse a la salida correspondiente, si existe.
+    // El backend se encargará de agregar al usuario como miembro de la salida y devolverla.
     const salida = this._salidas().find(
       (s) => s.codigoInvitacion.toLowerCase() === codigo.toLowerCase()
     );
-    return salida ?? null;
+
+    if (salida) {
+      const usuarioActual = this.usuarioActual();
+      // Si el usuario no está ya en la lista, lo agregamos (Mock local)
+      if (usuarioActual && !salida.miembros.some(m => m.id === usuarioActual.id)) {
+        const salidasActualizadas = this._salidas().map(s =>
+          s.id === salida.id ? { ...s, miembros: [...s.miembros, usuarioActual] } : s
+        );
+        this._salidas.set(salidasActualizadas);
+        return salidasActualizadas.find(s => s.id === salida.id) ?? null;
+      }
+      return salida;
+    }
+    
+    return null;
   }
 
   /**
    * Agrega un nuevo gasto a la salida actual.
    */
   agregarGasto(gasto: Omit<Gasto, 'id'>): void {
+    // TODO: Enviar petición al backend (DB) para registrar el nuevo gasto asociado a esta salida.
     const salida = this._salidaActual();
     if (!salida) return;
 
@@ -454,6 +473,7 @@ export class SalidaService {
    * Obtiene la lista de miembros frecuentes para sugerir al agregar integrantes.
    */
   obtenerMiembrosFrecuentes(): Miembro[] {
+    // TODO: Consultar desde el backend los usuarios/miembros con los que el usuario logueado interactúa frecuentemente.
     return MOCK_MIEMBROS_FRECUENTES;
   }
 
@@ -461,6 +481,7 @@ export class SalidaService {
    * Busca un miembro por userName o email exacto.
    */
   buscarMiembro(query: string): Miembro | null {
+    // TODO: Realizar petición al backend para buscar el usuario por query (username o email).
     const normalizado = query.toLowerCase().trim();
     return (
       MOCK_MIEMBROS.find(
