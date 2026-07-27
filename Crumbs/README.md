@@ -1,6 +1,6 @@
-# Crumbs
+# Crumbs — Frontend
 
-Aplicación web construida con **Angular 21**, **Angular Material 21** (M3), **Tailwind CSS 4**, y soporte para **SSR** (Server-Side Rendering).
+Aplicación web para dividir gastos de salidas grupales. Construida con **Angular 21**, **Angular Material 21** (M3), **Tailwind CSS 4**.
 
 ---
 
@@ -12,186 +12,133 @@ Aplicación web construida con **Angular 21**, **Angular Material 21** (M3), **T
 | Angular Material | 21.2 | Componentes UI (Material Design 3) |
 | Tailwind CSS | 4.1 | Utilidades de estilo y layout |
 | Vitest | 4.1 | Test runner unitario |
-| Express | 5.x | Servidor SSR |
 | TypeScript | 5.9 | Lenguaje |
 
 ---
 
-## Estructura del Proyecto
+## Setup Rápido
+
+### Prerequisitos
+- Node.js 22+
+- Backend corriendo en `localhost:8000` (ver `Back/README.md`)
+
+### Levantar en desarrollo
+
+```bash
+npm install
+npm start
+# → http://localhost:4200
+```
+
+El frontend se conecta al backend en `http://localhost:8000/api`. NO usa mocks.
+
+### Build de producción
+
+```bash
+npm run build
+# Output en dist/Crumbs/browser/
+# Este build se copia al container Nginx para producción
+```
+
+---
+
+## Arquitectura
+
+### Estructura del Proyecto
 
 ```
 src/app/
 ├── core/                          # Servicios, interfaces, guards, interceptors
 │   ├── interfaces/
-│   │   ├── user.interface.ts      # Modelo de datos del usuario
-│   │   └── auth.interface.ts      # Interfaces de autenticación (LoginRequest, LoginResponse)
+│   │   ├── user.interface.ts      # Modelo de usuario (nombre + apellido)
+│   │   ├── auth.interface.ts      # LoginRequest, LoginResponse
+│   │   ├── salida.interface.ts    # Salida, Gasto, Miembro, Pago
+│   │   └── salida-request.interface.ts  # DTOs de request (solo IDs)
 │   ├── services/
-│   │   ├── user.service.ts        # Servicio de estado del usuario (signal)
-│   │   └── auth.service.ts        # Servicio de autenticación (JWT)
+│   │   ├── user.service.ts        # Estado del usuario (signal)
+│   │   ├── auth.service.ts        # Login, registro, autoLogin, JWT
+│   │   └── salida.service.ts      # CRUD salidas, gastos, pagos (HTTP real)
 │   ├── guards/
-│   │   └── auth.guard.ts          # Guard funcional para rutas protegidas
+│   │   └── auth.guard.ts          # Guard async (espera autoLogin)
 │   └── interceptors/
-│       └── auth.interceptor.ts    # Interceptor HTTP (token + manejo 401)
-├── shared/                        # Componentes reutilizables entre features
-│   └── components/
-│       └── header/                # Header con navegación por tabs
-├── features/                      # Módulos de funcionalidad (lazy loaded)
-│   ├── perfil/
-│   │   ├── components/            # Componentes presentacionales del feature
-│   │   │   └── perfil-card/       # Tarjeta de datos del usuario
-│   │   └── pages/                 # Páginas (orquestradores)
-│   │       └── perfil-page/       # Página principal de perfil
+│       ├── auth.interceptor.ts    # Inyecta token + manejo 401
+│       └── error.interceptor.ts   # Manejo global de errores HTTP
+├── features/
 │   ├── auth/                      # Login y registro
-│   │   ├── components/
-│   │   │   └── login-form/        # Formulario de login con validaciones
-│   │   └── pages/
-│   │       ├── login-page/        # Página de login (orquestador)
-│   │       └── registro-page/     # Página de registro
-│   ├── dashboard/                 # (futuro) Panel principal
-│   └── salidas/                   # (futuro) Gestión de salidas
-├── layouts/                       # Layouts de ruta (wrappers de página)
-│   └── main-layout/              # Layout con header (para páginas autenticadas)
-├── app.routes.ts                  # Configuración centralizada de rutas
-├── app.ts                         # Componente raíz
-└── app.config.ts                  # Providers de la aplicación
+│   ├── dashboard/                 # Home: salidas activas, crear/unirse
+│   ├── salidas/                   # Detalle de salida: gastos, balances, integrantes, fantasmas
+│   ├── perfil/                    # Perfil editable (nombre, apellido, userName)
+│   └── balance/                   # Balance global detallado por persona/salida
+├── shared/components/             # Header con navegación
+├── layouts/main-layout/           # Layout con header (rutas protegidas)
+├── app.routes.ts                  # Rutas centralizadas (lazy loading)
+├── app.ts                         # Componente raíz (autoLogin via afterNextRender)
+└── app.config.ts                  # Providers globales
 ```
-
----
-
-## Convenciones
-
-### Estructura de Componentes
-
-Cada componente se compone de **4 archivos**:
-
-- `.ts` — Clase del componente (lógica)
-- `.html` — Template
-- `.css` — Estilos (Tailwind + Material)
-- `.spec.ts` — Tests unitarios (Vitest)
 
 ### Patrones de Diseño
 
-- **Componentes presentacionales** (`components/`): Reciben datos vía `input()`, no inyectan servicios. Fáciles de testear.
-- **Páginas** (`pages/`): Inyectan servicios, orquestan componentes, se registran en rutas.
-- **Layout route**: El `MainLayout` envuelve las páginas que necesitan header. Las rutas de auth quedan fuera.
-- **Signals**: Se usan signals de Angular para estado reactivo (en vez de BehaviorSubject/Observable).
-- **Standalone**: Todos los componentes son standalone (sin NgModules).
+- **Componentes presentacionales** (`components/`): Reciben datos vía `input()`, emiten eventos vía `output()`.
+- **Páginas** (`pages/`): Inyectan servicios, orquestan componentes.
+- **Signals**: Estado reactivo en vez de BehaviorSubject/Observable.
+- **Standalone**: Todos los componentes sin NgModules.
+- **DTOs de Request**: Las interfaces en `salida-request.interface.ts` definen payloads limpios (solo IDs, sin objetos anidados).
+- **HTTP real**: `SalidaService` usa `HttpClient` para todas las operaciones contra el backend.
 
-### Rutas
+### SSR
 
-Todas las rutas se definen exclusivamente en `src/app/app.routes.ts`. Se usa lazy loading con `loadComponent`.
+- **Producción**: SSR habilitado (`outputMode: server` en angular.json production config)
+- **Desarrollo**: SSR desactivado (`ssr: false` en angular.json development config) para evitar problemas con localStorage y peticiones HTTP
+
+---
+
+## Funcionalidades Implementadas
+
+| Feature | Descripción |
+|---------|-------------|
+| Autenticación | Registro (nombre, apellido, email, userName, password) + Login + persistencia de sesión |
+| Perfil | Ver y editar datos del usuario (persiste en backend) |
+| Dashboard | Listar salidas, crear nueva, unirse por código |
+| Salidas | Detalle con integrantes, gastos, pagos |
+| Gastos | Registrar con división equitativa/manual, invitados |
+| Pagos | Registrar pago + confirmar recepción |
+| Balances | Balance global detallado (por persona y salida) |
+| Fantasmas | Gestión de integrantes sin cuenta (solo creador) |
+| Búsqueda | Buscar usuarios por userName o email |
+| Miembros frecuentes | Sugerencias de personas con salidas compartidas |
+
+---
+
+## Autenticación
+
+- JWT almacenado en `localStorage`
+- Auto-login al recargar página (via `afterNextRender` en `app.ts`)
+- Guard async que espera a que autoLogin complete antes de decidir
+- Interceptor inyecta token en cada request y hace logout en 401 (excepto /me)
+
+---
+
+## Conexión con Backend
+
+```
+Desarrollo:  http://localhost:8000/api  (environment.development.ts)
+Producción:  /api                       (environment.ts — relativa, Nginx hace proxy)
+```
 
 ---
 
 ## Comandos
 
 ```bash
-# Instalar dependencias
-npm install
-
-# Servidor de desarrollo
-npm start
-# → http://localhost:4200
-
-# Build de producción
-npm run build
-
-# Ejecutar tests unitarios (Vitest)
-npm test
-
-# Servir build SSR
-npm run serve:ssr:Crumbs
+npm install          # Instalar dependencias
+npm start            # Dev server en :4200
+npm run build        # Build producción
+npm test             # Tests unitarios (Vitest)
 ```
 
----
-
-## Página de Perfil
-
-La página de perfil muestra los datos del usuario actual:
-
-- **Header**: Logo + tabs de navegación (Perfil / Salir). Se detecta la tab activa automáticamente vía `routerLinkActive`.
-- **PerfilCard**: Componente presentacional que muestra avatar, nombre, userName, fecha de nacimiento y contraseña enmascarada.
-- **Datos mock**: Actualmente se usan datos hardcodeados en el `UserService`. Diseñado para migración transparente a un backend real.
-
----
-
-## Autenticación (JWT)
-
-El sistema de autenticación utiliza **JSON Web Tokens (JWT)** para manejar sesiones de usuario. El token se almacena en `localStorage` y se inyecta automáticamente en cada petición HTTP mediante un interceptor.
-
-### Flujo resumido de autenticación
-
-```
-┌─────────────┐     POST /auth/login       ┌──────────┐
-│  LoginPage  │ ───────────────────────────▶│ Backend  │
-│             │ ◀─── { accessToken, user } ─│          │
-└──────┬──────┘                             └──────────┘
-       │
-       ▼
-┌──────────────┐    localStorage.set('access_token')
-│  AuthService │───────────────────────────────▶ 💾
-│              │    userService.setUser(user)
-└──────┬───────┘
-       │
-       ▼
-┌──────────────┐    lee userService.currentUser signal
-│  PerfilPage  │ ──── ya funciona como está hoy ────▶ ✅
-└──────────────┘
-```
-
-### Rehidratación de sesión (autoLogin)
-
-Al iniciar la aplicación, si existe un token en `localStorage`, el `AuthService` llama a `GET /api/me` para obtener los datos del usuario y rehidratar la sesión sin necesidad de re-login.
-
-```
-┌──────────────┐   ¿Token en localStorage?
-│  APP_INIT    │──────────────────────────────┐
-└──────────────┘                              │
-       │ SÍ                                   │ NO
-       ▼                                      ▼
-┌──────────────┐  GET /api/me             ┌─────────┐
-│  AuthService │──────────────────────────│ /login  │
-│              │◀── { user }              └─────────┘
-│  setUser()   │
-└──────────────┘
-```
-
-### Arquitectura de archivos
-
-```
-src/app/core/
-├── interfaces/
-│   ├── user.interface.ts        # Modelo de usuario (incluye id)
-│   └── auth.interface.ts        # LoginRequest, LoginResponse
-├── services/
-│   ├── user.service.ts          # Estado del usuario (signal)
-│   └── auth.service.ts          # Login, logout, autoLogin, getToken
-├── guards/
-│   └── auth.guard.ts            # CanActivateFn — protege rutas
-└── interceptors/
-    └── auth.interceptor.ts      # Inyecta token + maneja 401
-```
-
-### Endpoints del backend
-
-| Método | URL | Body | Response |
-|--------|-----|------|----------|
-| POST | `{apiUrl}/auth/login` | `{ emailOrUsername, password }` | `{ accessToken, user }` |
-| GET | `{apiUrl}/me` | — | `User` |
-
-### Modo mock
-
-Cuando `environment.useMocks === true` (desarrollo), el `AuthService` simula las respuestas del backend con datos locales sin hacer peticiones HTTP reales.
-
-### Decisiones de diseño
-
-- **localStorage** para persistir la sesión entre recargas y cierres del navegador.
-- **Solo el token** se guarda en storage (no datos personales del usuario).
-- **Signals** para estado reactivo, consistente con el patrón del proyecto.
-- **Interceptor y guard funcionales** (API moderna de Angular, no class-based).
-- Los componentes de perfil **no cambian** — siguen leyendo el mismo signal `currentUser()`.
 ---
 
 ## Tema Visual
 
-El tema de Material 3 usa la paleta **magenta** como color primario y **violet** como terciario. El color scheme por defecto es `light`. Configurado en `src/material-theme.scss`.
+Material 3 con paleta **magenta** (primario) y **violet** (terciario). Color scheme: light.
+Configurado en `src/material-theme.scss`.

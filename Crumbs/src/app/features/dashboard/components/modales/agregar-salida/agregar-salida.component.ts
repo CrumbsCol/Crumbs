@@ -42,18 +42,12 @@ export class AgregarSalidaComponent {
     }
   }
 
-  // Por implementar: buscará la salida por código y unirá al usuario
+  // Unirse a la salida por código de invitación
   onUnirme(): void {
     if (this.form.invalid) return;
-    
-    const newSalida = {
-      label: 'Salida Unida (' + this.form.value.codigo + ')',
-      description: 'Te has unido a esta salida exitosamente.',
-      fecha: new Date().toLocaleDateString()
-    };
-    
+
     if (this.dialogRef) {
-      this.dialogRef.close(newSalida);
+      this.dialogRef.close({ codigo: this.form.value.codigo });
     }
   }
 }

@@ -4,6 +4,7 @@ import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule, MatDialog } from '@angu
 import { MatButtonModule } from '@angular/material/button';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
+import { MatDividerModule } from '@angular/material/divider';
 import { Gasto, Miembro, Pago } from '../../../../../core/interfaces/salida.interface';
 import { RegistrarPagoModal } from '../registrar-pago-modal/registrar-pago-modal';
 import { PagoInfoModal } from '../pago-info-modal/pago-info-modal';
@@ -29,7 +30,7 @@ export interface DesgloseGastoModalData {
 @Component({
   selector: 'app-desglose-gasto-modal',
   standalone: true,
-  imports: [CommonModule, MatDialogModule, MatButtonModule, MatListModule, MatIconModule],
+  imports: [CommonModule, MatDialogModule, MatButtonModule, MatListModule, MatIconModule, MatDividerModule],
   templateUrl: './desglose-gasto-modal.html',
   styleUrl: './desglose-gasto-modal.css',
 })
@@ -40,22 +41,38 @@ export class DesgloseGastoModal {
 
   /** Retorna verdadero si el usuario actual es quien pagó el gasto */
   get esPagador(): boolean {
-    return this.data.gasto.pagadoPor.id === this.data.usuarioActual.id;
+    return this.data.gasto.pagadoPor?.id === this.data.usuarioActual?.id;
   }
 
   /** Retorna el monto que le toca pagar al usuario actual */
   get miParticipacion(): number {
-    return this.data.participaciones.find(p => p.miembro.id === this.data.usuarioActual.id)?.monto || 0;
+    if (!this.data.usuarioActual) return 0;
+    return this.data.participaciones.find(p => p.miembro?.id === this.data.usuarioActual.id)?.monto || 0;
   }
 
   /** Retorna verdadero si el usuario actual ya tiene un pago registrado para este gasto */
   get yaPague(): boolean {
-    return this.data.pagos.some(p => p.deudorId === this.data.usuarioActual.id && p.pagadorId === this.data.gasto.pagadoPor.id && p.gastoId === this.data.gasto.id);
+    if (!this.data.usuarioActual) return false;
+    // Buscar pago específico o general
+    return this.data.pagos.some(p => 
+      p.deudorId === this.data.usuarioActual.id && 
+      p.pagadorId === this.data.gasto.pagadoPor?.id && 
+      (p.gastoId === this.data.gasto.id || (!p.gastoId && p.estado === 'pagado'))
+    );
   }
 
   /** Obtiene el pago registrado de un miembro específico hacia el pagador original */
   getPago(miembroId: string): Pago | undefined {
-    return this.data.pagos.find(p => p.deudorId === miembroId && p.pagadorId === this.data.gasto.pagadoPor.id && p.gastoId === this.data.gasto.id);
+    // Primero buscar pago específico para este gasto
+    const pagoEspecifico = this.data.pagos.find(
+      p => p.deudorId === miembroId && p.pagadorId === this.data.gasto.pagadoPor?.id && p.gastoId === this.data.gasto.id
+    );
+    if (pagoEspecifico) return pagoEspecifico;
+    
+    // Si no hay pago específico, buscar pago general (sin gastoId) que cubra la deuda
+    return this.data.pagos.find(
+      p => p.deudorId === miembroId && p.pagadorId === this.data.gasto.pagadoPor?.id && !p.gastoId && p.estado === 'pagado'
+    );
   }
 
   /** Retorna verdadero si el miembro específico ya registró un pago */

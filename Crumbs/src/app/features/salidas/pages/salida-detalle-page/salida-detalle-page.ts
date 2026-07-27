@@ -1,4 +1,5 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -9,8 +10,10 @@ import { MatDialog } from '@angular/material/dialog';
 
 import { SalidaService } from '../../../../core/services/salida.service';
 import { Gasto, Miembro } from '../../../../core/interfaces/salida.interface';
+import { CrearGastoRequest } from '../../../../core/interfaces/salida-request.interface';
 import { DrawerAgregarGasto } from '../../components/drawer-agregar-gasto/drawer-agregar-gasto';
 import { DrawerAgregarIntegrantes } from '../../components/drawer-agregar-integrantes/drawer-agregar-integrantes';
+import { DrawerGestionFantasmas } from '../../components/drawer-gestion-fantasmas/drawer-gestion-fantasmas';
 import { GastosCard } from '../../components/gastos-card/gastos-card';
 import { DesgloseGastoModal } from '../../components/modals/desglose-gasto-modal/desglose-gasto-modal';
 import { AvatarGroupComponent } from '../../../../shared/components/avatar-group/avatar-group';
@@ -33,6 +36,7 @@ import { AvatarGroupComponent } from '../../../../shared/components/avatar-group
     MatListModule,
     DrawerAgregarGasto,
     DrawerAgregarIntegrantes,
+    DrawerGestionFantasmas,
     GastosCard,
     AvatarGroupComponent,
   ],
@@ -43,6 +47,7 @@ export class SalidaDetallePage implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly salidaService = inject(SalidaService);
   private readonly dialog = inject(MatDialog);
+  private readonly platformId = inject(PLATFORM_ID);
 
   /** Signal de la salida actual cargada */
   readonly salida = this.salidaService.salidaActual;
@@ -71,7 +76,25 @@ export class SalidaDetallePage implements OnInit {
   /** Controla la visibilidad del drawer de agregar integrantes */
   readonly drawerIntegrantesAbierto = signal(false);
 
+  /** Controla la visibilidad del drawer de gestión de fantasmas */
+  readonly drawerFantasmasAbierto = signal(false);
+
+  /** Signal con datos de fantasmas */
+  readonly fantasmas = this.salidaService.fantasmas;
+
+  /** Computed: si el usuario actual es creador de la salida */
+  readonly esCreador = computed(() => {
+    const usuario = this.usuarioActual();
+    return usuario?.rol === 'creador';
+  });
+
+  /** Computed: si hay miembros fantasma en la salida */
+  readonly tieneFantasmas = computed(() => {
+    return this.miembros().some((m) => m.esFantasma);
+  });
+
   ngOnInit(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.salidaService.cargarSalida(id);
@@ -98,8 +121,47 @@ export class SalidaDetallePage implements OnInit {
     this.drawerIntegrantesAbierto.set(false);
   }
 
+  /** Abre el drawer de gestión de fantasmas */
+  abrirDrawerFantasmas(): void {
+    const salida = this.salida();
+    if (salida) {
+      this.salidaService.cargarFantasmas(salida.id);
+    }
+    this.drawerFantasmasAbierto.set(true);
+  }
+
+  /** Cierra el drawer de gestión de fantasmas */
+  cerrarDrawerFantasmas(): void {
+    this.drawerFantasmasAbierto.set(false);
+  }
+
+  /** Confirma un pago de fantasma y recarga datos */
+  onConfirmarPagoFantasma(pagoId: string): void {
+    this.salidaService.confirmarPago(pagoId);
+    // Recargar fantasmas después de confirmar
+    const salida = this.salida();
+    if (salida) {
+      setTimeout(() => this.salidaService.cargarFantasmas(salida.id), 500);
+    }
+  }
+
+  /**
+   * Registra y confirma automáticamente el pago de un fantasma que debe dinero.
+   * El creador confirma que el fantasma ya pagó en la vida real.
+   */
+  onSaldarDeudaFantasma(event: { fantasmaMiembroId: string; monto: number }): void {
+    this.salidaService.saldarDeudaFantasma(event.fantasmaMiembroId, event.monto);
+    const salida = this.salida();
+    if (salida) {
+      setTimeout(() => {
+        this.salidaService.cargarFantasmas(salida.id);
+        this.salidaService.cargarSalida(salida.id);
+      }, 500);
+    }
+  }
+
   /** Maneja el evento de gasto agregado desde el drawer */
-  onGastoAgregado(gasto: Omit<Gasto, 'id'>): void {
+  onGastoAgregado(gasto: CrearGastoRequest): void {
     this.salidaService.agregarGasto(gasto);
     this.cerrarDrawerGasto();
   }

@@ -20,13 +20,13 @@ describe('UserService', () => {
   });
 
   it('should set user correctly', () => {
-    const testUser: User = { id: '1', nombre: 'Test', email: 'test@example.com', userName: 'test', fechaNacimiento: '01/01/2000', avatarUrl: null };
+    const testUser: User = { id: '1', nombre: 'Test', apellido: 'User', email: 'test@example.com', userName: 'test', fechaNacimiento: '01/01/2000', avatarUrl: null };
     service.setUser(testUser);
     expect(service.currentUser()).toEqual(testUser);
   });
 
   it('should update user partially', () => {
-    const testUser: User = { id: '1', nombre: 'Test', email: 'test@example.com', userName: 'test', fechaNacimiento: '01/01/2000', avatarUrl: null };
+    const testUser: User = { id: '1', nombre: 'Test', apellido: 'User', email: 'test@example.com', userName: 'test', fechaNacimiento: '01/01/2000', avatarUrl: null };
     service.setUser(testUser);
     
     service.updateUser({ nombre: 'Updated Name', avatarUrl: 'http://test.com/img.jpg' });
@@ -38,7 +38,7 @@ describe('UserService', () => {
   });
 
   it('should clear user', () => {
-    const testUser: User = { id: '1', nombre: 'Test', email: 'test@example.com', userName: 'test', fechaNacimiento: '01/01/2000', avatarUrl: null };
+    const testUser: User = { id: '1', nombre: 'Test', apellido: 'User', email: 'test@example.com', userName: 'test', fechaNacimiento: '01/01/2000', avatarUrl: null };
     service.setUser(testUser);
     expect(service.currentUser()).toBeTruthy();
 
@@ -50,6 +50,7 @@ describe('UserService', () => {
     const mock = service.getMockUser();
     expect(mock).toBeTruthy();
     expect(mock.id).toBe('mock-user-001');
-    expect(mock.nombre).toBe('Juan López');
+    expect(mock.nombre).toBe('Juan');
+    expect(mock.apellido).toBe('López');
   });
 });

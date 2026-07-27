@@ -2,6 +2,34 @@
 <div class="registro-form-container">
   <form [formGroup]="registroForm" (ngSubmit)="onSubmit()" novalidate>
 
+    <!-- Campo: Nombre -->
+    <mat-form-field appearance="outline" class="form-field">
+      <mat-label>Nombre</mat-label>
+      <input
+        matInput
+        formControlName="nombre"
+        type="text"
+        autocomplete="given-name"
+      />
+      @if (registroForm.controls.nombre.hasError('required')) {
+        <mat-error>El nombre es requerido</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Campo: Apellido -->
+    <mat-form-field appearance="outline" class="form-field">
+      <mat-label>Apellido</mat-label>
+      <input
+        matInput
+        formControlName="apellido"
+        type="text"
+        autocomplete="family-name"
+      />
+      @if (registroForm.controls.apellido.hasError('required')) {
+        <mat-error>El apellido es requerido</mat-error>
+      }
+    </mat-form-field>
+
     <!-- Campo: Correo electrónico -->
     <mat-form-field appearance="outline" class="form-field">
       <mat-label>Correo electrónico</mat-label>

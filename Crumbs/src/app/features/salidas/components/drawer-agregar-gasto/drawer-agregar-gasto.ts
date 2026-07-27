@@ -21,7 +21,8 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatSelectModule } from '@angular/material/select';
 import { provideNativeDateAdapter } from '@angular/material/core';
 
-import { Gasto, MetodoDivision, Miembro, ParticipanteGasto } from '../../../../core/interfaces/salida.interface';
+import { MetodoDivision, Miembro } from '../../../../core/interfaces/salida.interface';
+import { CrearGastoRequest } from '../../../../core/interfaces/salida-request.interface';
 
 /**
  * Panel lateral (drawer) para agregar un nuevo gasto a la salida.
@@ -56,7 +57,7 @@ export class DrawerAgregarGasto {
   readonly cerrar = output<void>();
 
   /** Evento emitido al agregar un gasto exitosamente */
-  readonly gastoAgregado = output<Omit<Gasto, 'id'>>();
+  readonly gastoAgregado = output<CrearGastoRequest>();
 
   /** Controla el toggle de método de división: false = equitativo, true = manual */
   readonly esManual = signal(false);
@@ -77,7 +78,7 @@ export class DrawerAgregarGasto {
   readonly form: FormGroup = this.fb.group({
     nombre: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(12)]],
     descripcion: [''],
-    monto: [null, [Validators.required, Validators.min(1), Validators.max(9999999)]],
+    monto: [null, [Validators.required, Validators.min(1), Validators.max(9999999), Validators.pattern(/^\d+$/)]],
     fecha: [null, Validators.required],
     pagador: ['', Validators.required],
   });
@@ -197,27 +198,23 @@ export class DrawerAgregarGasto {
       ? valores.fecha.toISOString()
       : new Date().toISOString();
 
-    // Build extended participants
-    const participantesExtendidos: ParticipanteGasto[] = participantes.map((m) => ({
-      miembro: m,
-      esInvitado: this.esInvitado(m.id),
-      montoManual: this.esManual() && !this.esInvitado(m.id)
-        ? this.getMontoManual(m.id)
-        : null,
-    }));
-
-    const gasto: Omit<Gasto, 'id'> = {
+    const request: CrearGastoRequest = {
       nombre: valores.nombre,
       descripcion: valores.descripcion || undefined,
       monto: valores.monto,
       fecha,
       metodoDivision,
-      pagadoPor: pagador,
-      miembrosParticipantes: participantes,
-      participantes: participantesExtendidos,
+      pagadoPorMiembroId: valores.pagador,
+      participantes: participantes.map((m) => ({
+        salidaMiembroId: m.id,
+        esInvitado: this.esInvitado(m.id),
+        montoManual: this.esManual() && !this.esInvitado(m.id)
+          ? this.getMontoManual(m.id)
+          : null,
+      })),
     };
 
-    this.gastoAgregado.emit(gasto);
+    this.gastoAgregado.emit(request);
     this.resetForm();
   }
 

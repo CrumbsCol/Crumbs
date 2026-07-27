@@ -29,7 +29,12 @@
     <button class="btn-accion" (click)="abrirDrawerGasto()" aria-label="Registrar un nuevo gasto">
       + Registrar Gastos
     </button>
-
+    @if (esCreador() && tieneFantasmas()) {
+      <button mat-flat-button class="btn-fantasmas" (click)="abrirDrawerFantasmas()">
+        <mat-icon>manage_accounts</mat-icon>
+        Gestionar Fantasmas
+      </button>
+    }
   </div>
 
   } @else {
@@ -46,3 +51,12 @@
 <!-- Drawer: Agregar Integrantes -->
 <app-drawer-agregar-integrantes [abierto]="drawerIntegrantesAbierto()" (cerrar)="cerrarDrawerIntegrantes()"
   (integrantesAgregados)="onIntegrantesAgregados($event)" />
+
+<!-- Drawer: Gestión de Fantasmas -->
+<app-drawer-gestion-fantasmas
+  [abierto]="drawerFantasmasAbierto()"
+  [fantasmas]="fantasmas()"
+  (cerrar)="cerrarDrawerFantasmas()"
+  (confirmarPago)="onConfirmarPagoFantasma($event)"
+  (saldarDeuda)="onSaldarDeudaFantasma($event)"
+/>

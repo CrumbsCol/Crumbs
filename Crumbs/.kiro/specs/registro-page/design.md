@@ -12,7 +12,7 @@ src/app/features/auth/
 │   └── registro-page/              # Orquestador: layout 1 col, conecta eventos
 ├── components/
 │   ├── registro-header/            # Presentacional: Logo + Volver
-│   └── registro-form/              # Presentacional: formulario 5 campos + validaciones
+│   └── registro-form/              # Presentacional: formulario 7 campos + validaciones
 ```
 
 ---
@@ -23,7 +23,7 @@ src/app/features/auth/
 
 **Decisión**: A diferencia del login (split 2 cols), el registro usa 1 columna centrada.
 
-**Razón**: El formulario de registro tiene 5 campos — necesita más espacio vertical. Un split reduciría el ancho disponible y obligaría scroll en mobile. El header propio ("Logo" + "Volver") da identidad sin necesitar el panel de branding.
+**Razón**: El formulario de registro tiene 7 campos — necesita más espacio vertical. Un split reduciría el ancho disponible y obligaría scroll en mobile. El header propio ("Logo" + "Volver") da identidad sin necesitar el panel de branding.
 
 ### 2. Validador de contraseñas a nivel de formulario
 
@@ -74,6 +74,8 @@ static passwordMatchValidator(group: AbstractControl): ValidationErrors | null {
 │  ┌───────────────────────────────────────────────────────┐  │
 │  │  RegistroForm                                         │  │
 │  │                                                       │  │
+│  │  [nombre]                                             │  │
+│  │  [apellido]                                           │  │
 │  │  [email]                                              │  │
 │  │  [userName]                                           │  │
 │  │  [password]                                           │  │
@@ -94,6 +96,8 @@ static passwordMatchValidator(group: AbstractControl): ValidationErrors | null {
 
 ```typescript
 interface RegistroData {
+  nombre: string;           // Primer nombre (máx 50 chars)
+  apellido: string;         // Apellido (máx 50 chars)
   email: string;
   userName: string;
   password: string;

@@ -15,7 +15,7 @@ import { MatInputModule } from '@angular/material/input';
  * Componente presentacional: formulario de registro de usuario.
  *
  * Responsabilidades:
- * - Renderiza 5 campos: email, usuario, contraseña, confirmar contraseña, fecha de nacimiento.
+ * - Renderiza 7 campos: nombre, apellido, email, usuario, contraseña, confirmar contraseña, fecha de nacimiento.
  * - Aplica validaciones reactivas incluyendo coincidencia de contraseñas.
  * - Emite los datos de registro al componente padre cuando el formulario es válido.
  *
@@ -36,6 +36,8 @@ import { MatInputModule } from '@angular/material/input';
 export class RegistroForm {
   /** Evento que emite los datos de registro al padre cuando el submit es válido */
   readonly registroSubmit = output<{
+    nombre: string;
+    apellido: string;
     email: string;
     userName: string;
     password: string;
@@ -43,11 +45,19 @@ export class RegistroForm {
   }>();
 
   /**
-   * Formulario reactivo con 5 campos y validador a nivel de formulario
+   * Formulario reactivo con 7 campos y validador a nivel de formulario
    * para verificar que las contraseñas coincidan.
    */
   readonly registroForm = new FormGroup(
     {
+      nombre: new FormControl('', [
+        Validators.required,
+        Validators.maxLength(50),
+      ]),
+      apellido: new FormControl('', [
+        Validators.required,
+        Validators.maxLength(50),
+      ]),
       email: new FormControl('', [Validators.required, Validators.email]),
       userName: new FormControl('', [Validators.required]),
       password: new FormControl('', [
@@ -108,6 +118,8 @@ export class RegistroForm {
   onSubmit(): void {
     if (this.registroForm.valid) {
       this.registroSubmit.emit({
+        nombre: this.registroForm.controls.nombre.value!,
+        apellido: this.registroForm.controls.apellido.value!,
         email: this.registroForm.controls.email.value!,
         userName: this.registroForm.controls.userName.value!,
         password: this.registroForm.controls.password.value!,

@@ -11,11 +11,9 @@ import { errorInterceptor } from './core/interceptors/error.interceptor';
 /**
  * Configuración global de providers de la aplicación Crumbs.
  *
- * Providers registrados:
- * - Router con lazy loading de rutas.
- * - HttpClient con interceptor de autenticación (agrega JWT a cada request).
- * - Client hydration para SSR con event replay.
- * - NativeDateAdapter para que MatDatepicker funcione en toda la app.
+ * La rehidratación de sesión (autoLogin) se ejecuta en app.ts via afterNextRender,
+ * garantizando que solo corra en el browser después del hydration.
+ * El authGuard espera a que autoLogin complete antes de decidir.
  */
 export const appConfig: ApplicationConfig = {
   providers: [
