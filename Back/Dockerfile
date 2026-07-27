@@ -6,19 +6,19 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 
-# Copiar código fuente, prisma schema y configs
+# Copiar prisma schema y config
 COPY prisma ./prisma
 COPY prisma.config.ts ./
 COPY src ./src
 COPY tsconfig*.json ./
 COPY nest-cli.json ./
 
-# Generar Prisma Client y compilar NestJS
+# Generar Prisma Client (prisma.config.ts lee DATABASE_URL del env)
+ENV DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
 RUN npx prisma generate
-RUN npm run build
 
-# Verificar estructura del build
-RUN ls -la dist/ && ls -la dist/src/ 2>/dev/null || ls -la dist/
+# Compilar NestJS
+RUN npm run build
 
 # === Stage 2: Runtime ===
 FROM node:22-alpine
@@ -37,5 +37,4 @@ ENV PORT=3000
 
 EXPOSE 3000
 
-# Entrypoint: arrancar el backend
 CMD ["node", "dist/src/main.js"]

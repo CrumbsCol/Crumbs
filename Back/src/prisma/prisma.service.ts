@@ -5,7 +5,7 @@ import { PrismaPg } from '@prisma/adapter-pg';
 /**
  * Servicio singleton de Prisma Client.
  * Usa el driver adapter de PostgreSQL (requerido en Prisma v7).
- * Se conecta al iniciar el módulo y se desconecta al destruirlo.
+ * SSL desactivado para compatibilidad con RDS (certificado auto-firmado de AWS).
  */
 @Injectable()
 export class PrismaService
@@ -13,7 +13,15 @@ export class PrismaService
   implements OnModuleInit, OnModuleDestroy
 {
   constructor() {
-    const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
+    const connectionString = process.env.DATABASE_URL;
+    const isProduction = process.env.NODE_ENV === 'production';
+
+    const adapter = new PrismaPg({
+      connectionString,
+      // En producción (RDS), desactivar verificación SSL para certificados de AWS
+      ...(isProduction && { ssl: { rejectUnauthorized: false } }),
+    });
+
     super({ adapter });
   }
 
