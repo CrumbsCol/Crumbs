@@ -1,0 +1,72 @@
+<div class="drawer-overlay" [class.visible]="abierto()" (click)="onCerrar()" (keydown.enter)="onCerrar()" role="button" tabindex="-1"></div>
+<aside class="drawer-panel" [class.open]="abierto()">
+  <header class="drawer-header">
+    <h2>Gestión de Fantasmas</h2>
+    <button mat-icon-button (click)="onCerrar()" aria-label="Cerrar">
+      <mat-icon>close</mat-icon>
+    </button>
+  </header>
+
+  <div class="drawer-content">
+    @if (fantasmas().length === 0) {
+      <div class="empty-state">
+        <mat-icon>group_off</mat-icon>
+        <p>No hay integrantes fantasma en esta salida</p>
+      </div>
+    } @else {
+      @for (f of fantasmas(); track f.miembro.id) {
+        <div class="fantasma-card">
+          <div class="fantasma-header">
+            <mat-icon class="avatar-icon">person_outline</mat-icon>
+            <div class="fantasma-info">
+              <span class="fantasma-nombre">{{ f.miembro.nombre }}</span>
+              <span class="fantasma-balance"
+                    [class.debe]="f.balance.balanceNeto < 0"
+                    [class.le-deben]="f.balance.balanceNeto > 0">
+                @if (f.balance.balanceNeto > 0) {
+                  Le deben {{ f.balance.balanceNeto | currency:'COP':'symbol-narrow':'1.0-0' }}
+                } @else if (f.balance.balanceNeto < 0) {
+                  Debe {{ -f.balance.balanceNeto | currency:'COP':'symbol-narrow':'1.0-0' }}
+                } @else {
+                  <span class="saldado">✓ Sin saldo pendiente</span>
+                }
+              </span>
+            </div>
+          </div>
+
+          <!-- Si el fantasma DEBE dinero: botón para confirmar que ya pagó -->
+          @if (f.balance.balanceNeto < 0) {
+            <mat-divider></mat-divider>
+            <div class="pagos-section">
+              <span class="pagos-title">Este integrante debe dinero a la salida:</span>
+              <button mat-flat-button color="primary" class="btn-saldar"
+                      (click)="onSaldarDeuda(f.miembro.id, -f.balance.balanceNeto)">
+                <mat-icon>check_circle</mat-icon>
+                Confirmar que pagó {{ -f.balance.balanceNeto | currency:'COP':'symbol-narrow':'1.0-0' }}
+              </button>
+            </div>
+          }
+
+          <!-- Si hay pagos pendientes HACIA el fantasma (le deben): confirmar recepción -->
+          @if (f.pagosPendientes.length > 0) {
+            <mat-divider></mat-divider>
+            <div class="pagos-section">
+              <span class="pagos-title">Pagos pendientes por confirmar:</span>
+              @for (pago of f.pagosPendientes; track pago.id) {
+                <div class="pago-item">
+                  <div class="pago-info">
+                    <span class="pago-deudor">{{ pago.deudorNombre }}</span>
+                    <span class="pago-monto">{{ pago.monto | currency:'COP':'symbol-narrow':'1.0-0' }}</span>
+                  </div>
+                  <button mat-flat-button color="primary" class="btn-confirmar" (click)="onConfirmarPago(pago.id)">
+                    Confirmar
+                  </button>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+    }
+  </div>
+</aside>

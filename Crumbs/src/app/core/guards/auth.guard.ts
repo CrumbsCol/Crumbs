@@ -1,50 +1,44 @@
 import { CanActivateFn, Router } from '@angular/router';
-import { inject } from '@angular/core';
+import { inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { toObservable } from '@angular/core/rxjs-interop';
+import { filter, map, take } from 'rxjs';
 
 import { AuthService } from '../services/auth.service';
 
 /**
  * Guard funcional de autenticación para proteger rutas.
  *
- * Verifica si el usuario está autenticado consultando el signal
- * `isAuthenticated` del `AuthService`. Si no hay sesión activa,
- * redirige al usuario a la página de login.
- *
- * Se aplica a las rutas hijas del `MainLayout` en `app.routes.ts`
- * para proteger páginas como perfil, dashboard, salidas, etc.
- *
- * Flujo:
- * ```
- * Usuario navega a /perfil
- *       │
- *       ▼
- * ┌─────────────┐   ¿isAuthenticated()?
- * │  authGuard  │──────────────────────────┐
- * └─────────────┘   SÍ → permite acceso   │ NO
- *                                          ▼
- *                                    redirect /login
- * ```
- *
- * @example
- * ```typescript
- * // En app.routes.ts:
- * {
- *   path: '',
- *   loadComponent: () => import('./layouts/main-layout/main-layout').then(m => m.MainLayout),
- *   canActivate: [authGuard],
- *   children: [...]
- * }
- * ```
+ * - En SSR: siempre permite acceso (no hay localStorage, no importa)
+ * - En Browser: espera a que autoLogin complete, luego verifica isAuthenticated
  */
 export const authGuard: CanActivateFn = () => {
   const authService = inject(AuthService);
   const router = inject(Router);
+  const platformId = inject(PLATFORM_ID);
 
-  // Verificar si hay un usuario autenticado en el estado de la app
-  if (authService.isAuthenticated()) {
+  // En SSR, siempre permitir (no tiene sentido bloquear pre-render)
+  if (!isPlatformBrowser(platformId)) {
     return true;
   }
 
-  // No hay sesión activa — redirigir a login
-  return router.createUrlTree(['/login']);
+  // Si ya está inicializado, verificar inmediatamente
+  if (authService.initialized()) {
+    if (authService.isAuthenticated()) {
+      return true;
+    }
+    return router.createUrlTree(['/login']);
+  }
+
+  // Si no está inicializado, esperar a que complete autoLogin
+  return toObservable(authService.initialized).pipe(
+    filter((initialized) => initialized === true),
+    take(1),
+    map(() => {
+      if (authService.isAuthenticated()) {
+        return true;
+      }
+      return router.createUrlTree(['/login']);
+    }),
+  );
 };

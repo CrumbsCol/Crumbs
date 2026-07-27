@@ -25,7 +25,8 @@ describe('PerfilPage', () => {
     userService = TestBed.inject(UserService);
     userService.setUser({
       id: 'test-1',
-      nombre: 'Test User',
+      nombre: 'Test',
+      apellido: 'User',
       userName: 'testuser',
       fechaNacimiento: '01/01/2000',
       email: 'test@example.com',

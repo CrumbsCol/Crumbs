@@ -4,9 +4,8 @@
     <p class="text-gray-500 mt-2">Resumen de tus saldos en todas las salidas.</p>
   </header>
 
-  @if (balanceGlobal(); as balance) {
+  @if (balanceDetallado(); as balance) {
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      
       <!-- Tarjeta: Lo que me deben -->
       <mat-card class="balance-card success" appearance="outlined">
         <mat-card-header>
@@ -16,7 +15,7 @@
         </mat-card-header>
         <mat-card-content class="pt-4">
           <div class="text-4xl font-bold text-emerald-600">
-            {{ balance.meDeben | currency:'MXN':'symbol-narrow':'1.0-0' }}
+            {{ balance.totalMeDeben | currency:'COP':'symbol-narrow':'1.0-0' }}
           </div>
         </mat-card-content>
       </mat-card>
@@ -30,30 +29,73 @@
         </mat-card-header>
         <mat-card-content class="pt-4">
           <div class="text-4xl font-bold text-rose-600">
-            {{ balance.debo | currency:'MXN':'symbol-narrow':'1.0-0' }}
+            {{ balance.totalDebo | currency:'COP':'symbol-narrow':'1.0-0' }}
           </div>
         </mat-card-content>
       </mat-card>
-      
     </div>
 
-    <!-- Resumen Neto -->
+    <!-- Balance Neto -->
     <mat-card class="mt-6 net-balance-card" appearance="outlined">
       <mat-card-content class="flex items-center justify-between p-6">
         <div>
           <h2 class="text-xl font-medium text-gray-800">Balance Neto</h2>
-          <p class="text-sm text-gray-500 mt-1">
-            Diferencia entre lo que te deben y lo que debes.
-          </p>
+          <p class="text-sm text-gray-500 mt-1">Diferencia entre lo que te deben y lo que debes.</p>
         </div>
-        <div class="text-3xl font-bold" 
+        <div class="text-3xl font-bold"
              [class.text-emerald-600]="balance.balanceNeto > 0"
              [class.text-rose-600]="balance.balanceNeto < 0"
              [class.text-gray-600]="balance.balanceNeto === 0">
-          {{ balance.balanceNeto | currency:'MXN':'symbol-narrow':'1.0-0' }}
+          {{ balance.balanceNeto | currency:'COP':'symbol-narrow':'1.0-0' }}
         </div>
       </mat-card-content>
     </mat-card>
+
+    <!-- Desglose: Me deben -->
+    @if (balance.creditos.length > 0) {
+      <h3 class="mt-8 mb-4 text-lg font-medium text-gray-800">
+        <mat-icon class="text-emerald-500 align-middle">person</mat-icon>
+        Personas que me deben
+      </h3>
+      @for (credito of balance.creditos; track credito.persona + credito.salidaId) {
+        <mat-card class="mb-3 desglose-card" appearance="outlined">
+          <mat-card-content class="flex items-center justify-between p-4">
+            <div>
+              <span class="font-medium">{{ credito.persona }}</span>
+              <span class="text-sm text-gray-500 ml-2">• {{ credito.salida }}</span>
+            </div>
+            <span class="text-emerald-600 font-bold">{{ credito.monto | currency:'COP':'symbol-narrow':'1.0-0' }}</span>
+          </mat-card-content>
+        </mat-card>
+      }
+    }
+
+    <!-- Desglose: Debo -->
+    @if (balance.deudas.length > 0) {
+      <h3 class="mt-8 mb-4 text-lg font-medium text-gray-800">
+        <mat-icon class="text-rose-500 align-middle">person_outline</mat-icon>
+        Personas a las que debo
+      </h3>
+      @for (deuda of balance.deudas; track deuda.persona + deuda.salidaId) {
+        <mat-card class="mb-3 desglose-card" appearance="outlined">
+          <mat-card-content class="flex items-center justify-between p-4">
+            <div>
+              <span class="font-medium">{{ deuda.persona }}</span>
+              <span class="text-sm text-gray-500 ml-2">• {{ deuda.salida }}</span>
+            </div>
+            <span class="text-rose-600 font-bold">{{ deuda.monto | currency:'COP':'symbol-narrow':'1.0-0' }}</span>
+          </mat-card-content>
+        </mat-card>
+      }
+    }
+
+    <!-- Si no hay deudas ni créditos -->
+    @if (balance.creditos.length === 0 && balance.deudas.length === 0) {
+      <div class="text-center py-10 text-gray-400">
+        <mat-icon class="text-5xl">account_balance_wallet</mat-icon>
+        <p class="mt-4">No tienes saldos pendientes en ninguna salida.</p>
+      </div>
+    }
 
   } @else {
     <div class="flex justify-center py-10">

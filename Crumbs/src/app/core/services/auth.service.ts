@@ -68,6 +68,10 @@ export class AuthService {
   /** Signal público de solo lectura para el estado de carga */
   readonly isLoading = this._isLoading.asReadonly();
 
+  /** Signal que indica si la inicialización de auth ya completó */
+  private readonly _initialized = signal<boolean>(false);
+  readonly initialized = this._initialized.asReadonly();
+
   /**
    * Signal computado que indica si hay un usuario autenticado.
    * Se basa en la existencia de un usuario en el UserService.
@@ -128,6 +132,38 @@ export class AuthService {
   }
 
   /**
+   * Registra un nuevo usuario en el backend.
+   *
+   * Envía POST a `{apiUrl}/auth/register` con los datos del formulario.
+   * Si es exitoso, almacena el token y redirige al dashboard.
+   *
+   * @param data - Datos del formulario de registro.
+   * @returns Observable que completa tras el registro exitoso o emite error.
+   */
+  register(data: {
+    nombre: string;
+    apellido: string;
+    email: string;
+    userName: string;
+    password: string;
+    fechaNacimiento: string;
+  }): Observable<void> {
+    this._isLoading.set(true);
+
+    return this.http
+      .post<LoginResponse>(`${this.apiUrl}/auth/register`, data)
+      .pipe(
+        tap((response) => {
+          this.setToken(response.accessToken);
+          this.userService.setUser(response.user);
+          this.router.navigate(['/dashboard']);
+        }),
+        map(() => undefined),
+        finalize(() => this._isLoading.set(false))
+      );
+  }
+
+  /**
    * Cierra la sesión del usuario actual.
    *
    * Acciones:
@@ -158,6 +194,7 @@ export class AuthService {
 
     // Sin token almacenado — no hay sesión que rehidratar
     if (!token) {
+      this._initialized.set(true);
       return of(undefined);
     }
 
@@ -170,7 +207,10 @@ export class AuthService {
           const mockUser = this.userService.getMockUser();
           this.userService.setUser(mockUser);
         }),
-        finalize(() => this._isLoading.set(false))
+        finalize(() => {
+          this._isLoading.set(false);
+          this._initialized.set(true);
+        })
       );
     }
 
@@ -186,7 +226,10 @@ export class AuthService {
         this.userService.clearUser();
         return of(undefined);
       }),
-      finalize(() => this._isLoading.set(false))
+      finalize(() => {
+        this._isLoading.set(false);
+        this._initialized.set(true);
+      })
     );
   }
 

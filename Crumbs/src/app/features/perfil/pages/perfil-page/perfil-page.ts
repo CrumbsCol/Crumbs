@@ -1,10 +1,12 @@
 import { Component, inject, signal, viewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { HttpClient } from '@angular/common/http';
 
 import { UserService } from '../../../../core/services/user.service';
 import { User } from '../../../../core/interfaces/user.interface';
 import { PerfilCard } from '../../components/perfil-card/perfil-card';
+import { environment } from '../../../../../environments/environment';
 
 /**
  * Página principal del perfil de usuario.
@@ -37,6 +39,8 @@ import { PerfilCard } from '../../components/perfil-card/perfil-card';
 export class PerfilPage {
   /** Servicio de usuario para acceder y actualizar los datos del perfil */
   private readonly userService = inject(UserService);
+  private readonly http = inject(HttpClient);
+  private readonly apiUrl = environment.apiUrl;
 
   /** Signal con los datos del usuario actual (null si no hay sesión) */
   readonly currentUser = this.userService.currentUser;
@@ -73,13 +77,26 @@ export class PerfilPage {
   }
 
   /**
-   * Guarda los cambios emitidos por PerfilCard en el UserService.
-   * Desactiva el modo edición tras guardar.
+   * Guarda los cambios emitidos por PerfilCard en el backend.
+   * Desactiva el modo edición tras guardar exitosamente.
    *
    * @param updates - Campos parciales modificados por el usuario.
    */
   onSave(updates: Partial<User>): void {
-    this.userService.updateUser(updates);
-    this.editMode.set(false);
+    if (Object.keys(updates).length === 0) {
+      this.editMode.set(false);
+      return;
+    }
+
+    this.http.patch<User>(`${this.apiUrl}/me`, updates).subscribe({
+      next: (updatedUser) => {
+        this.userService.setUser(updatedUser as User);
+        this.editMode.set(false);
+      },
+      error: (err) => {
+        console.error('Error al actualizar perfil:', err);
+        // TODO: Mostrar error en UI
+      },
+    });
   }
 }

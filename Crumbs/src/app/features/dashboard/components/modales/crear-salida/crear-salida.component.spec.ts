@@ -1,5 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { MatDialogRef } from '@angular/material/dialog';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import * as fc from 'fast-check';
@@ -15,8 +18,10 @@ describe('CrearSalidaComponent', () => {
     dialogRefSpy = { close: vi.fn() };
 
     await TestBed.configureTestingModule({
-      imports: [CrearSalidaComponent],
+      imports: [CrearSalidaComponent, NoopAnimationsModule],
       providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
         provideNativeDateAdapter(),
         { provide: MatDialogRef, useValue: dialogRefSpy },
       ],
@@ -99,13 +104,13 @@ describe('CrearSalidaComponent', () => {
   });
 
   // ─── Integrantes ────────────────────────────────────────────────────────────
-  it('debe iniciar con un integrante de ejemplo', () => {
-    expect(component.integrantes().length).toBe(1);
-    expect(component.integrantes()[0].nombre).toBe('Ana García');
+  it('debe iniciar sin integrantes', () => {
+    expect(component.integrantes().length).toBe(0);
   });
 
-  it('removeIntegrante elimina el integrante por id', () => {
-    component.removeIntegrante(1);
+  it('removeIntegrante elimina el integrante por id (string)', () => {
+    component.integrantes.set([{ id: 'abc', nombre: 'Test', userName: 'test', email: '', avatarUrl: null }]);
+    component.removeIntegrante('abc');
     expect(component.integrantes().length).toBe(0);
   });
 
@@ -164,12 +169,20 @@ describe('CrearSalidaComponent', () => {
     expect(h2?.textContent?.trim()).toBe('Integrantes');
   });
 
-  it('muestra el botón de agregar integrante (person_add) sin funcionalidad', () => {
+  it('muestra el botón de agregar integrante (person_add)', () => {
     const addBtn = fixture.nativeElement.querySelector('.integrantes-header button[mat-icon-button]');
     expect(addBtn).not.toBeNull();
   });
 
-  it('muestra el integrante de ejemplo con botón de eliminar', () => {
+  it('no muestra integrantes al inicio', () => {
+    const items = fixture.nativeElement.querySelectorAll('.integrante-item');
+    expect(items.length).toBe(0);
+  });
+
+  it('muestra integrante con botón de eliminar cuando se agrega uno', () => {
+    component.integrantes.set([{ id: '1', nombre: 'Ana García', userName: 'anagarcia', email: '', avatarUrl: null }]);
+    fixture.detectChanges();
+
     const items = fixture.nativeElement.querySelectorAll('.integrante-item');
     expect(items.length).toBe(1);
     const deleteBtn = items[0].querySelector('.integrante-delete');

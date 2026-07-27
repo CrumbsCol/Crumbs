@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ComponentRef } from '@angular/core';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { describe, it, expect, beforeEach } from 'vitest';
 
 import { PerfilCard } from './perfil-card';
@@ -19,7 +20,8 @@ describe('PerfilCard', () => {
   /** Datos mock para las pruebas */
   const mockUser: User = {
     id: '3120354',
-    nombre: 'Test User',
+    nombre: 'Test',
+    apellido: 'User',
     userName: 'testuser',
     fechaNacimiento: '01/01/2000',
     email: 'test@example.com',
@@ -29,6 +31,7 @@ describe('PerfilCard', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [PerfilCard],
+      providers: [provideNoopAnimations()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(PerfilCard);
@@ -44,38 +47,48 @@ describe('PerfilCard', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should display the user name in readonly input', () => {
-    const compiled = fixture.nativeElement as HTMLElement;
-    const inputs = compiled.querySelectorAll('.user-info input');
-    const nombreInput = inputs[0] as HTMLInputElement;
-    expect(nombreInput.value).toBe('Test User');
-  });
-
-  it('should display the userName in readonly input', () => {
-    const compiled = fixture.nativeElement as HTMLElement;
-    const inputs = compiled.querySelectorAll('.user-info input');
-    const userNameInput = inputs[1] as HTMLInputElement;
-    expect(userNameInput.value).toBe('testuser');
-  });
-
-  it('should display the birth date in readonly input', () => {
-    const compiled = fixture.nativeElement as HTMLElement;
-    const inputs = compiled.querySelectorAll('.user-info input');
-    const fechaInput = inputs[2] as HTMLInputElement;
-    expect(fechaInput.value).toBe('01/01/2000');
-  });
-
-  it('should display password field as masked', () => {
-    const compiled = fixture.nativeElement as HTMLElement;
-    const inputs = compiled.querySelectorAll('.user-info input');
-    const passwordInput = inputs[3] as HTMLInputElement;
-    expect(passwordInput.type).toBe('password');
-    expect(passwordInput.value).toBe('••••••••');
+  it('should have readonly form controls with user data', () => {
+    expect(component.readonlyNombre.value).toBe('Test');
+    expect(component.readonlyApellido.value).toBe('User');
+    expect(component.readonlyUserName.value).toBe('testuser');
+    expect(component.readonlyFechaNacimiento.value).toBe('01/01/2000');
+    expect(component.readonlyPassword.value).toBe('••••••••');
   });
 
   it('should show avatar placeholder when no avatarUrl', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     const svg = compiled.querySelector('.avatar-container svg');
     expect(svg).toBeTruthy();
+  });
+
+  it('should have edit form with correct fields', () => {
+    expect(component.editForm.contains('nombre')).toBe(true);
+    expect(component.editForm.contains('apellido')).toBe(true);
+    expect(component.editForm.contains('userName')).toBe(true);
+    expect(component.editForm.contains('fechaNacimiento')).toBe(true);
+    expect(component.editForm.contains('password')).toBe(true);
+    expect(component.editForm.contains('confirmPassword')).toBe(true);
+  });
+
+  it('should initialize edit form when editMode changes to true', () => {
+    componentRef.setInput('editMode', true);
+    fixture.detectChanges();
+
+    expect(component.editForm.controls.nombre.value).toBe('Test');
+    expect(component.editForm.controls.apellido.value).toBe('User');
+    expect(component.editForm.controls.userName.value).toBe('testuser');
+  });
+
+  it('should validate password strength', () => {
+    const control = component.editForm.controls.password;
+
+    control.setValue('weak');
+    expect(control.hasError('missingUppercase')).toBe(true);
+
+    control.setValue('Weak1');
+    expect(control.hasError('missingSpecial')).toBe(true);
+
+    control.setValue('Strong1!');
+    expect(control.errors).toBeNull();
   });
 });

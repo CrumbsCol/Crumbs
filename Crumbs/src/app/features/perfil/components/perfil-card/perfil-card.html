@@ -33,9 +33,17 @@
       <form [formGroup]="editForm" class="flex flex-col space-y-4">
         <mat-form-field appearance="outline">
           <mat-label>Nombre</mat-label>
-          <input matInput formControlName="nombre" placeholder="Nombre completo" />
+          <input matInput formControlName="nombre" placeholder="Primer nombre" />
           @if (editForm.controls.nombre.hasError('required') && editForm.controls.nombre.touched) {
             <mat-error>El nombre es requerido</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Apellido</mat-label>
+          <input matInput formControlName="apellido" placeholder="Apellido" />
+          @if (editForm.controls.apellido.hasError('required') && editForm.controls.apellido.touched) {
+            <mat-error>El apellido es requerido</mat-error>
           }
         </mat-form-field>
 
@@ -84,6 +92,11 @@
       <mat-form-field appearance="outline">
         <mat-label>Nombre</mat-label>
         <input matInput [formControl]="readonlyNombre" readonly />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Apellido</mat-label>
+        <input matInput [formControl]="readonlyApellido" readonly />
       </mat-form-field>
 
       <mat-form-field appearance="outline">
