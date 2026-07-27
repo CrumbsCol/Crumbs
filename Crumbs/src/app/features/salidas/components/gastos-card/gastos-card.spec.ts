@@ -68,14 +68,13 @@ describe('GastosCard', () => {
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('.empty-state')).toBeTruthy();
+    expect(compiled.querySelector('[role="status"]')).toBeTruthy();
   });
 
   it('should render gasto names in the list', () => {
     const compiled = fixture.nativeElement as HTMLElement;
-    const items = compiled.querySelectorAll('[matListItemTitle]');
-    expect(items.length).toBe(2);
-    expect(items[0].textContent?.trim()).toBe('Boletos cine');
-    expect(items[1].textContent?.trim()).toBe('Palomitas');
+    const text = compiled.textContent;
+    expect(text).toContain('Boletos cine');
+    expect(text).toContain('Palomitas');
   });
 });

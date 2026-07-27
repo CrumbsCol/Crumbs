@@ -151,17 +151,17 @@ describe('CrearSalidaComponent', () => {
 
   // ─── Template ───────────────────────────────────────────────────────────────
   it('muestra el título "Crear Salida"', () => {
-    const h1: HTMLElement = fixture.nativeElement.querySelector('h1');
-    expect(h1?.textContent?.trim()).toBe('Crear Salida');
+    const h2: HTMLElement = fixture.nativeElement.querySelector('.crear-salida-header h2');
+    expect(h2?.textContent?.trim()).toBe('Crear Salida');
   });
 
-  it('muestra dos botones en la action bar: "Cancelar" y "Agregar"', () => {
+  it('muestra dos botones en la action bar: "Cancelar" y "Crear"', () => {
     const actionBar: HTMLElement = fixture.nativeElement.querySelector('.action-bar');
     const buttons = actionBar?.querySelectorAll('button');
     expect(buttons?.length).toBe(2);
     const labels = Array.from(buttons ?? []).map((b) => b.textContent?.trim());
     expect(labels).toContain('Cancelar');
-    expect(labels).toContain('Agregar');
+    expect(labels).toContain('Crear');
   });
 
   it('muestra la sección de integrantes con título "Integrantes"', () => {

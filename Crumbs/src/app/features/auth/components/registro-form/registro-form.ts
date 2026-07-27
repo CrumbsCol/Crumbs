@@ -10,6 +10,7 @@ import {
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatCardModule } from '@angular/material/card';
 
 /**
  * Componente presentacional: formulario de registro de usuario.
@@ -29,6 +30,7 @@ import { MatInputModule } from '@angular/material/input';
     MatButtonModule,
     MatFormFieldModule,
     MatInputModule,
+    MatCardModule,
   ],
   templateUrl: './registro-form.html',
   styleUrl: './registro-form.css',

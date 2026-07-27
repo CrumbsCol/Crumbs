@@ -6,7 +6,7 @@
     <div class="mb-4">
       <h3 class="text-lg font-medium">{{ data.gasto.nombre }}</h3>
       <p class="text-gray-500">
-        {{ data.gasto.monto | currency:'COP':'symbol-narrow':'1.0-0' }} · Pagado por {{ data.gasto.pagadoPor?.nombre }}
+        {{ data.gasto.monto | currency:'COP':'symbol-narrow':'1.0-0' }} · Pagado por {{ data.gasto.pagadoPor.nombre }}
       </p>
       @if (data.gasto.descripcion) {
         <p class="text-sm text-gray-400 mt-1">{{ data.gasto.descripcion }}</p>
@@ -30,7 +30,7 @@
                   <mat-icon class="text-gray-400" style="font-size: 20px; width: 20px; height: 20px;">person</mat-icon>
                   <span>
                     {{ part.miembro.nombre }}
-                    @if (part.miembro.id === data.gasto.pagadoPor?.id) {
+                    @if (part.miembro.id === data.gasto.pagadoPor.id) {
                       <span class="text-xs text-purple-600 ml-1">(pagó)</span>
                     }
                     @if (data.usuarioActual && part.miembro.id === data.usuarioActual.id) {
@@ -41,7 +41,7 @@
                 <div class="flex items-center gap-2">
                   <span class="font-medium">{{ part.monto | currency:'COP':'symbol-narrow':'1.0-0' }}</span>
                   <!-- Estado del pago (solo para quienes NO son el pagador) -->
-                  @if (part.miembro.id !== data.gasto.pagadoPor?.id) {
+                  @if (part.miembro.id !== data.gasto.pagadoPor.id) {
                     @if (haPagado(part.miembro.id)) {
                       <button mat-icon-button color="primary" (click)="verInfoPago(part.miembro.id)" title="Pago confirmado">
                         <mat-icon class="text-green-500">check_circle</mat-icon>

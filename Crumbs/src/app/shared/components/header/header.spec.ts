@@ -30,7 +30,7 @@ describe('Header', () => {
 
   it('should render the logo text', () => {
     const compiled = fixture.nativeElement as HTMLElement;
-    const logo = compiled.querySelector('.logo span');
+    const logo = compiled.querySelector('.logo a');
     expect(logo?.textContent).toContain('Crumbs');
   });
 

@@ -1,6 +1,8 @@
-import { Component, input, output } from '@angular/core';
-import { MatListModule } from '@angular/material/list';
-import { MatRippleModule } from '@angular/material/core';
+import { Component, input, output, ViewChild, TemplateRef, OnInit } from '@angular/core';
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { TableComponent, TableColumn } from '../../../../shared/components/table/table.component';
 
 // Modelo de datos para cada salida que aparece en la lista
 export interface Salida {
@@ -11,28 +13,24 @@ export interface Salida {
 }
 
 /**
- * Componente visual (Dumb Component) que renderiza la lista de salidas activas.
- * 
- * Recibe la lista de salidas y un estado booleano `isEmpty` para mostrar
- * ya sea la lista renderizada o un mensaje de estado vacío.
- * Aplica estilos especiales a la primera salida (activa) de la lista.
- * Emite un evento al hacer clic en una salida para que el padre maneje la navegación.
+ * Componente visual (Dumb Component) que renderiza la lista de salidas activas
+ * usando el componente tabla genérico.
  */
 @Component({
   selector: 'app-active-salidas-list',
   standalone: true,
-  imports: [MatListModule, MatRippleModule],
+  imports: [TableComponent, MatCardModule, MatButtonModule, MatIconModule],
   templateUrl: './active-salidas-list.html',
   styleUrl: './active-salidas-list.css'
 })
-export class ActiveSalidasListComponent {
-  /** 
-   * Arreglo de salidas a mostrar en la lista. 
+export class ActiveSalidasListComponent implements OnInit {
+  /**
+   * Arreglo de salidas a mostrar en la lista.
    * Es un input requerido (Signal Input).
    */
   salidas = input.required<Salida[]>();
-  
-  /** 
+
+  /**
    * Indica si la lista está vacía o no. Controla la vista de 'estado vacío'.
    * Es un input requerido (Signal Input).
    */
@@ -40,4 +38,18 @@ export class ActiveSalidasListComponent {
 
   /** Evento emitido al hacer clic en una salida. Envía la salida seleccionada. */
   salidaClick = output<Salida>();
+
+  @ViewChild('infoTemplate', { static: true }) infoTemplate!: TemplateRef<unknown>;
+
+  customTemplates: Record<string, TemplateRef<unknown>> = {};
+
+  ngOnInit() {
+    this.customTemplates = { 'info': this.infoTemplate };
+  }
+
+  /** Configuración de columnas para la tabla */
+  tableColumns: TableColumn[] = [
+    { key: 'info', header: '' },
+    { key: 'fecha', header: '', type: 'date', format: 'dd/MM/yyyy', align: 'right' }
+  ];
 }

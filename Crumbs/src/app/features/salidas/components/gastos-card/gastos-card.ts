@@ -1,10 +1,9 @@
-import { Component, input, output } from '@angular/core';
-import { DatePipe, CurrencyPipe } from '@angular/common';
+import { Component, input, output, ViewChild, TemplateRef, OnInit } from '@angular/core';
+import { CurrencyPipe } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatListModule } from '@angular/material/list';
 
 import { Gasto, Miembro } from '../../../../core/interfaces/salida.interface';
+import { TableComponent, TableColumn } from '../../../../shared/components/table/table.component';
 
 /**
  * Componente que muestra la card de Gastos de una salida.
@@ -16,16 +15,14 @@ import { Gasto, Miembro } from '../../../../core/interfaces/salida.interface';
   selector: 'app-gastos-card',
   standalone: true,
   imports: [
-    DatePipe,
     CurrencyPipe,
     MatCardModule,
-    MatDividerModule,
-    MatListModule,
+    TableComponent,
   ],
   templateUrl: './gastos-card.html',
   styleUrl: './gastos-card.css',
 })
-export class GastosCard {
+export class GastosCard implements OnInit {
   /** Lista de gastos ordenados cronológicamente */
   readonly gastos = input.required<Gasto[]>();
 
@@ -34,4 +31,17 @@ export class GastosCard {
 
   /** Evento emitido al hacer clic en un gasto */
   readonly gastoClick = output<Gasto>();
+
+  @ViewChild('infoTemplate', { static: true }) infoTemplate!: TemplateRef<unknown>;
+
+  customTemplates: Record<string, TemplateRef<unknown>> = {};
+
+  ngOnInit() {
+    this.customTemplates = { 'info': this.infoTemplate };
+  }
+
+  /** Configuración de columnas para la tabla */
+  tableColumns: TableColumn[] = [
+    { key: 'info', header: '' },
+  ];
 }

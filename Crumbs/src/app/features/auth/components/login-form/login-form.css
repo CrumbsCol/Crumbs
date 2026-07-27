@@ -13,14 +13,6 @@
   width: 100%;
 }
 
-/* Título del formulario con espacio inferior generoso */
-.form-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: var(--mat-sys-on-surface);
-  margin: 0 0 2.5rem;
-  text-align: center;
-}
 
 /* Cada campo ocupa el ancho completo con separación vertical */
 .form-field {

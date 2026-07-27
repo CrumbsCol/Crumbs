@@ -11,7 +11,9 @@ import { Component, input } from '@angular/core';
   standalone: true,
   imports: [],
   template: `
-    <h1 class="welcome-title">¡Hola, {{ nickName() }}!</h1>
+    <h1 class="font-display text-3xl md:text-4xl text-primary drop-shadow-sm tracking-wide m-0">
+      ¡Hola, {{ nickName() }}!
+    </h1>
   `,
   styleUrl: './welcome-header.css'
 })
