@@ -1,13 +1,148 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
+// Schema de Prisma — Crumbs Backend
+// Fuente de verdad: Crumbs_Modelo_Base_de_Datos.md (actualizado 2026-07-26)
 
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+// ─── ENUMs ──────────────────────────────────────────────────────────────────────
+
+enum MetodoDivision {
+  equitativo
+  manual
+}
+
+enum EstadoPago {
+  pendiente
+  pagado
+}
+
+enum RolSalida {
+  creador
+  integrante
+}
+
+// ─── ENTIDADES ──────────────────────────────────────────────────────────────────
+
+/// Usuario registrado en la plataforma
+model User {
+  id              String   @id @default(uuid())
+  nombre          String   @db.VarChar(50)
+  apellido        String   @db.VarChar(50)
+  userName        String   @unique @db.VarChar(30)
+  email           String   @unique @db.VarChar(100)
+  password        String   @db.VarChar(255)
+  fechaNacimiento String?  @db.VarChar(10) // Formato dd/MM/yyyy
+  avatarUrl       String?  @db.Text
+  tipoMetodoPago  String?  @db.VarChar(20) // 'clabe', 'tarjeta', 'efectivo', 'paypal'
+  metodoPago      String?  @db.VarChar(100)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relaciones
+  salidaMiembros SalidaMiembro[]
+
+  @@map("users")
+}
+
+/// Evento/actividad grupal donde se comparten gastos
+model Salida {
+  id               String   @id @default(uuid())
+  titulo           String   @db.VarChar(20)
+  descripcion      String?  @db.VarChar(100)
+  codigoInvitacion String   @unique @db.VarChar(6)
+  fechaCreacion    DateTime @default(now())
+
+  // Relaciones
+  miembros SalidaMiembro[]
+  gastos   Gasto[]
+  pagos    Pago[]
+
+  @@map("salidas")
+}
+
+/// Integrante de una salida (registrado o fantasma)
+model SalidaMiembro {
+  id             String    @id @default(uuid())
+  salidaId       String
+  userId         String?
+  nombreFantasma String?   @db.VarChar(12)
+  esFantasma     Boolean   @default(false)
+  rol            RolSalida @default(integrante)
+  fechaUnion     DateTime  @default(now())
+
+  // Relaciones
+  salida              Salida              @relation(fields: [salidaId], references: [id], onDelete: Cascade)
+  user                User?               @relation(fields: [userId], references: [id], onDelete: SetNull)
+  gastosPagados       Gasto[]             @relation("GastoPagadoPor")
+  participaciones     GastoParticipante[]
+  pagosComoDeudor     Pago[]              @relation("PagoDeudor")
+  pagosComoAcreedor   Pago[]              @relation("PagoAcreedor")
+
+  // Constraints
+  @@unique([salidaId, userId])
+  @@map("salida_miembros")
+}
+
+/// Gasto registrado dentro de una salida
+model Gasto {
+  id              String         @id @default(uuid())
+  salidaId        String
+  pagadoPorId     String
+  nombre          String         @db.VarChar(12)
+  descripcion     String?        @db.VarChar(100)
+  monto           Int            // Pesos enteros, positivo, máx 9.999.999
+  fecha           DateTime
+  metodoDivision  MetodoDivision @default(equitativo)
+  createdAt       DateTime       @default(now())
+
+  // Relaciones
+  salida        Salida              @relation(fields: [salidaId], references: [id], onDelete: Cascade)
+  pagadoPor     SalidaMiembro       @relation("GastoPagadoPor", fields: [pagadoPorId], references: [id])
+  participantes GastoParticipante[]
+  pagos         Pago[]
+
+  @@map("gastos")
+}
+
+/// Participación de un integrante en un gasto
+model GastoParticipante {
+  id              String  @id @default(uuid())
+  gastoId         String
+  salidaMiembroId String
+  esInvitado      Boolean @default(false)
+  montoManual     Int?    // Solo en división manual (pesos enteros)
+
+  // Relaciones
+  gasto         Gasto         @relation(fields: [gastoId], references: [id], onDelete: Cascade)
+  salidaMiembro SalidaMiembro @relation(fields: [salidaMiembroId], references: [id])
+
+  // Constraints
+  @@unique([gastoId, salidaMiembroId])
+  @@map("gasto_participantes")
+}
+
+/// Pago/liquidación entre un deudor y un acreedor
+model Pago {
+  id        String     @id @default(uuid())
+  salidaId  String
+  deudorId  String
+  pagadorId String     // Acreedor (a quien le deben)
+  gastoId   String?
+  monto     Int        // Pesos enteros, positivo
+  estado    EstadoPago @default(pendiente)
+  fecha     DateTime
+  createdAt DateTime   @default(now())
+
+  // Relaciones
+  salida  Salida        @relation(fields: [salidaId], references: [id], onDelete: Cascade)
+  deudor  SalidaMiembro @relation("PagoDeudor", fields: [deudorId], references: [id])
+  pagador SalidaMiembro @relation("PagoAcreedor", fields: [pagadorId], references: [id])
+  gasto   Gasto?        @relation(fields: [gastoId], references: [id], onDelete: SetNull)
+
+  @@map("pagos")
 }

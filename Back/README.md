@@ -1,73 +1,86 @@
 # Crumbs - Backend
 
-Este es el repositorio del servidor backend para la aplicación **Crumbs**, una plataforma colaborativa para dividir gastos de manera equitativa o manual entre varios participantes.
+Servidor backend para **Crumbs**, una plataforma colaborativa para dividir gastos.
 
-## Stack Tecnológico 💻
+## Stack
 
-- **Framework:** [NestJS](https://nestjs.com/) (Node.js) - Arquitectura escalable y mantenible inspirada en Angular.
-- **Lenguaje:** TypeScript
-- **Base de Datos:** PostgreSQL
-- **ORM:** [Prisma](https://www.prisma.io/) - Acceso a datos con tipado fuerte.
+- **NestJS 11** + TypeScript
+- **Prisma v7** (ORM)
+- **PostgreSQL 16**
+- **JWT** (autenticación)
+- **Docker** (desarrollo y producción)
 
-## Requisitos Previos
-
-Asegúrate de tener instalados los siguientes componentes antes de iniciar:
-
-- [Node.js](https://nodejs.org/es/) (v18 o superior recomendado)
-- [PostgreSQL](https://www.postgresql.org/) (o una URL de conexión de un servicio en la nube como Supabase/Neon)
-
-## Instalación
-
-1. Instala las dependencias del proyecto:
+## Setup rápido
 
 ```bash
+# 1. Copiar variables de entorno
+cp .env.example .env
+# Editar .env con tus valores
+
+# 2. Levantar PostgreSQL
+docker compose -f docker-compose.dev.yml up -d
+
+# 3. Instalar dependencias
 npm install
-```
 
-2. Configura las variables de entorno. Crea un archivo `.env` en la raíz (basándote en el ejemplo provisto por Prisma) y configura la cadena de conexión a tu base de datos:
-
-```env
-DATABASE_URL="postgresql://usuario:password@localhost:5432/crumbs?schema=public"
-```
-
-3. Sincroniza la base de datos con los esquemas de Prisma:
-
-```bash
+# 4. Crear tablas
 npx prisma db push
-```
 
-## Ejecución del Servidor 🚀
-
-```bash
-# Modo desarrollo (watch)
+# 5. Arrancar en modo desarrollo
 npm run start:dev
-
-# Modo producción
-npm run build
-npm run start:prod
 ```
 
-El servidor estará corriendo por defecto en `http://localhost:3000`.
+El backend corre en `http://localhost:8000/api`
 
-## Estructura de Endpoints (Próximamente)
+## Endpoints
 
-El desarrollo del backend contemplará los siguientes módulos RESTful:
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| POST | /api/auth/register | Registrar usuario |
+| POST | /api/auth/login | Iniciar sesión |
+| GET | /api/me | Perfil del usuario |
+| PATCH | /api/me | Actualizar perfil |
+| GET | /api/salidas | Listar salidas |
+| POST | /api/salidas | Crear salida |
+| GET | /api/salidas/:id | Detalle completo |
+| POST | /api/salidas/join | Unirse por código |
+| POST | /api/salidas/:id/integrantes | Agregar integrante |
+| GET | /api/salidas/:id/fantasmas | Gestión de fantasmas |
+| POST | /api/salidas/:id/gastos | Registrar gasto |
+| POST | /api/salidas/:id/pagos | Registrar pago |
+| PATCH | /api/salidas/:id/pagos/:pagoId/confirmar | Confirmar pago |
+| GET | /api/salidas/:id/balances | Balances por miembro |
+| GET | /api/balance-detallado | Balance global |
+| GET | /api/users/search?q=... | Buscar usuario |
+| GET | /api/users/search/frecuentes | Miembros frecuentes |
 
-- `POST /auth/login` - Autenticación y generación de JWT.
-- `GET /me` - Información del usuario logueado.
-- `GET /salidas` - Listado de eventos/salidas compartidas.
-- `POST /salidas/:id/gastos` - Registro de nuevos gastos en una salida.
-- `GET /salidas/:id/balances` - Cálculo de saldos y deudas actuales entre miembros.
-- `POST /salidas/:id/pagos` - Registro de pagos o saldos liquidados entre miembros.
-
-## Pruebas
-
-Para correr la suite de pruebas automatizadas:
+## Docker
 
 ```bash
-# Pruebas unitarias
-npm run test
+# Desarrollo (solo DB)
+docker compose -f docker-compose.dev.yml up -d
 
-# Pruebas End-to-End (e2e)
-npm run test:e2e
+# Producción (backend + nginx)
+docker compose -f docker-compose.prod.yml build
+docker compose -f docker-compose.prod.yml up -d
+```
+
+## Tests
+
+```bash
+npm test                    # Unitarios
+npm run test:e2e            # End-to-end
+```
+
+## Estructura
+
+```
+src/
+├── auth/          # Login, registro, JWT
+├── users/         # Perfil, búsqueda
+├── salidas/       # CRUD salidas, integrantes, fantasmas
+├── gastos/        # Motor de división
+├── pagos/         # Pagos + balances
+├── prisma/        # PrismaService
+└── shared/        # Helpers y filtros
 ```
