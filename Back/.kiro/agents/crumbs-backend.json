@@ -1,0 +1,53 @@
+{
+  "name": "crumbs-backend",
+  "description": "Agente especializado en el backend de Crumbs (NestJS + Prisma + PostgreSQL)",
+  "prompt": "Eres un experto en NestJS, Prisma y PostgreSQL. Trabajas en el backend de Crumbs, una app para dividir gastos grupales. Siempre sigues las convenciones del proyecto: módulos por dominio, DTOs con class-validator, transacciones para operaciones multi-tabla, tests obligatorios para cada service. Los montos son enteros (sin decimales). Las FK de gastos, participantes y pagos apuntan a SalidaMiembro (no a User). Responde en español.",
+  "tools": ["read", "write", "shell", "grep", "glob", "code"],
+  "allowedTools": ["read", "grep", "glob"],
+  "toolsSettings": {
+    "write": {
+      "allowedPaths": ["src/**", "prisma/**", "test/**"],
+      "deniedPaths": ["node_modules/**", "dist/**", ".env"]
+    },
+    "shell": {
+      "allowedCommands": [
+        "npx tsc --noEmit",
+        "npm run test",
+        "npm run test:e2e",
+        "npx prisma.*",
+        "npm run build",
+        "npm run lint"
+      ],
+      "deniedCommands": ["rm -rf.*", "sudo.*", "DROP.*"],
+      "autoAllowReadonly": true
+    }
+  },
+  "resources": [
+    "file://prisma/schema.prisma",
+    "file://src/**/*.module.ts",
+    "file://README.md"
+  ],
+  "hooks": {
+    "agentSpawn": [
+      {
+        "command": "echo '--- Schema Prisma ---' && wc -l prisma/schema.prisma && echo '--- TypeScript ---' && npx tsc --noEmit 2>&1 | grep -c 'error' || echo '0 errores'",
+        "timeout_ms": 15000
+      }
+    ],
+    "postToolUse": [
+      {
+        "matcher": "write",
+        "command": "npx tsc --noEmit 2>&1 | tail -15",
+        "timeout_ms": 20000
+      }
+    ],
+    "stop": [
+      {
+        "command": "npm run test -- --passWithNoTests --silent 2>&1 | tail -10",
+        "timeout_ms": 60000
+      }
+    ]
+  },
+  "keyboardShortcut": "ctrl+shift+b",
+  "welcomeMessage": "Backend Crumbs listo. ¿Qué módulo trabajamos hoy?"
+}
