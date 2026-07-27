@@ -1,0 +1,167 @@
+name: Deploy Crumbs to AWS
+
+on:
+  push:
+    branches: [main]
+
+env:
+  AWS_REGION: us-east-1
+  ECR_BACKEND: crumbs-backend
+  ECR_NGINX: crumbs-nginx
+
+jobs:
+  # ─── Job 1: Tests del Backend ────────────────────────────────────────
+  test-backend:
+    name: 🧪 Tests Backend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Back
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: Back/package-lock.json
+
+      - run: npm ci
+
+      - name: Run backend tests
+        run: npm test -- --no-coverage
+        env:
+          DATABASE_URL: "postgresql://dummy:dummy@localhost:5432/dummy"
+          JWT_SECRET: "test-secret-for-ci"
+
+  # ─── Job 2: Tests del Frontend ───────────────────────────────────────
+  test-frontend:
+    name: 🧪 Tests Frontend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Crumbs
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: Crumbs/package-lock.json
+
+      - run: npm ci
+
+      - name: Lint
+        run: npx ng lint
+
+      - name: Tests
+        run: npx ng test --watch=false
+
+  # ─── Job 3: Build + Deploy (solo si tests pasan) ────────────────────
+  build-and-deploy:
+    name: 🚀 Build & Deploy
+    runs-on: ubuntu-latest
+    needs: [test-backend, test-frontend]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: Crumbs/package-lock.json
+
+      # ── Build Frontend ──
+      - name: Install frontend dependencies
+        working-directory: Crumbs
+        run: npm ci
+
+      - name: Build Angular
+        working-directory: Crumbs
+        run: npm run build
+
+      - name: Copy build to nginx
+        run: |
+          rm -rf Back/nginx/dist
+          cp -r Crumbs/dist/Crumbs/browser Back/nginx/dist
+
+      # ── Preparar nginx.conf para AWS ──
+      - name: Configure nginx for AWS
+        run: |
+          cat > Back/nginx/nginx.conf << 'EOF'
+          server {
+              listen 80;
+              server_name _;
+              root /usr/share/nginx/html;
+              index index.html;
+              gzip on;
+              gzip_types text/plain text/css application/json application/javascript text/xml;
+
+              location / {
+                  try_files $uri $uri/ /index.html;
+              }
+              location /api/ {
+                  proxy_pass http://backend:3000/api/;
+                  proxy_http_version 1.1;
+                  proxy_set_header Host $host;
+                  proxy_set_header X-Real-IP $remote_addr;
+                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+              }
+          }
+          EOF
+
+      # ── Login AWS ECR ──
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # ── Build & Push Docker Images ──
+      - name: Build and push backend image
+        working-directory: Back
+        run: |
+          docker build -t ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_BACKEND }}:latest .
+          docker push ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_BACKEND }}:latest
+
+      - name: Build and push nginx image
+        working-directory: Back/nginx
+        run: |
+          docker build -t ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_NGINX }}:latest .
+          docker push ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_NGINX }}:latest
+
+      # ── Deploy to EC2 ──
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+          script: |
+            cd ~/crumbs
+            aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ steps.login-ecr.outputs.registry }}
+            docker-compose pull
+            docker-compose down
+            docker-compose up -d
+            echo "✅ Deploy completado"
+
+  # ─── Job 4: Notificar si falla ──────────────────────────────────────
+  notify-failure:
+    name: ❌ Notificar fallo
+    runs-on: ubuntu-latest
+    needs: [test-backend, test-frontend, build-and-deploy]
+    if: failure()
+    steps:
+      - name: Notificar fallo en el pipeline
+        run: |
+          echo "❌ El pipeline falló. Revisa los logs en GitHub Actions."
+          echo "URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
