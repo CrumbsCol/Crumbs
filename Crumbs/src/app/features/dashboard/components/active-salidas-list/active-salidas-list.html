@@ -1,29 +1,25 @@
-<div class="salidas-card" role="region" aria-label="Mis Salidas Activas">
-  <h2 class="salidas-card__title">Mis Salidas Activas</h2>
+<!-- Template personalizado para la columna 'info' -->
+<ng-template #infoTemplate let-salida>
+  <div class="flex flex-col py-2">
+    <span class="font-medium text-gray-800 text-base">{{ salida?.label }}</span>
+    <span class="text-primary/70 text-sm mt-1">{{ salida?.description }}</span>
+  </div>
+</ng-template>
 
-  @if (isEmpty()) {
-    <p class="salidas-card__empty" role="status">No tienes salidas activas en este momento.</p>
-  } @else {
-    <ul class="salidas-list" role="list">
-      @for (salida of salidas(); track salida.id) {
-        <li
-          class="salidas-list__item"
-          matRipple
-          role="button"
-          tabindex="0"
-          [attr.aria-label]="'Ver salida: ' + salida.label"
-          (click)="salidaClick.emit(salida)"
-          (keydown.enter)="salidaClick.emit(salida)"
-        >
-          <div class="salidas-list__content">
-            <span class="salidas-list__label">{{ salida.label }}</span>
-            <span class="salidas-list__description">{{ salida.description }}</span>
-          </div>
-          @if (salida.fecha) {
-            <span class="salidas-list__date">{{ salida.fecha }}</span>
-          }
-        </li>
-      }
-    </ul>
-  }
-</div>
+<!-- Card de Mis Salidas Activas -->
+<mat-card class="glass !rounded-3xl mb-6 border-0 shadow-none" appearance="outlined">
+  <mat-card-header class="border-b border-white/40 px-6 py-4 !block">
+    <mat-card-title class="font-display text-2xl text-primary drop-shadow-sm tracking-wide m-0 p-2">Mis
+      Salidas</mat-card-title>
+  </mat-card-header>
+  <mat-card-content class="px-0 pt-4 pb-2">
+    @if (isEmpty()) {
+    <div class="p-8 text-center text-primary/70 font-medium" role="status">No tienes salidas activas en este momento.
+    </div>
+    } @else {
+    <app-table [data]="salidas()" [columns]="tableColumns" [showHeaders]="false" [customTemplates]="customTemplates"
+      (rowClick)="salidaClick.emit($event)" class="p-1">
+    </app-table>
+    }
+  </mat-card-content>
+</mat-card>

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { Location } from '@angular/common';
 import { MatDialogRef } from '@angular/material/dialog';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -32,6 +32,9 @@ export class AgregarSalidaComponent {
     // Solo letras y números — el patrón rechaza espacios y caracteres especiales
     codigo: ['', [Validators.required, Validators.pattern(/^[a-zA-Z0-9]+$/)]],
   });
+
+  // Signal para mostrar errores si el código no se encuentra
+  readonly errorBusqueda = signal<string>('');
 
   // Vuelve a la pantalla anterior (dashboard)
   onCancelar(): void {

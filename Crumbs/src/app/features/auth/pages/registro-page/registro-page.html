@@ -1,6 +1,16 @@
 <!-- Página de Registro: layout 1 columna con header arriba y formulario centrado -->
 <div class="registro-layout">
 
+  <!-- Botón Volver Flotante -->
+  <button
+    mat-icon-button
+    routerLink="/login"
+    matTooltip="Volver a Inicio de Sesión"
+    class="btn-volver"
+    aria-label="Volver">
+    <mat-icon>arrow_back</mat-icon>
+  </button>
+
   <!-- Header: Logo + Volver -->
   <app-registro-header />
 

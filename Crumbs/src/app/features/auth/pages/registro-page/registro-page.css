@@ -7,13 +7,28 @@
   display: block;
   width: 100%;
   min-height: 100vh;
-  background-color: var(--mat-sys-surface);
 }
 
 .registro-layout {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  position: relative;
+}
+
+.btn-volver {
+  position: absolute;
+  top: 1.5rem;
+  left: 1.5rem;
+  z-index: 10;
+  background-color: rgba(255, 255, 255, 0.4) !important;
+  backdrop-filter: blur(8px);
+  color: var(--mat-sys-on-surface) !important;
+  transition: background-color 0.2s ease;
+}
+
+.btn-volver:hover {
+  background-color: rgba(255, 255, 255, 0.7) !important;
 }
 
 /* Contenido principal: centra el formulario horizontal y verticalmente */

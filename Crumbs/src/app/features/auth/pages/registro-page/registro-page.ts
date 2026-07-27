@@ -1,4 +1,8 @@
 import { Component, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { AuthService } from '../../../../core/services/auth.service';
 import { RegistroHeader } from '../../components/registro-header/registro-header';
@@ -15,7 +19,14 @@ import { RegistroForm } from '../../components/registro-form/registro-form';
 @Component({
   selector: 'app-registro-page',
   standalone: true,
-  imports: [RegistroHeader, RegistroForm],
+  imports: [
+    RegistroHeader,
+    RegistroForm,
+    MatButtonModule,
+    MatIconModule,
+    MatTooltipModule,
+    RouterLink,
+  ],
   templateUrl: './registro-page.html',
   styleUrl: './registro-page.css',
 })
