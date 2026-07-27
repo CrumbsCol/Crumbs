@@ -1,15 +1,27 @@
-# Convenciones — Crumbs Backend (NestJS + Prisma)
+# Convenciones — Crumbs Backend (NestJS 11 + Prisma v7)
+
+## Stack
+
+- **Runtime:** Node.js 22
+- **Framework:** NestJS 11
+- **ORM:** Prisma v7 con driver adapter (`@prisma/adapter-pg` + `PrismaPg`)
+- **Base de datos:** PostgreSQL 16 (RDS en producción, Docker local en desarrollo)
+- **Auth:** JWT (passport-jwt) + bcrypt 6
+- **Validación:** class-validator + class-transformer
+- **Testing:** Jest
+- **CI/CD:** GitHub Actions → ECR → EC2
 
 ## Estructura de módulos
 
 ```
 src/
 ├── auth/          # Login, registro, JWT, guards
-├── users/         # CRUD de perfil, GET /me
-├── salidas/       # CRUD salidas, integrantes, unirse por código
+├── users/         # CRUD de perfil, GET /me, búsqueda de usuarios
+├── salidas/       # CRUD salidas, integrantes, unirse por código, fantasmas
 ├── gastos/        # Registrar gasto, participantes, motor de división
-├── pagos/         # Registrar pago, confirmar recepción
-└── prisma/        # PrismaService (singleton global)
+├── pagos/         # Registrar pago, confirmar recepción, balances
+├── prisma/        # PrismaService (singleton global con driver adapter)
+└── shared/        # Helpers y filtros compartidos
 ```
 
 ## Cada módulo contiene
@@ -27,11 +39,32 @@ src/
 - Guards: JwtAuthGuard (autenticación), SalidaMiembroGuard (pertenece a la salida)
 - Pipes: ValidationPipe global con whitelist:true y transform:true
 
+## Prisma v7 — Driver Adapter
+
+Prisma v7 requiere driver adapter explícito. El PrismaService usa `@prisma/adapter-pg`:
+
+```typescript
+import { PrismaPg } from '@prisma/adapter-pg';
+
+const adapter = new PrismaPg({
+  connectionString,
+  // En producción (RDS): SSL sin verificación de certificado AWS
+  ...(isProduction && { ssl: { rejectUnauthorized: false } }),
+});
+
+super({ adapter });
+```
+
+- En desarrollo: conexión directa a PostgreSQL local (sin SSL)
+- En producción: conexión a RDS con SSL (rejectUnauthorized: false para cert de AWS)
+- `postinstall: prisma generate` en package.json asegura que el client se regenere
+
 ## Seguridad
 - Passwords: bcrypt con saltRounds=10
-- JWT: secret en .env, expiración configurable
+- JWT: secret en .env (JWT_SECRET), expiración configurable
 - Nunca retornar password en responses (usar select o exclude en Prisma)
 - Validar que el usuario es integrante de la salida antes de cualquier operación
+- SalidaMiembroGuard verifica membresía automáticamente
 
 ## Respuestas HTTP
 - 201 para creación exitosa
@@ -46,8 +79,7 @@ src/
 - Comentarios y documentación: español
 - Nombres de entidades Prisma: español (User, Salida, Gasto, Pago, etc.)
 
-
-## Endpoints implementados (actualizado 2026-07-26)
+## Endpoints implementados (actualizado 2026-07-27)
 
 | Método | Ruta | Descripción |
 |--------|------|-------------|
@@ -73,17 +105,42 @@ src/
 - transform-miembro.helper.ts — SalidaMiembro+User → Miembro plano
 - prisma-exception.filter.ts — P2002→409, P2025→404, P2003→400
 
-## Estado del proyecto (actualizado 2026-07-26)
-- Backend 100% funcional con todos los endpoints del MVP
-- 13 tests unitarios (motor de división + balances)
-- Seguridad: JWT sin fallback, validación membresía, solo deudor registra pagos
-- Creador confirma pagos de fantasmas
-- PrismaExceptionFilter global
-
 ## Docker
 - Dockerfile multi-stage (builder + runtime) en node:22-alpine
-- docker-compose.dev.yml: solo PostgreSQL para desarrollo
-- docker-compose.prod.yml: backend + nginx (host mode para pruebas locales)
-- nginx/nginx.conf: sirve SPA + proxy /api a localhost:3000
-- .env.prod: variables de producción (DATABASE_URL de RDS, JWT_SECRET)
-- En AWS: el compose usará redes Docker normales (backend se comunica con RDS directamente)
+- docker-compose.dev.yml: solo PostgreSQL para desarrollo local
+- docker-compose.prod.yml: backend + nginx (para pruebas locales de producción)
+- nginx/nginx.conf: sirve SPA + proxy /api a backend:3000
+- .env.prod: variables de producción (DATABASE_URL con host RDS, JWT_SECRET)
+
+## CI/CD (GitHub Actions)
+
+Pipeline automático al hacer push a `main`:
+
+1. **test-backend** — `npm ci` → `prisma generate` → `npm test --no-coverage`
+2. **test-frontend** — `npm ci` → `ng lint` → `ng test --watch=false`
+3. **build-and-deploy** (requiere que ambos tests pasen):
+   - Build Angular → copia dist a `Back/nginx/dist`
+   - Genera nginx.conf para AWS (proxy a `backend:3000`)
+   - Build & push imágenes Docker a ECR (`crumbs-backend`, `crumbs-nginx`)
+   - SSH a EC2 → `docker-compose pull` → `down` → `up -d`
+4. **notify-failure** — Log de fallo en consola
+
+**Secrets requeridos:** AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, EC2_HOST, EC2_SSH_PRIVATE_KEY
+
+## Variables de entorno
+
+| Variable | Desarrollo | Producción |
+|----------|-----------|------------|
+| DATABASE_URL | postgresql://user:pass@localhost:5432/crumbs?schema=public | postgresql://user:pass@rds-host:5432/crumbs?schema=public |
+| JWT_SECRET | string local | openssl rand -base64 64 |
+| NODE_ENV | (no definido) | production |
+| PORT | 8000 (docker-compose.dev expone este puerto) | 3000 (interno en Docker network) |
+
+## Estado del proyecto (actualizado 2026-07-27)
+- Backend 100% funcional con 17 endpoints del MVP
+- 13+ tests unitarios (motor de división + balances)
+- Seguridad: JWT, validación membresía, solo deudor registra pagos
+- Creador confirma pagos de fantasmas
+- PrismaExceptionFilter global
+- CI/CD completo con deploy automático a AWS
+- Prisma v7 con driver adapter y SSL para RDS
